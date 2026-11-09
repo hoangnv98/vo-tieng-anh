@@ -1,0 +1,23 @@
+:root {
+  --paper: #F7F5FB;      /* nền trang */
+  --grid: #D9D3EE;       /* dòng kẻ phụ, đường kẻ 1px */
+  --grid2: #B9B2DA;      /* dòng kẻ chính, viền card */
+  --ink: #20182E;        /* chữ chính */
+  --purple: #4B2E83;     /* mực tím: thanh trên, nút chính, tiếng Anh */
+  --red: #D2332B;        /* bút đỏ: quên, lỗi, cảnh báo, lời phê */
+  --mute: #6A6280;       /* chữ phụ (đạt 5.4:1 trên paper) */
+  --white: #FFFFFF;
+  --lilac: #E6DFF7;      /* chữ nav trên nền tím, nền hover nhẹ, selection */
+
+  --radius-card: 10px; --radius-btn: 8px; --radius-chip: 6px;
+  --rule: 1px solid var(--grid);        /* đường kẻ chuẩn */
+  --rule-strong: 1px solid var(--grid2);
+
+  --font-ui: 'Be Vietnam Pro', system-ui, sans-serif;
+  --font-remark: 'Charm', cursive;
+
+  --line: 48px;          /* bước dòng kẻ chính của vở; baseline tiếng Anh */
+  --topbar-h: 68px; --topbar-h-mobile: 56px; --bottombar-h: 64px;
+  --tap: 44px;           /* kích thước chạm tối thiểu */
+  --shadow: none;        /* không đổ bóng ở bất kỳ đâu */
+}

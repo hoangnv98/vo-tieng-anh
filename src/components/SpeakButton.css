@@ -1,0 +1,40 @@
+.speak-btn {
+  padding: 0;
+  width: 44px;
+  min-width: 44px;
+}
+.speak-btn.btn--lg {
+  width: 52px;
+}
+.speak-btn-loader {
+  animation: speak-btn-turn 0.8s linear infinite;
+}
+@keyframes speak-btn-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .speak-btn-loader {
+    animation: none;
+  }
+}
+.tts-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink);
+}
+.tts-note svg {
+  flex: none;
+  color: var(--purple);
+  margin-top: 1px;
+}
+
+.speak-btn.speak-btn--labeled {
+  width: auto;
+  padding: 0 16px;
+  gap: 8px;
+}

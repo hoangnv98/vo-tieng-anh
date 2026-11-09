@@ -1,0 +1,341 @@
+.sh {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.sh-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sh-desc {
+  margin: 0;
+  font-size: 16px;
+  color: var(--mute);
+}
+
+.sh-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px 24px;
+}
+.sh-source .field {
+  min-width: 240px;
+}
+
+/* Segmented (nguồn câu, tốc độ) */
+.seg {
+  display: inline-flex;
+  border: var(--rule-strong);
+  border-radius: var(--radius-btn);
+  background: var(--white);
+  overflow: hidden;
+}
+.seg-btn {
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 16px;
+  border: 0;
+  background: transparent;
+  color: var(--purple);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.seg-btn + .seg-btn {
+  border-left: var(--rule-strong);
+}
+.seg-btn:hover {
+  background: var(--lilac);
+}
+.seg-btn[aria-checked='true'] {
+  background: var(--purple);
+  color: var(--white);
+}
+.seg-btn:focus-visible {
+  outline-offset: -4px;
+  outline-color: currentColor;
+}
+
+.sh-body {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* Danh sách câu (desktop) */
+.sh-list {
+  padding: 0;
+  max-height: calc(100vh - var(--topbar-h) - 48px);
+  overflow-y: auto;
+  position: sticky;
+  top: 24px;
+}
+.sh-list ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sh-list li + li {
+  border-top: var(--rule);
+}
+.sh-list-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 12px 16px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.sh-list li:first-child .sh-list-row {
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
+.sh-list li:last-child .sh-list-row {
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+}
+.sh-list-row:hover {
+  background: var(--paper);
+}
+.sh-list-row[aria-current='true'] {
+  background: var(--lilac);
+}
+.sh-list-row[aria-current='true'] .sh-list-vi {
+  /* mute trên lilac chỉ 4.4:1 — dùng ink cho dòng đang chọn. */
+  color: var(--ink);
+}
+.sh-list-row:focus-visible {
+  outline-offset: -2px;
+}
+.sh-list-en {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--purple);
+  overflow-wrap: anywhere;
+}
+.sh-list-vi {
+  font-size: 14px;
+  color: var(--mute);
+}
+
+.sh-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.sh-pick {
+  display: none;
+}
+
+/* Khu luyện */
+.sh-practice {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.sh-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+.sh-en {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--purple);
+}
+.sh-vi {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.sh-ipa {
+  margin: 0;
+  font-size: 15px;
+  color: var(--mute);
+}
+
+.sh-rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+.sh-rate-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.sh-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sh-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  margin: -8px 0 0;
+  font-size: 15px;
+  color: var(--ink);
+}
+.sh-status:empty {
+  display: none;
+}
+.sh-clock {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+/* Ngoại lệ đỏ hợp lệ (6.9): báo đang ghi âm. */
+.sh-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: sh-blink 1s steps(2, start) infinite;
+}
+@keyframes sh-blink {
+  to {
+    opacity: 0.2;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-dot {
+    animation: none;
+  }
+}
+
+.sh-tap {
+  align-self: flex-start;
+}
+
+.sh-info,
+.sh-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink);
+}
+.sh-info svg {
+  flex: none;
+  color: var(--purple);
+  margin-top: 1px;
+}
+.sh-error {
+  color: var(--red);
+  font-weight: 500;
+}
+.sh-error svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.sh-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: var(--rule);
+}
+.sh-nav .btn--ghost:first-child {
+  margin-left: -12px;
+}
+.sh-nav .btn--ghost:last-child {
+  margin-right: -12px;
+}
+.sh-pos {
+  font-size: 14px;
+  color: var(--mute);
+  font-variant-numeric: tabular-nums;
+}
+
+.sh-privacy {
+  margin: 0;
+  font-size: 14px;
+  color: var(--mute);
+}
+
+@media (max-width: 1023px) {
+  .sh-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sh-list {
+    display: none;
+  }
+  .sh-pick {
+    display: block;
+  }
+}
+
+@media (max-width: 767px) {
+  .sh {
+    gap: 12px;
+  }
+  .sh-source {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sh-source .seg {
+    align-self: flex-start;
+  }
+  .sh-source .field {
+    min-width: 0;
+  }
+  .sh-practice {
+    gap: 16px;
+  }
+  .sh-status {
+    margin-top: -4px;
+  }
+  .sh-nav {
+    padding-top: 8px;
+  }
+  .sh-en {
+    font-size: 28px;
+  }
+  .sh-vi {
+    font-size: 16px;
+  }
+  .sh-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .sh-actions > .btn {
+    gap: 6px;
+    padding: 0 4px;
+    font-size: 16px;
+    white-space: nowrap;
+  }
+  .sh-actions > .btn svg {
+    flex: none;
+  }
+}
+
+/* ≤389px (360/320): cho nhãn nút xuống dòng trong nút thay vì tràn (WCAG 1.4.10 reflow). */
+@media (max-width: 389px) {
+  .sh-actions > .btn { white-space: normal; line-height: 1.2; text-align: center; padding: 0 8px; }
+}
+
+.sh-voice-note {
+  font-size: 14px;
+  color: var(--mute);
+}

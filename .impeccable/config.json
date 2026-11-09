@@ -1,0 +1,62 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "ai-color-palette",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/model-pick.html"
+        ],
+        "createdAt": "2026-11-09T03:15:20.013Z",
+        "reason": "User picked the 'Vở ô ly mực tím' direction card; flat purple ink and the lilac ô ly grid lines are the chosen world, not a decorative gradient"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/challenger-ticket.html"
+        ],
+        "createdAt": "2026-11-09T03:15:20.031Z",
+        "reason": "Unchosen decision-round sketch kept as the spent hand; never shipped"
+      },
+      {
+        "rule": "codex-grid-background",
+        "value": "*",
+        "files": [
+          "src/components/NotebookPage.css"
+        ],
+        "createdAt": "2026-11-09T06:33:19.122Z",
+        "reason": "Direction contract 'Vở ô ly mực tím' chosen by user: the 48px/12px ô ly notebook grid is the signature surface of the world, a functional ruled page, not decoration"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "barlow condensed",
+        "files": [
+          ".impeccable/mocks/decision/assigned.html"
+        ],
+        "createdAt": "2026-11-09T07:24:00.031Z",
+        "reason": "Unchosen decision-round sketch (spent hand), never shipped; font belongs to a rejected world"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "archivo",
+        "files": [
+          ".impeccable/mocks/decision/challenger-ticket.html"
+        ],
+        "createdAt": "2026-11-09T07:24:00.062Z",
+        "reason": "Unchosen decision-round sketch (spent hand), never shipped; font belongs to a rejected world"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "archivo narrow",
+        "files": [
+          ".impeccable/mocks/decision/challenger-ticket.html"
+        ],
+        "createdAt": "2026-11-09T07:24:00.089Z",
+        "reason": "Unchosen decision-round sketch (spent hand), never shipped; font belongs to a rejected world"
+      }
+    ]
+  }
+}

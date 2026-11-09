@@ -1,0 +1,32 @@
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.spinner-ring {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--grid2);
+  border-top-color: var(--purple);
+  border-radius: 50%;
+  animation: spinner-turn 0.8s linear infinite;
+}
+.spinner-label {
+  font-size: 16px;
+  color: var(--mute);
+}
+@keyframes spinner-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner-ring {
+    width: 10px;
+    height: 10px;
+    border: 0;
+    background: var(--purple);
+    animation: none;
+  }
+}

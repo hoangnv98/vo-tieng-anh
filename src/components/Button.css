@@ -1,0 +1,60 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: var(--tap);
+  padding: 0 24px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-btn);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease;
+}
+.btn--md {
+  min-height: 44px;
+  font-size: 16px;
+}
+.btn--lg {
+  min-height: 52px;
+  font-size: 17px;
+}
+.btn--primary {
+  background: var(--purple);
+  color: var(--white);
+}
+.btn--primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--purple) 85%, black);
+}
+.btn--secondary {
+  background: var(--white);
+  border-color: var(--grid2);
+  color: var(--purple);
+}
+.btn--secondary:hover:not(:disabled) {
+  background: var(--lilac);
+}
+.btn--danger {
+  background: var(--white);
+  border-color: var(--red);
+  color: var(--red);
+}
+.btn--danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--red) 8%, white);
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--purple);
+  padding: 0 12px;
+}
+.btn--ghost:hover:not(:disabled) {
+  background: var(--lilac);
+}
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

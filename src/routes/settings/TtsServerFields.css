@@ -1,0 +1,58 @@
+.tts-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-left: 60px;
+}
+.tts-note,
+.tts-status-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.tts-note {
+  margin-top: 8px;
+}
+.tts-note svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--purple);
+}
+.tts-icon-ok {
+  flex: none;
+  margin-top: 1px;
+  color: var(--purple);
+}
+.tts-icon-err {
+  flex: none;
+  margin-top: 1px;
+  color: var(--red);
+}
+.tts-mute {
+  color: var(--mute);
+}
+.tts-line {
+  margin: 0;
+  font-size: 14px;
+}
+.tts-status-line code {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.tts-status .spinner-label {
+  font-size: 14px;
+}
+.tts-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+@media (max-width: 480px) {
+  .tts-fields {
+    padding-left: 0;
+  }
+}

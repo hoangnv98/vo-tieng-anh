@@ -1,0 +1,26 @@
+.route-error {
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+}
+.route-error:focus {
+  outline: none;
+}
+.route-error-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: 480px;
+}
+.route-error-text {
+  display: flex;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--red);
+}
+.route-error-icon {
+  flex: none;
+  margin-top: 2px;
+}

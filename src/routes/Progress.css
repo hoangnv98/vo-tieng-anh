@@ -1,0 +1,56 @@
+.progress { display: grid; gap: 24px; }
+.progress-layout { display: grid; gap: 24px; max-width: 640px; }
+.progress-block { display: grid; gap: 8px; justify-items: start; align-content: start; }
+.progress-h2 { margin: 0; font-size: 16px; font-weight: 600; line-height: 24px; color: var(--ink); }
+.progress-big { margin: 0; font-size: 28px; font-weight: 700; line-height: 1.25; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* Thanh mục tiêu = một dòng kẻ 1px của vở, mực tím 3px tô từ trái theo tỷ lệ. */
+.progress-bar {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  margin: 8px 0;
+  background: linear-gradient(var(--grid), var(--grid)) 0 50% / 100% 1px no-repeat;
+}
+.progress-fill { height: 3px; background: var(--purple); border-radius: 1.5px; }
+.progress-mute { margin: 0; font-size: 15px; color: var(--mute); }
+.progress-goal { margin-top: 8px; }
+
+/* Lịch 8 tuần = ô ly thật: đường kẻ 1px liền nhau (khe 1px để lộ nền kẻ), không ô rời, không bo góc. */
+.cal { display: grid; gap: 4px; width: 100%; max-width: 344px; margin-top: 4px; }
+.cal-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; }
+.cal-headrow { padding: 0 1px; }
+.cal-head { font-size: 14px; line-height: 24px; color: var(--mute); text-align: center; }
+.cal-body { display: grid; gap: 1px; background: var(--grid); border: 1px solid var(--grid); }
+.cal-cell {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--white);
+}
+.cal-tick {
+  width: 28px; height: 28px;
+  transform: rotate(-6deg);
+  fill: none; stroke: var(--purple); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.cal-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--purple); }
+.cal-today { outline: 1px solid var(--purple); outline-offset: -1px; }
+
+.stat-list { margin: 0; width: 100%; }
+.stat-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 10px 0; border-top: var(--rule); font-size: 15px; color: var(--ink); }
+.stat-row:first-child { border-top: 0; }
+.stat-row dt { margin: 0; }
+.stat-row dd { margin: 0; font-size: 17px; font-weight: 600; color: var(--purple); font-variant-numeric: tabular-nums; }
+
+/* Laptop: mục tiêu + thẻ ôn ở cột trái, lịch ở cột phải → dùng hết chiều ngang. */
+@media (min-width: 1024px) {
+  .progress-layout {
+    max-width: none;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'goal cal' 'stats cal';
+    align-items: start;
+  }
+  .progress-goal-block { grid-area: goal; }
+  .progress-cal-block { grid-area: cal; width: 392px; }
+  .progress-stats-block { grid-area: stats; }
+}

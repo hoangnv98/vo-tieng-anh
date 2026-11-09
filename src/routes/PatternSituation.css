@@ -1,0 +1,188 @@
+.pattern-situation {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 960px;
+}
+.pattern-back {
+  align-self: flex-start;
+}
+.pattern-situation-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.pattern-situation-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+.pattern-situation-en {
+  font-size: 16px;
+  color: var(--mute);
+}
+.pattern-intro {
+  margin: 0;
+  font-size: 16px;
+  color: var(--ink);
+}
+.pattern-pron-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.pattern-pron-row > .pattern-intro {
+  flex: 1;
+  min-width: 0;
+}
+.pattern-pron-row > .speak-btn {
+  flex: none;
+}
+.pron-label {
+  color: var(--red);
+  font-weight: 600;
+  text-decoration: underline 1px var(--red);
+  text-underline-offset: 3px;
+}
+.pattern-all-done {
+  margin: 0;
+  font-size: 16px;
+  color: var(--mute);
+}
+
+/* Khối mẫu câu: dòng EN+VI 48 + dòng meta 48 = 96px (desktop); không dòng trống giữa các khối —
+   đường kẻ của giấy đã phân cách. Mobile/tablet: + hàng icon 48 bên dưới dòng chữ. */
+.pattern-blocks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.notebook-page .pattern-block {
+  margin: 0;
+  padding: 0;
+}
+.pattern-block p {
+  margin: 0;
+}
+.pattern-line {
+  display: flex;
+  flex-direction: column;
+}
+.pattern-text {
+  min-width: 0;
+}
+@media (max-width: 767px) {
+  .notebook-page .pattern-text .en {
+    display: block;
+    font-size: 20px;
+    line-height: 24px;
+  }
+  .notebook-page .pattern-text .vi {
+    display: block;
+    margin: 0;
+    font-size: 16px;
+    line-height: 24px;
+  }
+}
+.pattern-hint {
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--mute);
+  padding: 12px 0;
+}
+.pattern-meta {
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--mute);
+  /* dòng meta chiếm đúng một dòng kẻ 48px (1–2 dòng chữ 24px); dài hơn thì .entry snap */
+  min-height: var(--line);
+}
+.pattern-note {
+  color: var(--ink);
+}
+.pattern-actions .btn svg {
+  flex: none;
+}
+/* ba nút chỉ icon 44×44: Loa · Thêm · Shadowing */
+.pattern-actions .btn,
+.pattern-added {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+}
+.pattern-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+}
+.pattern-added:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+.pattern-added {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mute);
+}
+.pattern-slot {
+  position: relative;
+  display: inline-block;
+  width: 64px;
+  /* thấp hơn dòng chữ 24px để không nới line box (giữ baseline trên dòng kẻ) */
+  height: 18px;
+  margin: 0 4px;
+  padding: 0;
+  vertical-align: baseline;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--purple);
+  border-radius: 0;
+  cursor: pointer;
+}
+.pattern-slot::after {
+  content: '';
+  position: absolute;
+  inset: -13px -4px;
+}
+.pattern-slot[aria-expanded='true'] {
+  background: var(--lilac);
+}
+
+@media (min-width: 768px) {
+  .pattern-text {
+    line-height: 48px;
+  }
+  .notebook-page .pattern-text .en {
+    font-size: 26px;
+    line-height: 1;
+  }
+  .notebook-page .pattern-text .vi {
+    font-size: 17px;
+  }
+  .pattern-slot {
+    width: 88px;
+    height: 30px;
+  }
+  .pattern-slot::after {
+    inset: -8px -4px -6px;
+  }
+}
+@media (min-width: 1024px) {
+  .pattern-line {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .pattern-text {
+    flex: 1;
+  }
+  .pattern-actions {
+    flex: none;
+  }
+}

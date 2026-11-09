@@ -1,0 +1,15 @@
+.remark {
+  display: inline-block;
+  font-family: var(--font-remark);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.2;
+  color: var(--red);
+  transform: rotate(-6deg);
+  transform-origin: center;
+}
+@media (max-width: 767px) {
+  .remark {
+    font-size: 24px;
+  }
+}

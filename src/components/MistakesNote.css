@@ -1,0 +1,24 @@
+.mistakes-note {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink);
+}
+.mistakes-note .mistakes-label {
+  color: var(--red);
+  font-weight: 600;
+  text-decoration: underline 1px var(--red);
+  text-underline-offset: 3px;
+}
+.mistakes-note .wavy {
+  font-style: normal;
+  text-decoration: underline wavy var(--red);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+/* Dạng dòng mục: giữ nhịp 48px của lưới (line-height do .notebook-page .entry đặt). */
+.notebook-page .mistakes-note--inline {
+  font-size: 15px;
+}
+.notebook-page .mistakes-note--inline > span {
+  line-height: inherit;
+}

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14295C;--red:#D5262E;--carbon:#5B3F9E;--stock:#FFFFFF;--bg:#E8ECF4;--rule:#B9C2D6;--mute:#5E6880;--ink:#121A2E}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:'Archivo',sans-serif;background:var(--bg);color:var(--ink)}
+header{height:64px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 40px;gap:32px}
+header b{font-family:'Archivo Narrow';font-size:22px;letter-spacing:.08em;text-transform:uppercase}
+header nav{display:flex;gap:4px}
+header a{color:#C9D3EA;font-size:15px;padding:8px 14px;border-radius:5px}
+header a.on{background:#fff;color:var(--navy);font-weight:600}
+header .u{margin-left:auto;font-size:14px;color:#C9D3EA}
+.wrap{padding:32px 40px;display:grid;grid-template-columns:1fr 360px;gap:28px}
+.coupon{background:var(--stock);border:1px solid var(--rule);border-radius:8px;display:grid;grid-template-columns:1fr 220px;position:relative}
+.coupon .main{padding:26px 30px;border-right:2px dashed var(--rule)}
+.head{display:flex;justify-content:space-between;font-family:'Archivo Narrow';text-transform:uppercase;letter-spacing:.1em;font-size:13px;color:var(--mute);border-bottom:1px solid var(--rule);padding-bottom:10px}
+.route{display:flex;align-items:center;gap:20px;margin:22px 0}
+.route .c{font-family:'Archivo Narrow';font-weight:700;font-size:56px;color:var(--navy);line-height:1}
+.route .c small{display:block;font-size:14px;color:var(--mute);font-weight:500;letter-spacing:.06em}
+.route .arc{flex:1;height:2px;background:var(--navy);position:relative}
+.route .arc:after{content:"✈";position:absolute;left:50%;top:-14px;font-size:20px;color:var(--navy)}
+.fields{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule)}
+.fields div{padding:10px 12px;border-right:1px solid var(--rule);font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.fields div:last-child{border:0}
+.fields b{display:block;font-family:'Archivo Narrow';font-size:30px;color:var(--carbon);letter-spacing:0;margin-top:2px}
+.btn{display:inline-flex;align-items:center;height:52px;padding:0 28px;background:var(--red);color:#fff;font-weight:700;font-size:17px;border-radius:6px;margin-top:22px}
+.stub{padding:26px 22px;display:flex;flex-direction:column;gap:10px}
+.stub .n{font-family:'Archivo Narrow';font-size:84px;font-weight:700;color:var(--carbon);line-height:1}
+.stub p{font-size:14px;color:var(--mute)}
+.side h3{font-family:'Archivo Narrow';text-transform:uppercase;letter-spacing:.1em;font-size:14px;color:var(--mute);margin-bottom:12px}
+.stubs div{background:#fff;border:1px solid var(--rule);border-left:6px solid var(--navy);border-radius:6px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;position:relative}
+.stubs div b{font-size:16px}
+.stubs div span{font-size:13px;color:var(--mute);display:block;font-weight:400}
+.stamp{font-family:'Archivo Narrow';font-weight:700;color:var(--red);border:2px solid var(--red);padding:2px 8px;transform:rotate(-8deg);font-size:14px;letter-spacing:.1em}
+.stamp.ok{color:var(--carbon);border-color:var(--carbon)}
+.phr{margin-top:28px;background:#fff;border:1px solid var(--rule);border-radius:8px;padding:22px 30px;font-size:34px;font-weight:600;grid-column:1/2}
+.phr small{display:block;font-size:15px;color:var(--mute);font-weight:400;margin-top:6px}
+</style></head><body>
+<header><b>Chặng Tiếng Anh</b><nav><a class="on">Hôm nay</a><a>Buổi học</a><a>Thẻ ôn</a><a>Mẫu câu</a><a>Shadowing</a><a>Tiến độ</a></nav><div class="u">Minh Anh · 6 chặng liên tiếp</div></header>
+<div class="wrap">
+  <div>
+    <div class="coupon">
+      <div class="main">
+        <div class="head"><span>Chặng hôm nay · Thứ Hai 9/11</span><span>Coupon 06 / 07</span></div>
+        <div class="route"><div class="c">ÔN<small>24 thẻ đến hạn</small></div><div class="arc"></div><div class="c">NÓI<small>5 câu shadowing</small></div></div>
+        <div class="fields"><div>Từ vựng<b>15</b></div><div>Mẫu câu<b>06</b></div><div>Nghe – chép<b>03</b></div><div>Phút<b>~15</b></div></div>
+        <a class="btn">Bắt đầu chặng</a>
+      </div>
+      <div class="stub"><p>CUỐNG VÉ</p><div class="n">24</div><p>thẻ · 9 thẻ từ buổi 12 “Ordering food”</p></div>
+    </div>
+    <div class="phr">Could I get this to go?<small>Cho tôi mang món này đi được không? · /kʊd aɪ ˈɡet ðɪs tə ˈɡoʊ/</small></div>
+  </div>
+  <aside class="side">
+    <h3>Các buổi học</h3>
+    <div class="stubs">
+      <div><b>12 · Ordering food<span>Thứ Bảy 7/11 · 18 mục</span></b><i class="stamp ok">ĐÃ ÔN</i></div>
+      <div><b>11 · Asking directions<span>Thứ Năm 5/11 · 14 mục</span></b><i class="stamp">ĐẾN HẠN</i></div>
+      <div><b>10 · Introducing yourself<span>Thứ Ba 3/11 · 12 mục</span></b><i class="stamp ok">ĐÃ ÔN</i></div>
+      <div><b>09 · Small talk<span>Thứ Bảy 31/10 · 10 mục</span></b><i class="stamp ok">ĐÃ ÔN</i></div>
+    </div>
+  </aside>
+</div>
+</body></html>

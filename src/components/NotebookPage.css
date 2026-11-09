@@ -1,0 +1,173 @@
+/*
+ * Giấy ô ly dùng chung (trang vở 5.5, thẻ ôn 6.7) — import file này ở nơi dùng: dòng kẻ chính mỗi 48px, dòng phụ mỗi 12px,
+ * cột dọc 48px từ lề, lề đỏ 1px. Vị trí dòng kẻ chỉnh bằng --rule-y (mặc định 23px từ mép trong viền).
+ */
+.ruled-paper {
+  --rule-y: 23px;
+  --margin-x: 72px;
+  position: relative;
+  background-color: var(--white);
+  background-image:
+    linear-gradient(var(--grid2) 1px, transparent 1px),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 100% 48px, 100% 12px, 48px 100%;
+  background-position: 0 var(--rule-y), 0 var(--rule-y), var(--margin-x) 0;
+  border: var(--rule-strong);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+.ruled-paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--margin-x);
+  width: 1px;
+  background: var(--red);
+  opacity: 0.6;
+  pointer-events: none;
+}
+@media (max-width: 767px) {
+  .ruled-paper {
+    --margin-x: 40px;
+  }
+}
+
+/*
+ * Lưới (5.5, lớp .ruled-paper ở trên): dòng kẻ chính tại y = 23 + 48k (tính từ mép trong viền), dòng phụ mỗi 12px.
+ * Thân trang bắt đầu ở padding-top + đầu trang (24 + 48·n) + --nb-body-offset; offset được đo
+ * (CDP, Be Vietnam Pro) để baseline câu EN rơi đúng dòng kẻ chính.
+ */
+.notebook-page {
+  --nb-body-offset: 35px;
+  /* không có đầu trang: baseline EN đầu rơi vào dòng kẻ chính thứ 1 (y = 71) */
+  --nb-nohead-offset: 11px;
+  /* lưới + lề đỏ: .ruled-paper */
+  padding: 30px 40px 30px 96px;
+}
+
+.notebook-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.notebook-date {
+  height: 24px;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--mute);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.notebook-title {
+  min-height: var(--line);
+  font-size: 34px;
+  font-weight: 700;
+  line-height: var(--line);
+  color: var(--purple);
+}
+/* nền trắng che lưới phía sau chữ */
+.notebook-mask {
+  background: var(--white);
+  padding: 0 6px;
+  margin-left: -6px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+/* lời phê (top 40px) nằm ngang dòng tiêu đề trên desktop */
+.notebook-page--has-remark .notebook-head {
+  padding-right: 200px;
+}
+
+.notebook-remark {
+  position: absolute;
+  top: 40px;
+  right: 48px;
+  margin: 0;
+}
+
+.notebook-body {
+  margin-top: var(--nb-body-offset);
+}
+/* không có đầu trang: offset riêng (đo) để dòng mục đầu nằm ngay dòng kẻ chính đầu tiên */
+.notebook-page--no-head .notebook-body {
+  margin-top: var(--nb-nohead-offset);
+}
+
+/* Mỗi dòng mục = bội số 48px: line box là strut 48px của .entry, span không nới dòng. */
+.notebook-page .entry {
+  line-height: var(--line);
+}
+.notebook-page .entry > span {
+  line-height: 1;
+}
+.notebook-page .entry .en {
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--purple);
+  margin-right: 12px;
+}
+.notebook-page .entry .vi {
+  display: inline-block;
+  max-width: 100%;
+  margin-left: 0;
+  line-height: var(--line);
+  vertical-align: top;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+@media (max-width: 767px) {
+  .notebook-page {
+    --nb-body-offset: 4px;
+    /* padding-top 24px > dòng kẻ y = 23 → dòng sớm nhất có thể là y = 71 */
+    --nb-nohead-offset: 28px;
+    padding: 24px 16px 24px 56px;
+  }
+  .notebook-title {
+    font-size: 26px;
+  }
+  /* mobile: lời phê (top 16px) nằm ngang dòng ngày → chỉ chừa chỗ ở dòng ngày */
+  .notebook-page--has-remark .notebook-head {
+    padding-right: 0;
+  }
+  .notebook-page--has-remark .notebook-date {
+    padding-right: 140px;
+  }
+  .notebook-remark {
+    top: 16px;
+    right: 16px;
+    font-size: 24px;
+  }
+  /* EN và VI mỗi dòng 24px → một mục = 48px */
+  .notebook-page .entry {
+    line-height: 24px;
+  }
+  .notebook-page .entry > span {
+    display: block;
+    line-height: 24px;
+  }
+  .notebook-page .entry .en {
+    font-size: 20px;
+    margin-right: 0;
+  }
+  .notebook-page .entry .vi {
+    display: block;
+    margin-left: 0;
+    line-height: 24px;
+    font-size: 16px;
+  }
+}
+
+/* 320–389px: dòng ngày + lời phê không đủ chỗ trên một dòng → lời phê chiếm riêng một dòng kẻ
+   48px phía trên đầu trang (giữ nhịp lưới). */
+@media (max-width: 389px) {
+  .notebook-page--has-remark .notebook-head {
+    padding-top: var(--line);
+  }
+  .notebook-page--has-remark .notebook-date {
+    padding-right: 0;
+  }
+}

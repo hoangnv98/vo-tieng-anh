@@ -1,0 +1,128 @@
+.today {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.today-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+.today-hard-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+/* Câu "{n} thẻ đến hạn hôm nay": số lớn là điểm nhấn, phần chữ đọc tiếp trên cùng baseline. */
+.today-due-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 12px;
+  margin: 0;
+  font-weight: 600;
+}
+.today-count {
+  font-size: 72px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--purple);
+  font-variant-numeric: tabular-nums;
+}
+.today-count-text {
+  font-size: 17px;
+  line-height: 24px;
+  color: var(--ink);
+}
+.today-sub {
+  margin: 12px 0 0;
+  font-size: 16px;
+  color: var(--mute);
+}
+.today-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+.today-actions > a {
+  text-decoration: none;
+}
+.today-progress {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--mute);
+}
+.today-hard {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: var(--rule);
+}
+.today-hard-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.today-hard-list li + li {
+  border-top: var(--rule);
+}
+.today-hard-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--tap);
+  color: var(--ink);
+  text-decoration: none;
+}
+.today-hard-row:hover .today-hard-en {
+  color: var(--purple);
+}
+.today-hard-en {
+  font-size: 15px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.today-hard-row .status-mark {
+  flex: none;
+}
+.today-page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+.today-page > .notebook-page {
+  align-self: stretch;
+}
+.today-page > a {
+  text-decoration: none;
+}
+.today-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.today-page-actions > a {
+  text-decoration: none;
+}
+.today-muted {
+  margin: 0;
+  line-height: var(--line);
+  font-size: 16px;
+  color: var(--mute);
+}
+
+@media (min-width: 1024px) {
+  .today-grid {
+    grid-template-columns: 420px minmax(0, 1fr);
+  }
+  .today-count {
+    font-size: 104px;
+  }
+}

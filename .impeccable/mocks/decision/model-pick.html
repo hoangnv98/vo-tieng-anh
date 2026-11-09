@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Charm:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F7F5FB;--grid:#D9D3EE;--grid2:#B9B2DA;--ink:#20182E;--purple:#4B2E83;--red:#D2332B;--mute:#6A6280}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:'Be Vietnam Pro',sans-serif;color:var(--ink);background:var(--paper)}
+header{height:68px;background:var(--purple);color:#fff;display:flex;align-items:center;padding:0 40px;gap:36px}
+header .b{font-weight:700;font-size:20px}
+header nav{display:flex;gap:6px}
+header nav a{color:#E6DFF7;text-decoration:none;font-size:15px;padding:9px 14px;border-radius:6px}
+header nav a.on{background:#fff;color:var(--purple);font-weight:600}
+header .u{margin-left:auto;font-size:14px;opacity:.85}
+.wrap{display:grid;grid-template-columns:420px 1fr;gap:28px;padding:32px 40px;height:832px}
+.card{background:#fff;border:1px solid var(--grid2);border-radius:10px;padding:26px}
+.lbl{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.big{font-size:104px;font-weight:700;color:var(--purple);line-height:1;margin:10px 0 4px}
+.sub{font-size:16px;color:var(--mute)}
+.btn{display:inline-flex;height:52px;align-items:center;padding:0 28px;border-radius:8px;background:var(--purple);color:#fff;font-weight:600;font-size:17px;margin-top:22px}
+.ln{border-top:1px solid var(--grid);margin-top:22px}
+.ln div{padding:11px 0;border-bottom:1px solid var(--grid);font-size:15px;display:flex;justify-content:space-between}
+.ln span{color:var(--red);font-size:14px}
+.page{position:relative;border:1px solid var(--grid2);border-radius:10px;padding:30px 40px 30px 96px;
+ background-color:#fff;
+ background-image:linear-gradient(var(--grid2) 1px,transparent 1px),linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+ background-size:100% 48px,100% 12px,48px 100%;background-position:0 23px,0 23px,72px 0}
+.page:before{content:"";position:absolute;left:72px;top:0;bottom:0;width:2px;background:var(--red);opacity:.6}
+.date{font-size:14px;color:var(--mute);background:#fff;display:inline-block;padding:0 6px}
+h2{font-size:34px;font-weight:700;color:var(--purple);margin:14px 0 18px;background:#fff;display:inline-block;padding:0 6px}
+.entry{font-size:26px;line-height:48px;color:var(--purple);font-weight:500}
+.entry b{color:var(--ink);font-weight:500;font-size:17px;margin-left:12px}
+.mark{position:absolute;right:48px;top:40px;font-family:'Charm';font-size:30px;color:var(--red);transform:rotate(-6deg)}
+.note{margin-top:20px;background:#fff;border-left:3px solid var(--red);padding:12px 16px;font-size:15px;color:var(--ink);width:max-content}
+.note b{color:var(--red)}
+</style></head><body>
+<header><div class="b">Vở Tiếng Anh</div><nav><a class="on">Hôm nay</a><a>Nhật ký buổi học</a><a>Thẻ ôn</a><a>Mẫu câu</a><a>Shadowing</a><a>Tiến độ</a></nav><div class="u">Minh Anh · chuỗi 6 ngày</div></header>
+<div class="wrap">
+  <section class="card">
+    <div class="lbl">Đến hạn ôn hôm nay</div>
+    <div class="big">24</div>
+    <div class="sub">thẻ · khoảng 8 phút · 9 thẻ từ buổi 12</div>
+    <a class="btn">Ôn ngay</a>
+    <div class="ln"><div>Can I have the bill, please?<span>quên 2 lần</span></div><div>I'd like a glass of water.<span>khó</span></div><div>Could I get this to go?<span>mới</span></div></div>
+  </section>
+  <section class="page">
+    <div class="mark">Tốt lắm!</div>
+    <div class="date">Buổi 12 · Thứ Bảy, 7/11</div><br>
+    <h2>Ordering food — Gọi món</h2>
+    <div class="entry">Can I have the menu, please? <b>Cho tôi xem thực đơn</b></div>
+    <div class="entry">I'd like the chicken noodle soup. <b>Tôi muốn món phở gà</b></div>
+    <div class="entry">Could I get this to go? <b>Mang đi được không?</b></div>
+    <div class="entry">How much is it? <b>Bao nhiêu tiền?</b></div>
+    <div class="note"><b>Lỗi hay gặp:</b> quên âm cuối /t/ trong “get”, “it”.</div>
+  </section>
+</div>
+</body></html>

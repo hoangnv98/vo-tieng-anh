@@ -1,0 +1,10 @@
+.status-mark {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--mute);
+  white-space: nowrap;
+}
+.status-mark--forgot {
+  color: var(--red);
+  font-weight: 600;
+}

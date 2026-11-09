@@ -1,0 +1,416 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-09T00:00:00+07:00",
+  "title": "Design System: Vở Tiếng Anh",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#F7F5FB",
+        "tonalRamp": [
+          "oklch(18% 0.02 295)",
+          "oklch(30% 0.03 295)",
+          "oklch(45% 0.03 295)",
+          "oklch(60% 0.03 295)",
+          "oklch(75% 0.025 295)",
+          "oklch(88% 0.015 295)",
+          "oklch(94% 0.01 295)",
+          "oklch(97.5% 0.008 295)"
+        ]
+      },
+      "grid": {
+        "role": "neutral",
+        "displayName": "Grid (minor rule)",
+        "canonical": "#D9D3EE",
+        "tonalRamp": [
+          "oklch(18% 0.03 290)",
+          "oklch(30% 0.05 290)",
+          "oklch(45% 0.06 290)",
+          "oklch(60% 0.06 290)",
+          "oklch(72% 0.05 290)",
+          "oklch(80% 0.045 290)",
+          "oklch(87.5% 0.035 290)",
+          "oklch(95% 0.015 290)"
+        ]
+      },
+      "grid-strong": {
+        "role": "neutral",
+        "displayName": "Grid strong (main rule, borders)",
+        "canonical": "#B9B2DA",
+        "tonalRamp": [
+          "oklch(18% 0.03 290)",
+          "oklch(30% 0.05 290)",
+          "oklch(45% 0.07 290)",
+          "oklch(60% 0.07 290)",
+          "oklch(69% 0.06 290)",
+          "oklch(77.5% 0.055 290)",
+          "oklch(87% 0.035 290)",
+          "oklch(95% 0.015 290)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#20182E",
+        "tonalRamp": [
+          "oklch(15% 0.03 300)",
+          "oklch(22% 0.04 300)",
+          "oklch(32% 0.05 300)",
+          "oklch(45% 0.05 300)",
+          "oklch(60% 0.04 300)",
+          "oklch(75% 0.03 300)",
+          "oklch(88% 0.02 300)",
+          "oklch(95% 0.01 300)"
+        ]
+      },
+      "purple-ink": {
+        "role": "primary",
+        "displayName": "Mực tím / Purple Ink",
+        "canonical": "#4B2E83",
+        "tonalRamp": [
+          "oklch(18% 0.07 295)",
+          "oklch(28% 0.11 295)",
+          "oklch(36% 0.13 295)",
+          "oklch(45% 0.14 295)",
+          "oklch(58% 0.12 295)",
+          "oklch(72% 0.09 295)",
+          "oklch(86% 0.05 295)",
+          "oklch(95% 0.02 295)"
+        ]
+      },
+      "teacher-red": {
+        "role": "secondary",
+        "displayName": "Teacher Red / Bút đỏ",
+        "canonical": "#D2332B",
+        "tonalRamp": [
+          "oklch(18% 0.06 28)",
+          "oklch(30% 0.11 28)",
+          "oklch(42% 0.16 28)",
+          "oklch(55% 0.21 28)",
+          "oklch(65% 0.18 28)",
+          "oklch(76% 0.12 28)",
+          "oklch(88% 0.06 28)",
+          "oklch(95% 0.025 28)"
+        ]
+      },
+      "mute": {
+        "role": "neutral",
+        "displayName": "Mute",
+        "canonical": "#6A6280",
+        "tonalRamp": [
+          "oklch(18% 0.02 295)",
+          "oklch(30% 0.035 295)",
+          "oklch(40% 0.04 295)",
+          "oklch(50% 0.04 295)",
+          "oklch(62% 0.035 295)",
+          "oklch(75% 0.03 295)",
+          "oklch(88% 0.02 295)",
+          "oklch(95% 0.01 295)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "Page white",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(30% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(60% 0 0)",
+          "oklch(75% 0 0)",
+          "oklch(88% 0 0)",
+          "oklch(95% 0 0)",
+          "oklch(100% 0 0)"
+        ]
+      },
+      "lilac": {
+        "role": "primary",
+        "displayName": "Lilac",
+        "canonical": "#E6DFF7",
+        "tonalRamp": [
+          "oklch(18% 0.04 295)",
+          "oklch(30% 0.06 295)",
+          "oklch(45% 0.08 295)",
+          "oklch(60% 0.08 295)",
+          "oklch(75% 0.06 295)",
+          "oklch(85% 0.045 295)",
+          "oklch(91% 0.035 295)",
+          "oklch(96.5% 0.015 295)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display count",
+        "purpose": "The due-card number on Today; 104px at 1024px and up. Tabular numerals."
+      },
+      "headline": {
+        "displayName": "Notebook title",
+        "purpose": "Class topic on a ruled page; purple, on a 48px rule. 26px on mobile."
+      },
+      "title": {
+        "displayName": "Page title",
+        "purpose": "Route titles and summary headings in ink; 24px on mobile."
+      },
+      "english-line": {
+        "displayName": "English line",
+        "purpose": "English phrases on ruled paper, purple, lang=en. 20px/24px line on mobile; 36px/600 on the review card."
+      },
+      "gloss": {
+        "displayName": "Vietnamese gloss",
+        "purpose": "Inline-block meaning after the English; own 24px line at 16px on mobile."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Vietnamese UI copy, notes, dialog text."
+      },
+      "label": {
+        "displayName": "Small / label",
+        "purpose": "Dates, hints, counts, status words. Sentence case, no tracking, often mute."
+      },
+      "remark": {
+        "displayName": "Charm remark",
+        "purpose": "The teacher's handwritten red remark, one per screen at most, rotated -6deg; 24px on mobile."
+      },
+      "display-count": {
+        "displayName": "Display count",
+        "purpose": "Số thẻ đến hạn trên Hôm nay, 104px desktop (display 72px là bản mobile)."
+      },
+      "review-english": {
+        "displayName": "Review English",
+        "purpose": "Câu tiếng Anh trên thẻ ôn, 36px/600 trên dòng kẻ 48px (28px mobile)."
+      },
+      "shadowing-english": {
+        "displayName": "Shadowing English",
+        "purpose": "Câu luyện ở Shadowing, 32px/600 (28px mobile)."
+      },
+      "title-mobile": {
+        "displayName": "Page title (mobile)",
+        "purpose": "H1 24px dưới 768px."
+      },
+      "subtitle": {
+        "displayName": "Subtitle",
+        "purpose": "Tiêu đề dialog, EmptyState, khối tổng kết 20px/600."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Câu dẫn/giá trị nổi bật 18px/500 (ví dụ nhãn câu trong Shadowing)."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "IPA, dòng phụ, chú thích 15px mute, line 24px."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "pen-draw",
+        "value": "300ms cubic-bezier(0.16, 1, 0.3, 1) both; stroke-dashoffset 1 -> 0",
+        "purpose": "The single authored moment: the grade pen mark (red strike for Quên, purple dash for Khó, purple tick for Nhớ/Dễ). Instant under prefers-reduced-motion."
+      },
+      {
+        "name": "bg-state",
+        "value": "background-color 0.15s ease",
+        "purpose": "Button and switch background changes on hover/checked."
+      },
+      {
+        "name": "spinner-turn",
+        "value": "0.8s linear infinite",
+        "purpose": "Loading ring; replaced by a static 10px purple dot under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow",
+        "value": "389px"
+      },
+      {
+        "name": "mobile",
+        "value": "767px"
+      },
+      {
+        "name": "tablet",
+        "value": "1023px"
+      },
+      {
+        "name": "desktop",
+        "value": "1024px"
+      },
+      {
+        "name": "wide",
+        "value": "1280px"
+      }
+    ],
+    "rhythm": {
+      "line": "48px",
+      "lineMinor": "12px",
+      "columnRule": "48px",
+      "marginX": "72px",
+      "marginXMobile": "40px",
+      "ruleOffsetY": "23px",
+      "tap": "44px",
+      "topbar": "68px",
+      "topbarMobile": "56px",
+      "bottombar": "64px"
+    },
+    "focus": {
+      "ring": "2px solid var(--purple), offset 2px",
+      "onPurpleBar": "outline-color white",
+      "caret": "var(--purple)",
+      "selection": "var(--lilac) on var(--ink)"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Purple-ink filled action; md 44px, lg 52px. One per view as the next step (Ôn ngay).",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Ôn ngay</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding: 0 24px; border: 1px solid transparent; border-radius: var(--radius-btn, 8px); font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.2; cursor: pointer; box-shadow: none; transition: background-color 0.15s ease; } .ds-btn-primary { background: var(--purple, #4B2E83); color: var(--white, #fff); } .ds-btn-primary:hover { background: color-mix(in srgb, var(--purple, #4B2E83) 85%, black); } .ds-btn:focus-visible { outline: 2px solid var(--purple, #4B2E83); outline-offset: 2px; } .ds-btn:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "White with a grid-strong stroke and purple text; the default grade button.",
+      "html": "<button class=\"ds-btn ds-btn-secondary\">Khó</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding: 0 24px; border: 1px solid transparent; border-radius: var(--radius-btn, 8px); font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.2; cursor: pointer; transition: background-color 0.15s ease; } .ds-btn-secondary { background: var(--white, #fff); border-color: var(--grid2, #B9B2DA); color: var(--purple, #4B2E83); } .ds-btn-secondary:hover { background: var(--lilac, #E6DFF7); } .ds-btn:focus-visible { outline: 2px solid var(--purple, #4B2E83); outline-offset: 2px; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Red-pen stroke and text on white; Quên and destructive actions only.",
+      "html": "<button class=\"ds-btn ds-btn-danger\">Quên</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding: 0 24px; border: 1px solid transparent; border-radius: var(--radius-btn, 8px); font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.2; cursor: pointer; transition: background-color 0.15s ease; } .ds-btn-danger { background: var(--white, #fff); border-color: var(--red, #D2332B); color: var(--red, #D2332B); } .ds-btn-danger:hover { background: color-mix(in srgb, var(--red, #D2332B) 8%, white); } .ds-btn:focus-visible { outline: 2px solid var(--purple, #4B2E83); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Bare purple text, 12px padding, lilac wash on hover; back links and tertiary actions.",
+      "html": "<button class=\"ds-btn ds-btn-ghost\">Dừng</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding: 0 12px; border: 1px solid transparent; border-radius: var(--radius-btn, 8px); font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.2; cursor: pointer; transition: background-color 0.15s ease; } .ds-btn-ghost { background: transparent; color: var(--purple, #4B2E83); } .ds-btn-ghost:hover { background: var(--lilac, #E6DFF7); } .ds-btn:focus-visible { outline: 2px solid var(--purple, #4B2E83); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field-control",
+      "description": "Label above, 44px white control with a 1px grid-strong border and 6px radius; purple border and caret on focus, red on error.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Chủ đề buổi học</span><input class=\"ds-field-control\" placeholder=\"Gọi đồ uống ở quán cà phê\" /><span class=\"ds-field-desc\">Một dòng ngắn, tiếng Việt.</span></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; font-family: 'Be Vietnam Pro', system-ui, sans-serif; color: var(--ink, #20182E); } .ds-field-label { font-size: 16px; font-weight: 500; } .ds-field-control { width: 100%; min-height: 44px; padding: 10px 12px; background: var(--white, #fff); border: 1px solid var(--grid2, #B9B2DA); border-radius: var(--radius-chip, 6px); font: inherit; font-size: 16px; color: var(--ink, #20182E); caret-color: var(--purple, #4B2E83); } .ds-field-control::placeholder { color: var(--mute, #6A6280); opacity: 1; } .ds-field-control:focus { border-color: var(--purple, #4B2E83); } .ds-field-control:focus-visible { outline: 2px solid var(--purple, #4B2E83); outline-offset: 2px; } .ds-field-desc { font-size: 14px; color: var(--mute, #6A6280); }"
+    },
+    {
+      "name": "Top Bar Navigation",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Purple bar: white brand, lilac links in 6px pills, current tab as a white pill with purple text; white focus rings inside the bar.",
+      "html": "<header class=\"ds-topbar\"><a class=\"ds-brand\" href=\"#\">Vở Tiếng Anh</a><nav><ul class=\"ds-nav\"><li><a class=\"ds-nav-link ds-is-current\" href=\"#\">Hôm nay</a></li><li><a class=\"ds-nav-link\" href=\"#\">Nhật ký buổi học</a></li><li><a class=\"ds-nav-link\" href=\"#\">Thẻ ôn</a></li><li><a class=\"ds-nav-link\" href=\"#\">Tiến độ</a></li></ul></nav><span class=\"ds-chip\">Cục bộ</span></header>",
+      "css": ".ds-topbar { display: flex; align-items: center; gap: 24px; height: 68px; padding: 0 40px; background: var(--purple, #4B2E83); color: var(--white, #fff); font-family: 'Be Vietnam Pro', system-ui, sans-serif; } .ds-brand { font-size: 20px; font-weight: 700; color: var(--white, #fff); text-decoration: none; white-space: nowrap; } .ds-nav { display: flex; gap: 4px; margin: 0; padding: 0; list-style: none; } .ds-nav-link { display: inline-flex; align-items: center; min-height: 44px; padding: 9px 14px; border-radius: var(--radius-chip, 6px); font-size: 15px; color: var(--lilac, #E6DFF7); text-decoration: none; white-space: nowrap; } .ds-nav-link:hover { background: color-mix(in srgb, var(--white, #fff) 12%, transparent); } .ds-nav-link.ds-is-current { background: var(--white, #fff); color: var(--purple, #4B2E83); font-weight: 600; } .ds-topbar :focus-visible { outline: 2px solid var(--white, #fff); outline-offset: 2px; } .ds-chip { margin-left: auto; display: inline-flex; align-items: center; height: 28px; padding: 0 8px; border: 1px solid color-mix(in srgb, var(--lilac, #E6DFF7) 45%, transparent); border-radius: var(--radius-chip, 6px); font-size: 14px; color: color-mix(in srgb, var(--white, #fff) 85%, transparent); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "White page on lilac paper: 1px grid-strong border, 10px radius, 24px padding, no shadow; rows divided by 1px rules.",
+      "html": "<div class=\"ds-card\"><p class=\"ds-card-head\"><span class=\"ds-count\">9</span><span class=\"ds-count-text\">thẻ đến hạn hôm nay</span></p><p class=\"ds-card-sub\">khoảng 3 phút · 4 thẻ từ buổi 3</p><div class=\"ds-card-rule\"></div><p class=\"ds-card-row\"><span>What do you do?</span><span class=\"ds-status ds-status-forgot\">quên 2 lần</span></p><p class=\"ds-card-row\"><span>Is it far from here?</span><span class=\"ds-status\">khó</span></p></div>",
+      "css": ".ds-card { background: var(--white, #fff); border: 1px solid var(--grid2, #B9B2DA); border-radius: var(--radius-card, 10px); padding: 24px; box-shadow: none; font-family: 'Be Vietnam Pro', system-ui, sans-serif; color: var(--ink, #20182E); } .ds-card-head { display: flex; align-items: baseline; gap: 12px; margin: 0; font-weight: 600; } .ds-count { font-size: 72px; line-height: 1; font-weight: 700; color: var(--purple, #4B2E83); font-variant-numeric: tabular-nums; } .ds-count-text { font-size: 17px; line-height: 24px; } .ds-card-sub { margin: 12px 0 0; font-size: 16px; color: var(--mute, #6A6280); } .ds-card-rule { border-top: 1px solid var(--grid, #D9D3EE); margin: 16px 0 8px; } .ds-card-row { display: flex; justify-content: space-between; gap: 12px; min-height: 44px; align-items: center; margin: 0; font-size: 15px; } .ds-card-row + .ds-card-row { border-top: 1px solid var(--grid, #D9D3EE); } .ds-status { font-size: 14px; font-weight: 500; color: var(--mute, #6A6280); white-space: nowrap; } .ds-status-forgot { color: var(--red, #D2332B); font-weight: 600; }"
+    },
+    {
+      "name": "Notebook Page (ruled paper)",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "The signature surface: ô ly grid (48px main / 12px minor / 48px columns), 72px red margin, purple English on the baseline with an inline Vietnamese gloss, and one red Charm remark.",
+      "html": "<article class=\"ds-paper ds-notebook\"><p class=\"ds-remark\">Đều đặn lắm!</p><p class=\"ds-nb-date\"><span class=\"ds-mask\">Buổi 3 · Thứ Bảy, 7/11</span></p><h2 class=\"ds-nb-title\"><span class=\"ds-mask\">Gọi đồ uống ở quán cà phê</span></h2><div class=\"ds-nb-body\"><p class=\"ds-entry\"><span class=\"ds-en\" lang=\"en\">Could I have a latte, please?</span><span class=\"ds-vi\">Cho tôi một ly latte nhé.</span></p><p class=\"ds-entry\"><span class=\"ds-en\" lang=\"en\">I'd like it to go.</span><span class=\"ds-vi\">Tôi muốn mang đi.</span></p><p class=\"ds-entry ds-mistake\"><span class=\"ds-mistake-label\">Lỗi hay gặp:</span> Hay nói <em class=\"ds-wavy\">I am agree</em> thay vì \"I agree\".</p></div></article>",
+      "css": ".ds-paper { --rule-y: 23px; --margin-x: 72px; position: relative; background-color: var(--white, #fff); background-image: linear-gradient(var(--grid2, #B9B2DA) 1px, transparent 1px), linear-gradient(var(--grid, #D9D3EE) 1px, transparent 1px), linear-gradient(90deg, var(--grid, #D9D3EE) 1px, transparent 1px); background-size: 100% 48px, 100% 12px, 48px 100%; background-position: 0 var(--rule-y), 0 var(--rule-y), var(--margin-x) 0; border: 1px solid var(--grid2, #B9B2DA); border-radius: var(--radius-card, 10px); overflow: hidden; } .ds-paper::before { content: ''; position: absolute; top: 0; bottom: 0; left: var(--margin-x); width: 1px; background: var(--red, #D2332B); opacity: 0.6; pointer-events: none; } .ds-notebook { padding: 30px 40px 30px 96px; font-family: 'Be Vietnam Pro', system-ui, sans-serif; color: var(--ink, #20182E); } .ds-nb-date { margin: 0; height: 24px; font-size: 14px; line-height: 24px; color: var(--mute, #6A6280); } .ds-nb-title { margin: 0; min-height: 48px; font-size: 34px; font-weight: 700; line-height: 48px; color: var(--purple, #4B2E83); padding-right: 200px; } .ds-mask { background: var(--white, #fff); padding: 0 6px; margin-left: -6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; } .ds-nb-body { margin-top: 35px; } .ds-entry { margin: 0; line-height: 48px; } .ds-entry > span { line-height: 1; } .ds-en { font-size: 26px; font-weight: 500; color: var(--purple, #4B2E83); margin-right: 12px; } .ds-vi { display: inline-block; max-width: 100%; vertical-align: top; line-height: 48px; font-size: 17px; font-weight: 500; color: var(--ink, #20182E); } .ds-mistake { font-size: 15px; } .ds-mistake-label { color: var(--red, #D2332B); font-weight: 600; text-decoration: underline 1px var(--red, #D2332B); text-underline-offset: 3px; } .ds-wavy { font-style: normal; text-decoration: underline wavy var(--red, #D2332B); text-decoration-thickness: 1px; text-underline-offset: 3px; } .ds-remark { position: absolute; top: 40px; right: 48px; margin: 0; display: inline-block; font-family: 'Charm', cursive; font-weight: 700; font-size: 30px; line-height: 1.2; color: var(--red, #D2332B); transform: rotate(-6deg); transform-origin: center; }"
+    },
+    {
+      "name": "Pen-mark grading",
+      "kind": "custom",
+      "refersTo": "button-secondary",
+      "description": "The only motion: a grade draws a pen stroke over the English (red strike = Quên, purple dash = Khó, purple tick = Nhớ/Dễ) in 300ms ease-out; instant under reduced motion.",
+      "html": "<div class=\"ds-review\"><p class=\"ds-review-en\" lang=\"en\">Is it far from here?<svg class=\"ds-pen ds-pen-strike\" viewBox=\"0 0 100 10\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><line x1=\"0\" y1=\"8\" x2=\"100\" y2=\"2\" pathLength=\"1\"/></svg></p><div class=\"ds-grades\"><button class=\"ds-grade ds-grade-danger\">Quên</button><button class=\"ds-grade\">Khó</button><button class=\"ds-grade ds-grade-primary\">Nhớ</button><button class=\"ds-grade\">Dễ</button></div></div>",
+      "css": ".ds-review { display: flex; flex-direction: column; align-items: center; gap: 24px; font-family: 'Be Vietnam Pro', system-ui, sans-serif; } .ds-review-en { position: relative; margin: 0; font-size: 36px; line-height: 48px; font-weight: 600; color: var(--purple, #4B2E83); } .ds-pen { position: absolute; overflow: visible; pointer-events: none; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 3; } .ds-pen line, .ds-pen path { stroke-dasharray: 1; stroke-dashoffset: 0; animation: ds-pen-draw 300ms cubic-bezier(0.16, 1, 0.3, 1) both; } .ds-pen-strike { inset: 0; width: 100%; height: 100%; stroke: var(--red, #D2332B); } .ds-pen-dash { left: 50%; bottom: -6px; width: 64px; height: 12px; transform: translateX(-50%) rotate(-4deg); stroke: var(--purple, #4B2E83); stroke-width: 2; } .ds-pen-tick { right: -12px; top: -30px; width: 44px; height: 44px; transform: rotate(-6deg); stroke: var(--purple, #4B2E83); } @keyframes ds-pen-draw { from { stroke-dashoffset: 1; } } @media (prefers-reduced-motion: reduce) { .ds-pen line, .ds-pen path { animation: none; } } .ds-grades { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 100%; } .ds-grade { min-height: 56px; padding: 0 8px; border: 1px solid var(--grid2, #B9B2DA); border-radius: var(--radius-btn, 8px); background: var(--white, #fff); color: var(--purple, #4B2E83); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.15s ease; } .ds-grade:hover { background: var(--lilac, #E6DFF7); } .ds-grade-danger { border-color: var(--red, #D2332B); color: var(--red, #D2332B); } .ds-grade-danger:hover { background: color-mix(in srgb, var(--red, #D2332B) 8%, white); } .ds-grade-primary { background: var(--purple, #4B2E83); border-color: transparent; color: var(--white, #fff); } .ds-grade-primary:hover { background: color-mix(in srgb, var(--purple, #4B2E83) 85%, black); } .ds-grade:focus-visible { outline: 2px solid var(--purple, #4B2E83); outline-offset: 2px; }"
+    },
+    {
+      "name": "Segmented control",
+      "kind": "chip",
+      "refersTo": "button-secondary",
+      "description": "Bordered white group with 1px dividers; checked segment fills purple. Used for sentence source and playback speed.",
+      "html": "<div class=\"ds-seg\" role=\"radiogroup\"><button class=\"ds-seg-btn\" role=\"radio\" aria-checked=\"false\">0.5x</button><button class=\"ds-seg-btn\" role=\"radio\" aria-checked=\"true\">0.75x</button><button class=\"ds-seg-btn\" role=\"radio\" aria-checked=\"false\">1x</button></div>",
+      "css": ".ds-seg { display: inline-flex; border: 1px solid var(--grid2, #B9B2DA); border-radius: var(--radius-btn, 8px); background: var(--white, #fff); overflow: hidden; font-family: 'Be Vietnam Pro', system-ui, sans-serif; } .ds-seg-btn { min-height: 44px; min-width: 44px; padding: 0 16px; border: 0; background: transparent; color: var(--purple, #4B2E83); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; } .ds-seg-btn + .ds-seg-btn { border-left: 1px solid var(--grid2, #B9B2DA); } .ds-seg-btn:hover { background: var(--lilac, #E6DFF7); } .ds-seg-btn[aria-checked='true'] { background: var(--purple, #4B2E83); color: var(--white, #fff); } .ds-seg-btn:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }"
+    },
+    {
+      "name": "Toast",
+      "kind": "custom",
+      "refersTo": "toast",
+      "description": "The only dark surface: ink background, white 15px text, 8px radius, red icon for errors, no shadow.",
+      "html": "<div class=\"ds-toast\" role=\"status\"><svg class=\"ds-toast-icon\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg><span>Chưa lưu được. Thử lại nhé.</span></div>",
+      "css": ".ds-toast { display: inline-flex; align-items: center; gap: 10px; max-width: 480px; padding: 12px 16px; background: var(--ink, #20182E); color: var(--white, #fff); border-radius: var(--radius-btn, 8px); font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 15px; line-height: 1.4; box-shadow: none; } .ds-toast-icon { flex: none; color: var(--red, #D2332B); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Vở ô ly mực tím",
+    "overview": "Coming back to English the way you first learned to write. The whole app is a school notebook: a cool lilac-grey paper (#F7F5FB), white pages ruled with a faint ô ly grid, a thin red margin, and two pens. Purple ink (#4B2E83) is the learner's own hand: it paints the top bar, the primary buttons, and every English phrase, which sits on a real 48px baseline. Teacher red (#D2332B) is the correcting pen, used sparingly and kindly: a forgotten card, a validation error, a destructive action, the \"Lỗi hay gặp:\" label, and one handwritten remark in Charm when the learner has earned it.\n\nDensity is calm and large. The UI is Vietnamese; the learning content is English and always typeset bigger than the Vietnamese that explains it. Everything is flat: 1px rules on paper, no shadows anywhere, corners of 10/8/6px. The one authored moment of motion is the pen mark that a grade leaves on a review card. The world rejects the category defaults it was built against: white rounded cards floating on shadows, a green progress ring, a mascot, uppercase eyebrow labels.",
+    "keyCharacteristics": [
+      "Paper, grid, margin: content surfaces are ruled pages, not cards floating in space.",
+      "Two inks only: purple for the learner's own writing and actions, red for the teacher's corrections.",
+      "English on the baseline: 26px purple on a 48px rule, Vietnamese gloss 17px ink beside it.",
+      "Flat and 1px: rules, borders, calendar cells, progress bar; shadows are forbidden.",
+      "One handwritten voice per screen, maximum.",
+      "Motion is a pen stroke, 300ms, once, and nothing else moves."
+    ],
+    "rules": [
+      {
+        "name": "The Two Pens Rule",
+        "body": "Purple is the learner writing; red is the teacher correcting. Red never decorates and never signals \"important\" in general: if a thing is not forgotten, wrong, destructive, a mistake note, the margin, or the remark, it is not red.",
+        "section": "colors"
+      },
+      {
+        "name": "The Purple Is English Rule",
+        "body": "English learning content is set in purple ink; Vietnamese UI and glosses are set in ink. A purple sentence on a white page reads as \"something to say out loud\".",
+        "section": "colors"
+      },
+      {
+        "name": "The One Remark Rule",
+        "body": "At most one Charm handwritten remark per screen, always red, always one of the fixed texts the build ships (`Tốt lắm!`, `Đều đặn lắm!`); it is never rendered when empty and never invented per surface.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Eyebrow Rule",
+        "body": "No uppercase, no tracked-out kicker, no small-caps label anywhere. Secondary text is smaller and muter, never capitalised.",
+        "section": "typography"
+      },
+      {
+        "name": "The Baseline Rule",
+        "body": "On a ruled page each entry is a multiple of 48px (`line-height: var(--line)` on `.entry`, `line-height: 1` on its spans) so the English baseline lands on a main rule; mobile halves the line to 24px, EN and VI stacked, still summing to 48px per entry. Small mute text that would be cut by a rule gets a white \"knockout\" background (`padding: 0 6px; background: var(--white)`).",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Paper Rule",
+        "body": "Surfaces are white, bordered 1px, and never lifted. If something needs to stand apart, give it a rule or a page, not a shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do set every English phrase in purple at 26px (20px mobile, 36px on the review card) with `lang=\"en\"`, and keep its baseline on a 48px rule.",
+      "Do keep the Vietnamese gloss at 17px ink as an inline-block so it drops whole to the next rule; on mobile give it its own 24px line.",
+      "Do separate list rows and sections with 1px `--rule` lines and padding, never with nested cards.",
+      "Do use only the three radii: 10px pages/cards, 8px buttons/toasts, 6px inputs/chips/nav pills.",
+      "Do write state as words in mute (\"khó\") and reserve red for the forgotten word (\"quên\"), errors, destructive actions, mistake labels, the margin and the remark.",
+      "Do give small mute text on ruled paper a white knockout background so rules do not cut through it.",
+      "Do keep all interactive targets at least 44px (`--tap`), buttons 44/52px, with a 2px purple focus ring (white inside the purple bar)."
+    ],
+    "donts": [
+      "Don't use uppercase, letter-spaced or small-caps labels, kickers or eyebrows anywhere.",
+      "Don't add shadows, glows or lifted surfaces; `box-shadow` is always none.",
+      "Don't use red for emphasis, success, badges or decoration; purple is the accent, red is the correction.",
+      "Don't add a second handwritten remark on a screen, invent new remark texts, or use Charm for anything but the remark.",
+      "Don't animate anything beyond the 300ms pen mark, the 150ms button background transition and the spinner; no slide-ins, fades or bouncing.",
+      "Don't introduce green, a progress ring, a mascot, glyph icons or badge dots; the world's status language is ink words and pen marks.",
+      "Don't render the ruled grid as decoration outside a notebook page or review card; the grid is the functional page, with content sitting on its rules."
+    ]
+  }
+}

@@ -1,0 +1,347 @@
+/* ---------- Thanh trên ---------- */
+.shell-top {
+  background: var(--purple);
+  color: var(--white);
+}
+.shell-top :focus-visible {
+  outline-color: var(--white);
+}
+.shell-top-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  max-width: 1200px;
+  height: var(--topbar-h);
+  margin: 0 auto;
+  padding: 0 40px;
+}
+.shell-brand {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.shell-nav {
+  flex: none;
+}
+.shell-nav ul {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.shell-nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 9px 14px;
+  border-radius: var(--radius-chip);
+  font-size: 15px;
+  color: var(--lilac);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.shell-nav-link:hover {
+  background: color-mix(in srgb, var(--white) 12%, transparent);
+}
+.shell-nav-link.is-current {
+  background: var(--white);
+  color: var(--purple);
+  font-weight: 600;
+}
+.shell-label-short {
+  display: none;
+}
+
+.shell-right {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.shell-chips {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+.shell-chips:empty {
+  display: none;
+}
+.shell-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid color-mix(in srgb, var(--lilac) 45%, transparent);
+  border-radius: var(--radius-chip);
+  font-size: 14px;
+  color: color-mix(in srgb, var(--white) 85%, transparent);
+  white-space: nowrap;
+}
+.shell-chip-short {
+  display: none;
+}
+
+.shell-streak {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-size: 14px;
+  color: color-mix(in srgb, var(--white) 85%, transparent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.shell-streak:hover {
+  color: var(--white);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.shell-streak-full {
+  display: inline-flex;
+  min-width: 0;
+}
+.shell-streak-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.shell-streak-days {
+  flex: none;
+  white-space: pre;
+}
+.shell-streak-short {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.shell-icon-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: var(--radius-btn);
+  color: var(--white);
+}
+.shell-icon-btn:hover {
+  background: color-mix(in srgb, var(--white) 12%, transparent);
+}
+
+/* ---------- Nội dung ---------- */
+.shell-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 40px 48px;
+}
+.shell-main:focus {
+  outline: none;
+}
+.shell-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+.shell-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: 480px;
+}
+.shell-error-text {
+  display: flex;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--red);
+}
+.shell-error-icon {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* ---------- Thanh dưới (mobile) ---------- */
+.shell-bottom {
+  display: none;
+}
+
+/* Desktop hẹp: nén khoảng cách để 6 mục đủ trên một dòng ở 1024px. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .shell-top-inner {
+    gap: 12px;
+    padding: 0 20px;
+  }
+  .shell-brand {
+    font-size: 18px;
+  }
+  .shell-nav ul {
+    gap: 0;
+  }
+  .shell-nav-link {
+    padding: 9px 8px;
+  }
+}
+
+/* Tablet: nav rút gọn, xuống dòng thứ hai trong thanh tím. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .shell-top-inner {
+    flex-wrap: wrap;
+    height: auto;
+    row-gap: 0;
+    padding: 0 24px;
+  }
+  .shell-brand {
+    order: 1;
+    min-height: var(--topbar-h);
+  }
+  .shell-right {
+    order: 2;
+  }
+  .shell-nav {
+    order: 3;
+    flex-basis: 100%;
+    padding-bottom: 12px;
+  }
+  .shell-label-full {
+    display: none;
+  }
+  .shell-label-short {
+    display: inline;
+  }
+  .shell-main {
+    padding: 32px 24px 48px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .shell-top-inner {
+    gap: 8px;
+    height: var(--topbar-h-mobile);
+    padding: 0 8px 0 16px;
+  }
+  .shell-brand {
+    font-size: 17px;
+  }
+  .shell-nav {
+    display: none;
+  }
+  .shell-right {
+    gap: 4px;
+  }
+  .shell-chip--compact .shell-chip-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .shell-chip-short {
+    display: inline;
+  }
+  .shell-streak {
+    flex: none;
+  }
+  .shell-streak:hover {
+    text-decoration: none;
+  }
+  .shell-streak-full {
+    display: none;
+  }
+  .shell-streak-short {
+    display: inline-flex;
+    height: 28px;
+    padding: 0 8px;
+    border: 1px solid color-mix(in srgb, var(--lilac) 45%, transparent);
+    border-radius: var(--radius-chip);
+  }
+  .shell-main {
+    padding: 24px 16px calc(var(--bottombar-h) + env(safe-area-inset-bottom) + 24px);
+  }
+  .shell[data-review-active] .shell-main {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+  }
+
+  .shell-bottom {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--white);
+    border-top: var(--rule-strong);
+  }
+  .shell[data-review-active] .shell-bottom {
+    display: none;
+  }
+  .shell-bottom ul {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    height: var(--bottombar-h);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .shell-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    height: 100%;
+    min-width: var(--tap);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--mute);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .shell-tab.is-current {
+    color: var(--purple);
+    font-weight: 600;
+  }
+}
+
+/* Máy rất hẹp (320–389px): chip chỉ còn icon, chuỗi chỉ còn số; tên vẫn đọc được qua văn bản ẩn. */
+@media (max-width: 389px) {
+  .shell-top-inner {
+    gap: 4px;
+    padding-left: 12px;
+  }
+  .shell-brand {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .shell-chip--narrow .shell-chip-text,
+  .shell-streak-word {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}

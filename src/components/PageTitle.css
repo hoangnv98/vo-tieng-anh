@@ -1,0 +1,11 @@
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+}
+@media (max-width: 767px) {
+  .page-title {
+    font-size: 24px;
+  }
+}

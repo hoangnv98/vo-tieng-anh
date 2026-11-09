@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cobalt:#1E4FA0;--cobalt-d:#163B79;--enamel:#F4F1E8;--ochre:#E9B949;--wall:#F3E3B5;--red:#C8352B;--ink:#1A2233;--mute:#5A6378;--rule:#D9CFB3}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:'Be Vietnam Pro',sans-serif;color:var(--ink);background:var(--wall);display:grid;grid-template-columns:248px 1fr}
+.rail{background:var(--cobalt);color:var(--enamel);padding:28px 20px;display:flex;flex-direction:column;gap:6px}
+.brand{font-family:'Barlow Condensed';font-weight:700;font-size:26px;letter-spacing:.04em;text-transform:uppercase;border:2px solid var(--enamel);border-radius:6px;padding:8px 12px;margin-bottom:24px;text-align:center}
+.brand small{display:block;font-size:13px;letter-spacing:.12em;font-weight:500;opacity:.85}
+.nav a{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border-radius:6px;color:var(--enamel);text-decoration:none;font-size:15px;font-weight:500}
+.nav a.on{background:var(--enamel);color:var(--cobalt)}
+.nav a span{font-family:'Barlow Condensed';font-size:16px;font-weight:600}
+.rail .foot{margin-top:auto;font-size:13px;opacity:.8}
+main{padding:32px 40px;display:grid;grid-template-rows:auto auto 1fr;gap:24px}
+.top{display:flex;justify-content:space-between;align-items:flex-end}
+.top h1{font-size:30px;font-weight:700;letter-spacing:-.01em}
+.top p{color:var(--mute);font-size:15px;margin-top:4px}
+.streak{display:flex;gap:6px;align-items:center}
+.streak b{font-size:13px;color:var(--mute);font-weight:500;margin-right:6px}
+.hn{width:34px;height:34px;border-radius:4px;background:var(--cobalt);color:var(--enamel);font-family:'Barlow Condensed';font-weight:600;font-size:17px;display:grid;place-items:center;border:2px solid var(--enamel);box-shadow:0 0 0 1px var(--cobalt)}
+.hn.off{background:transparent;color:var(--mute);box-shadow:0 0 0 1px var(--rule);border-color:transparent}
+.hn.today{background:var(--red);box-shadow:0 0 0 1px var(--red)}
+.plate{display:flex;align-items:stretch;background:var(--cobalt);border:3px solid var(--enamel);outline:1px solid var(--cobalt);border-radius:10px;color:var(--enamel);overflow:hidden;width:max-content}
+.plate .no{font-family:'Barlow Condensed';font-weight:700;font-size:64px;line-height:1;padding:14px 22px;background:var(--red);border-right:3px solid var(--enamel)}
+.plate .nm{padding:12px 26px;display:flex;flex-direction:column;justify-content:center}
+.plate .nm small{font-size:13px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.plate .nm strong{font-family:'Barlow Condensed';font-weight:600;font-size:40px;letter-spacing:.03em;text-transform:uppercase;line-height:1.05}
+.grid{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;min-height:0}
+.panel{background:var(--enamel);border:1px solid var(--rule);border-radius:10px;padding:26px 28px;display:flex;flex-direction:column;gap:16px}
+.lbl{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.due{display:flex;align-items:baseline;gap:14px}
+.due .n{font-family:'Barlow Condensed';font-weight:700;font-size:112px;line-height:.9;color:var(--red)}
+.due .t{font-size:18px;font-weight:600}
+.due .t span{display:block;font-size:15px;color:var(--mute);font-weight:400;margin-top:4px}
+.split{display:flex;border-top:1px solid var(--rule);padding-top:14px;gap:0}
+.split div{flex:1;font-size:14px;color:var(--mute)}
+.split div b{display:block;font-size:22px;color:var(--ink);font-family:'Barlow Condensed';font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:52px;padding:0 28px;border-radius:8px;background:var(--cobalt);color:var(--enamel);font-weight:600;font-size:17px;border:0;width:max-content}
+.btn.ghost{background:transparent;color:var(--cobalt);border:1.5px solid var(--cobalt);height:44px;font-size:15px}
+.phrase{font-size:40px;font-weight:600;letter-spacing:-.015em;line-height:1.15}
+.phrase em{font-style:normal;color:var(--cobalt);border-bottom:3px solid var(--ochre)}
+.vi{font-size:16px;color:var(--mute)}
+.ipa{font-size:15px;color:var(--mute);font-family:ui-monospace,monospace}
+.speed{display:flex;gap:6px}
+.speed span{height:36px;padding:0 14px;border:1px solid var(--rule);border-radius:6px;display:grid;place-items:center;font-size:14px;font-weight:500}
+.speed span.on{background:var(--ink);color:var(--enamel);border-color:var(--ink)}
+.row{display:flex;gap:12px;align-items:center}
+.wave{flex:1;height:44px;border-radius:6px;background:repeating-linear-gradient(90deg,var(--cobalt) 0 3px,transparent 3px 7px);opacity:.28}
+.lst{border-top:1px solid var(--rule)}
+.lst div{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--rule);font-size:15px}
+.lst div span{color:var(--mute);font-size:14px}
+</style></head><body>
+<aside class="rail">
+  <div class="brand">Phố Tiếng Anh<small>Học lại từ đầu</small></div>
+  <nav class="nav">
+    <a class="on" href="#">Hôm nay <span>24</span></a>
+    <a href="#">Nhật ký buổi học <span>12</span></a>
+    <a href="#">Thẻ ôn tập <span>186</span></a>
+    <a href="#">Mẫu câu tình huống</a>
+    <a href="#">Shadowing</a>
+    <a href="#">Tiến độ</a>
+  </nav>
+  <div class="foot">Minh Anh · Đồng bộ lúc 07:42</div>
+</aside>
+<main>
+  <div class="top">
+    <div><h1>Chào buổi sáng, Minh Anh</h1><p>Thứ Hai, 9 tháng 11 · Mục tiêu hôm nay 15 phút</p></div>
+    <div class="streak"><b>Chuỗi 6 ngày</b><div class="hn">3</div><div class="hn">4</div><div class="hn">5</div><div class="hn off">6</div><div class="hn">7</div><div class="hn">8</div><div class="hn today">9</div></div>
+  </div>
+  <div class="plate"><div class="no">12</div><div class="nm"><small>Buổi học gần nhất · Thứ Bảy 7/11</small><strong>Phố Gọi Món · Ordering food</strong></div></div>
+  <div class="grid">
+    <section class="panel">
+      <div class="lbl">Đến hạn ôn hôm nay</div>
+      <div class="due"><div class="n">24</div><div class="t">thẻ cần ôn<span>khoảng 8 phút · 9 thẻ từ buổi 12</span></div></div>
+      <div class="split"><div><b>15</b>Từ vựng</div><div><b>6</b>Mẫu câu</div><div><b>3</b>Nghe – chép</div></div>
+      <div class="row"><a class="btn">Ôn ngay</a><a class="btn ghost">Thêm từ của buổi 12</a></div>
+      <div class="lst">
+        <div>Can I have the bill, please? <span>Quên 2 lần</span></div>
+        <div>I'd like a glass of water. <span>Khó</span></div>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="lbl">Shadowing · câu 3/5</div>
+      <div class="phrase">Could I <em>get</em> this <em>to go</em>?</div>
+      <div class="ipa">/kʊd aɪ ˈɡet ðɪs tə ˈɡoʊ/</div>
+      <div class="vi">Cho tôi mang món này đi được không?</div>
+      <div class="row"><a class="btn">▶ Nghe mẫu</a><div class="speed"><span>0.5x</span><span class="on">0.75x</span><span>1x</span></div></div>
+      <div class="row"><a class="btn ghost">● Ghi âm giọng tôi</a><div class="wave"></div></div>
+    </section>
+  </div>
+</main>
+</body></html>

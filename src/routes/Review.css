@@ -1,0 +1,377 @@
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 360px;
+}
+/* Thẻ đứng trên trang vở: cùng giấy ô ly + lề đỏ (.ruled-paper), chữ bắt đầu sau lề. */
+.card.review-paper {
+  padding: 24px 40px 24px 96px;
+}
+.review-card--center {
+  justify-content: center;
+}
+
+.review-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -8px -8px 0 0;
+  font-size: 14px;
+  color: var(--mute);
+}
+
+.review-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.review-body:focus,
+.review-body:focus-visible {
+  /* Đích focus lập trình (không tương tác): không vẽ vòng để không thành "card trong card". */
+  outline: none;
+}
+
+.review-en-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+.review-en {
+  position: relative;
+  font-size: 36px;
+  /* mỗi dòng EN = một dòng kẻ chính 48px; baseline được canh lên dòng kẻ (xem CardView) */
+  line-height: var(--line);
+  font-weight: 600;
+  color: var(--purple);
+}
+.review-baseline {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: baseline;
+}
+
+/* Dấu bút sau khi chấm — khoảnh khắc chuyển động duy nhất: nét được viết ra, ease-out mũ. */
+.pen-mark {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+.pen-mark line,
+.pen-mark path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: pen-draw 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.pen-mark--strike {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke: var(--red);
+}
+.pen-mark--dash {
+  left: 50%;
+  bottom: -6px;
+  width: 64px;
+  height: 12px;
+  transform: translateX(-50%) rotate(-4deg);
+  /* Khó: gạch ngắn mực tím, nét mảnh hơn tick — đỏ chỉ dành cho Quên (5.3) */
+  stroke: var(--purple);
+  stroke-width: 2;
+}
+/* tick của giáo viên phía trên cuối câu (không đè nút loa bên phải) */
+.pen-mark--tick {
+  right: -12px;
+  top: -30px;
+  width: 44px;
+  height: 44px;
+  transform: rotate(-6deg);
+  stroke: var(--purple);
+}
+@keyframes pen-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+.review-vi-front {
+  font-size: 28px;
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--ink);
+}
+.review-vi-row {
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.review-vi {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.review-ipa,
+.review-mute {
+  font-size: 15px;
+  color: var(--mute);
+}
+.review-note {
+  max-width: 52ch;
+  font-size: 16px;
+  color: var(--ink);
+}
+.review-source {
+  font-size: 14px;
+  color: var(--mute);
+}
+.review-source-link {
+  /* Vùng chạm cao 44px quanh liên kết nằm trong dòng chữ, không đổi bố cục. */
+  display: inline-block;
+  padding: 13px 0;
+  margin: -13px 0;
+  color: var(--purple);
+  text-underline-offset: 3px;
+}
+
+.review-listen-form {
+  width: 100%;
+  max-width: 420px;
+  text-align: left;
+}
+
+.review-result-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.review-result {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.review-result--wrong {
+  color: var(--red);
+}
+
+.review-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.review-flip {
+  width: 320px;
+  max-width: 100%;
+}
+
+.review-grades {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+.review-grade {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  text-align: center;
+}
+.review-grade-btn {
+  min-height: 56px;
+  width: 100%;
+  padding: 0 8px;
+}
+.review-grade-hint {
+  font-size: 14px;
+  color: var(--mute);
+}
+
+.review-keys {
+  display: none;
+  font-size: 14px;
+  color: var(--mute);
+}
+@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+  .review-keys {
+    display: inline-block;
+  }
+}
+
+.review-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 16px;
+  color: var(--ink);
+}
+.review-error svg {
+  flex: none;
+  color: var(--red);
+  margin-top: 2px;
+}
+
+.review-summary {
+  justify-content: center;
+}
+.review-summary-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.review-summary-title:focus {
+  outline: none;
+}
+.review-stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: var(--rule);
+}
+.review-stats li {
+  padding: 12px 0;
+  border-top: var(--rule);
+  font-size: 17px;
+  color: var(--ink);
+}
+.review-stats strong {
+  font-weight: 700;
+  color: var(--purple);
+}
+.review-stats .review-stat--forgot,
+.review-stats .review-stat--forgot strong {
+  color: var(--red);
+}
+.review-summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 767px) {
+  .review-card {
+    gap: 20px;
+  }
+  .card.review-paper {
+    padding: 16px 16px 16px 56px;
+  }
+  .review-en {
+    font-size: 28px;
+  }
+  .review-vi-front {
+    font-size: 24px;
+  }
+  .review-vi {
+    font-size: 18px;
+  }
+  .review-flip {
+    width: 100%;
+  }
+  .review-summary-title {
+    font-size: 24px;
+  }
+  .review-summary-actions > * {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 359px) {
+  .review-grades {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Chữ phụ 14–15px mute trên giấy kẻ: nền giấy "knockout" như dòng ngày của trang vở,
+   để dòng kẻ lilac không cắt qua chữ (giữ tương phản ≥ 4.5:1 với nền trắng). */
+.review-keys,
+.review-meta > p,
+.review-grade-hint,
+.review-ipa,
+.review-mute,
+.review-source {
+  display: inline-block;
+  max-width: 100%;
+  padding: 0 6px;
+  background: var(--white);
+}
+/* gợi ý phím vẫn ẩn ngoài desktop có chuột (quy tắc media phía trên) */
+.review-keys {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+  .review-keys {
+    display: inline-block;
+  }
+}
+.review-meta > p {
+  margin-left: -6px;
+}
+.review-grade-hint {
+  align-self: center;
+}
+
+/* Mobile: nút loa xuống dưới nghĩa VI (không chen giữa cặp EN/VI): hàng EN "trong suốt" với flex
+   của thân thẻ, rồi sắp thứ tự EN · IPA · VI → loa → ghi chú · nguồn. */
+@media (max-width: 767px) {
+  .review-en-row {
+    display: contents;
+  }
+  .review-en-row > .speak-btn,
+  .review-en-row > .review-mute {
+    order: 1;
+  }
+  .review-body > .review-note,
+  .review-body > .review-source {
+    order: 2;
+  }
+  .review-grade-hint {
+    padding: 0 2px;
+    white-space: nowrap;
+  }
+}
+
+.review-speak-pair {
+  display: none;
+}
+@media (max-width: 767px) {
+  .review-body--pair .review-en-row > .speak-btn,
+  .review-body--pair .review-vi-row > .speak-btn {
+    display: none;
+  }
+  .review-body--pair .review-speak-pair {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    order: 1;
+  }
+}
