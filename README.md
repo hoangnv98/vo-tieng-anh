@@ -60,6 +60,7 @@ Lưu ý:
 1. Đẩy repo lên GitHub (không commit `.env`).
 2. Vercel > Add New Project > import repo; Framework: Vite; Build `npm run build`; Output `dist`.
 3. Environment Variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (Production + Preview). Bỏ trống nếu muốn bản deploy chạy chế độ cục bộ.
+   - Nếu thêm Supabase qua **Vercel Marketplace (Optional Integrations)**: tích hợp tự tạo project và nạp biến tên `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_PUBLISHABLE_KEY`…; `vite.config.ts` tự ánh xạ chúng sang `VITE_SUPABASE_*` nên không cần thêm tay. Biến được nạp *sau* lần deploy đầu thì phải **Redeploy** mới có hiệu lực. Tích hợp cũng nạp `SUPABASE_SERVICE_ROLE_KEY` vào Vercel: không sao vì Vite không đưa biến thiếu tiền tố `VITE_` vào bundle, nhưng **tuyệt đối không** tự tạo biến `VITE_*` từ khoá này. Vẫn phải tự chạy `supabase/schema.sql` và cấu hình Redirect URLs (bước 5).
 4. `vercel.json` đã có rewrite SPA về `/index.html`, nên tải lại ở mọi đường dẫn (vd `/lessons/...`) không bị 404.
 5. Deploy, rồi thêm domain Vercel (Site URL và `<domain>/login`) vào Supabase Redirect URLs ở bước 3 phần trên.
 
