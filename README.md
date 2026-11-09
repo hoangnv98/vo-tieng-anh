@@ -44,8 +44,8 @@ Lưu ý:
 1. Tạo project tại supabase.com (region Singapore gần Việt Nam nhất).
 2. SQL Editor: dán toàn bộ `supabase/schema.sql` rồi Run. Kiểm tra: `select tablename, rowsecurity from pg_tables where schemaname='public'` phải trả về `true` cho mọi bảng.
 3. Authentication > Providers > Email: bật (liên kết đăng nhập tự xác nhận email). Authentication > URL Configuration:
-   - Site URL = URL production (vd `https://vo-tieng-anh.vercel.app`).
-   - Additional Redirect URLs: `http://localhost:5173/login`, `https://vo-tieng-anh.vercel.app/login`.
+   - Site URL = URL production (vd `https://tienganh-giaotiep.vercel.app`).
+   - Additional Redirect URLs: `http://localhost:5173/login`, `https://tienganh-giaotiep.vercel.app/login`.
 4. **Giới hạn email**: dịch vụ email mặc định của Supabase giới hạn rất thấp (khoảng **2 email/giờ** cho cả project) và chỉ dành cho thử nghiệm. Dùng cho một mình bạn thì tạm ổn; **trước khi mời người khác dùng**, cấu hình Custom SMTP miễn phí (Authentication > SMTP Settings) bằng Resend (3.000 email/tháng) hoặc Brevo (300 email/ngày). Nếu chưa đổi, người dùng có thể không nhận được liên kết đăng nhập khi đã vượt giới hạn.
 5. Project Settings > API: sao chép `Project URL` và khoá `anon public`, tạo `.env` từ `.env.example`:
    ```
