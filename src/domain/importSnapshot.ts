@@ -1,6 +1,7 @@
 import { addDays } from '../lib/dates'
 import { deserializeCard } from '../lib/fsrs'
 import type { PendingOpPayload, StudyTimeDelta } from '../repo/types'
+import { isLanguage, isStudyLanguage } from './languageCore'
 import { LIMITS } from './lessons'
 import { GOAL, NAME_MAX, NEW_CARDS, isIntInRange } from './settingsLimits'
 import { DIRECTIONS, KINDS, type Card, type Direction, type Item, type Kind, type Lesson, type Settings, type Snapshot } from './types'
@@ -16,7 +17,7 @@ export type ImportFileError = 'not-json' | 'bad-shape' | 'too-large'
 export const IMPORT_ERROR_MESSAGES: Record<ImportFileError, string> = {
   'too-large': 'Tệp quá lớn (tối đa 5 MB).',
   'not-json': 'Tệp không phải JSON hợp lệ.',
-  'bad-shape': 'Tệp không đúng định dạng của Vở Tiếng Anh. Hãy chọn tệp đã xuất từ mục Cài đặt.',
+  'bad-shape': 'Tệp không đúng định dạng của Vở Ngoại Ngữ. Hãy chọn tệp đã xuất từ mục Cài đặt.',
 }
 
 export interface ImportFile {
@@ -161,7 +162,11 @@ function planSettings(raw: unknown, current: Settings, userId: string): Settings
   const newCards = isIntInRange(raw.new_cards_per_day, NEW_CARDS) ? raw.new_cards_per_day : null
   const voiceOk = raw.voice_name === null || (typeof raw.voice_name === 'string' && !hasNul(raw.voice_name) && raw.voice_name.length <= 200)
   const autoSpeak = typeof raw.auto_speak === 'boolean' ? raw.auto_speak : null
-  if (name === null && goal === null && newCards === null && !voiceOk && autoSpeak === null) return null
+  // (T20) Tệp cũ không có `study_language` hoặc giá trị lạ → giữ cài đặt hiện tại.
+  const studyLanguage = isStudyLanguage(raw.study_language) ? raw.study_language : null
+  if (name === null && goal === null && newCards === null && !voiceOk && autoSpeak === null && studyLanguage === null) {
+    return null
+  }
   return {
     user_id: userId,
     display_name: name ?? current.display_name,
@@ -169,6 +174,7 @@ function planSettings(raw: unknown, current: Settings, userId: string): Settings
     new_cards_per_day: newCards ?? current.new_cards_per_day,
     voice_name: voiceOk ? (raw.voice_name as string | null) : current.voice_name,
     auto_speak: autoSpeak ?? current.auto_speak,
+    study_language: studyLanguage ?? current.study_language,
   }
 }
 
@@ -227,6 +233,8 @@ export function planImport(
     const notes = optText(raw.notes, LIMITS.notes)
     const questions = optText(raw.questions, LIMITS.questions)
     const mistakes = optText(raw.mistakes, LIMITS.mistakes)
+    // (T20) Thiếu/null → 'en' (tệp xuất trước T20); mã lạ → bỏ buổi (item của buổi bị bỏ theo).
+    const language = raw.language == null ? 'en' : isLanguage(raw.language) ? raw.language : null
     if (
       !isId(id) ||
       typeof number !== 'number' ||
@@ -238,7 +246,8 @@ export function planImport(
       topic === null ||
       notes === null ||
       questions === null ||
-      mistakes === null
+      mistakes === null ||
+      language === null
     ) {
       skip('lesson-invalid')
       continue
@@ -257,6 +266,7 @@ export function planImport(
       notes,
       questions,
       mistakes,
+      language,
       created_at: isoOr(raw.created_at, nowIso),
       updated_at: isoOr(raw.updated_at, nowIso),
     })

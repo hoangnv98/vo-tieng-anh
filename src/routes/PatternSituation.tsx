@@ -8,14 +8,17 @@ import { NotebookPage } from '../components/NotebookPage'
 import { PageTitle } from '../components/PageTitle'
 import { SpeakButton, TtsUnsupportedNote } from '../components/SpeakButton'
 import { fillPattern, findSituation, splitPattern, blankPattern, type Pattern } from '../data/patterns'
-import type { Item } from '../domain/types'
+import { LANG_TAG, ROMAN_TAG } from '../domain/language'
+import type { Item, Language } from '../domain/types'
 import { usePageTitle } from '../hooks/usePageTitle'
+import { useTts } from '../hooks/useTts'
 import { isTtsSupported } from '../lib/speech'
 import { newId } from '../lib/ids'
 import { MSG_WRITE_ERROR } from '../state/messages'
 import { useData } from '../state/useData'
 import { plainSpeech } from './lessonReadAloud'
 import NotFound from './NotFound'
+import { situationTargetName } from './situationGroups'
 import './PatternSituation.css'
 
 /** Ngoài component để lint purity không báo; gọi trong event handler. */
@@ -38,6 +41,9 @@ function SituationView({ situationId }: { situationId: string }) {
   const focusTarget = useRef<string | null>(null)
   const [busy, setBusy] = useState<Set<string>>(() => new Set())
   const ttsOk = isTtsSupported()
+  const { canSpeakLang } = useTts()
+  /** (T20) Ngôn ngữ của tình huống: câu đích, phiên âm, giọng đọc. */
+  const L: Language = situation.language
 
   const added = useMemo(() => {
     const s = new Set<string>()
@@ -118,8 +124,8 @@ function SituationView({ situationId }: { situationId: string }) {
       <header className="pattern-situation-head">
         <div className="pattern-situation-title">
           <PageTitle id="situation-title">{situation.nameVi}</PageTitle>
-          <span className="pattern-situation-en" lang="en">
-            {situation.nameEn}
+          <span className="pattern-situation-en" lang={LANG_TAG[L]}>
+            {situationTargetName(situation)}
           </span>
         </div>
         <p className="pattern-intro">{situation.intro}</p>
@@ -130,6 +136,7 @@ function SituationView({ situationId }: { situationId: string }) {
           <SpeakButton lang="vi" text={plainSpeech(situation.pronunciationFocus)} label="Nghe lưu ý phát âm" />
         </div>
         {!ttsOk && <TtsUnsupportedNote />}
+        {ttsOk && L !== 'en' && !canSpeakLang(L) && <TtsUnsupportedNote lang={L} />}
         {k > 0 ? (
           <Button variant="secondary" className="pattern-add-all" aria-disabled={busy.size > 0} onClick={() => add(missing)}>
             <Plus size={20} strokeWidth={1.75} aria-hidden="true" />
@@ -148,12 +155,12 @@ function SituationView({ situationId }: { situationId: string }) {
             const openSlots = slots.filter((s) => open.has(`${p.id}:${s.key}`))
             return (
               <li key={p.id} className="pattern-block entry">
-                <span hidden lang="en" id={`pattern-say-${p.id}`}>
+                <span hidden lang={LANG_TAG[L]} id={`pattern-say-${p.id}`}>
                   {fillPattern(p, 0).en}
                 </span>
                 <div className="pattern-line">
                   <p className="pattern-text">
-                    <span className="en" id={`pattern-en-${p.id}`} lang="en">
+                    <span className="en" id={`pattern-en-${p.id}`} lang={LANG_TAG[L]}>
                       {splitPattern(p.en).map((part, i) => {
                         if (part.type === 'text') return <span key={i}>{part.value}</span>
                         const slot = slots.find((s) => s.key === part.key)
@@ -175,7 +182,7 @@ function SituationView({ situationId }: { situationId: string }) {
                     <span className="vi">{blankPattern(p.vi)}</span>
                   </p>
                   <div className="pattern-actions">
-                    <SpeakButton text={fillPattern(p, 0).en} label={`Nghe: ${fillPattern(p, 0).en}`} />
+                    <SpeakButton lang={L} text={fillPattern(p, 0).en} label={`Nghe: ${fillPattern(p, 0).en}`} />
                     {isAdded ? (
                       <span
                         className="pattern-added"
@@ -217,13 +224,13 @@ function SituationView({ situationId }: { situationId: string }) {
                     {s.examples.map((ex, i) => (
                       <span key={i}>
                         {i > 0 && ' · '}
-                        <span lang="en">{ex.en}</span> — {ex.vi}
+                        <span lang={LANG_TAG[L]}>{ex.en}</span> — {ex.vi}
                       </span>
                     ))}
                   </p>
                 ))}
                 <p className="pattern-meta">
-                  <span lang="en">{p.ipa}</span> · {p.level}
+                  <span lang={ROMAN_TAG[L]}>{p.ipa}</span> · {p.level}
                   {p.note && (
                     <>
                       {' · '}

@@ -1,5 +1,6 @@
 import { addDays, weekdayIndexMondayFirst } from '../lib/dates'
-import type { Card, Lesson, StudyDay } from './types'
+import { lessonLanguage } from './languageCore'
+import type { Card, Language, Lesson, StudyDay } from './types'
 
 /** Một ngày được tính vào chuỗi khi học ít nhất 60 giây (4.5). */
 export const STREAK_MIN_SECONDS = 60
@@ -122,10 +123,16 @@ export function calendarWeeks(studyDays: StudyDay[], today: string): CalendarCel
 /** Ngưỡng "Đã thuộc": state 2 và stability ≥ 21 ngày (6.10). */
 export const MASTERED_STABILITY_DAYS = 21
 
-/** Thống kê thẻ (6.10); `new + learning + review = total`. */
+/**
+ * Thống kê thẻ (6.10); `new + learning + review = total`.
+ * (T20) `language` có → chỉ đếm thẻ có `langOf(card) === language` và buổi có `lesson.language === language`.
+ * `langOf` nhận **thẻ** (stats không có danh sách item): caller ghép `itemLanguageResolver(lessons)` với tra item theo
+ * `card.item_id`; thiếu → mọi thẻ coi là 'en'. Chuỗi ngày/phút/lịch không có tham số ngôn ngữ (4.5 bất biến).
+ */
 export function cardStats(
   cards: Card[],
   lessons: Lesson[],
+  options: { language?: Language; langOf?: (card: Card) => Language } = {},
 ): {
   total: number
   new: number
@@ -138,7 +145,12 @@ export function cardStats(
   let learning = 0
   let review = 0
   let mastered = 0
-  for (const c of cards) {
+  const { language } = options
+  const langOf = options.langOf ?? (() => 'en' as const)
+  const counted = language === undefined ? cards : cards.filter((c) => langOf(c) === language)
+  const lessonsCount =
+    language === undefined ? lessons.length : lessons.filter((l) => lessonLanguage(l) === language).length
+  for (const c of counted) {
     if (c.state === 0) fresh += 1
     else if (c.state === 2) {
       review += 1
@@ -147,12 +159,12 @@ export function cardStats(
     } else learning += 1
   }
   return {
-    total: cards.length,
+    total: counted.length,
     new: fresh,
     learning,
     review,
     mastered,
-    lessonsCount: lessons.length,
+    lessonsCount,
   }
 }
 

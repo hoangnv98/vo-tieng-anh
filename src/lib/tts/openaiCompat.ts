@@ -11,6 +11,7 @@ import {
   type ProbeResult,
   type SpeakHandle,
   type SpeakRequest,
+  type ServerLang,
   type TtsLang,
   type TtsProvider,
   type TtsVoice,
@@ -104,13 +105,13 @@ function toTtsError(e: unknown, t: Timed): TtsError {
 
 export class OpenAiCompatibleProvider implements TtsProvider {
   readonly id: 'server-vi' | 'server-en'
-  readonly lang: TtsLang
+  readonly lang: ServerLang
   private readonly getConfig: () => TtsServerConfig
   private readonly cache: AudioCache
   private readonly sink: AudioSink
   private readonly pageProtocol: () => string
 
-  constructor(lang: TtsLang, getConfig: () => TtsServerConfig, deps: OpenAiCompatDeps) {
+  constructor(lang: ServerLang, getConfig: () => TtsServerConfig, deps: OpenAiCompatDeps) {
     this.lang = lang
     this.id = lang === 'vi' ? 'server-vi' : 'server-en'
     this.getConfig = getConfig

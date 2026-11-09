@@ -2,10 +2,11 @@ import { readTtsConfig, subscribeTtsConfig, type TtsConfig } from '../ttsConfig'
 import { AudioCache } from './cache'
 import { OpenAiCompatibleProvider } from './openaiCompat'
 import { TtsRouter, type Health, type SpeakResult } from './router'
-import type { ProbeResult, TtsLang, TtsVoice } from './types'
+import type { ProbeResult, ServerLang, TtsLang, TtsVoice } from './types'
 import { WebSpeechProvider } from './webSpeech'
 
-export { TtsError, type TtsErrorKind, type TtsLang, type TtsVoice, type ProbeResult } from './types'
+export { TtsError, type TtsErrorKind, type ServerLang, type TtsLang, type TtsVoice, type ProbeResult } from './types'
+export { isServerLang } from '../ttsConfig'
 export type { Health, SpeakResult } from './router'
 
 let config: TtsConfig = readTtsConfig()
@@ -21,7 +22,7 @@ const router = new TtsRouter({
 })
 
 /** Đổi baseUrl/voice của một ngôn ngữ → xoá cache audio + health về `unknown`. */
-export function resetServer(lang: TtsLang): void {
+export function resetServer(lang: ServerLang): void {
   cache.clear(lang)
   router.setHealth(lang, 'unknown')
 }
@@ -44,7 +45,7 @@ export interface FacadeSpeakOptions {
 }
 
 /** Gọi trực tiếp trong user gesture: router/provider khởi động đồng bộ. */
-/** Tốc độ thực dùng: `rate` tường minh được ưu tiên; VI không truyền → `config.vi.speed`; EN → 1. */
+/** Tốc độ thực dùng: `rate` tường minh được ưu tiên; VI không truyền → `config.vi.speed`; ngôn ngữ khác → 1. */
 export function effectiveRate(lang: TtsLang, rate: number | undefined, c: TtsConfig): number {
   if (rate !== undefined) return rate
   return lang === 'vi' ? c.vi.speed || 1 : 1
@@ -77,6 +78,7 @@ export function isBusy(): boolean {
   return router.isBusy()
 }
 
+/** Mọi `TtsLang`: `zh/ja/ko` = thiết bị có giọng ngôn ngữ đó (router luôn dùng Web Speech). */
 export function canSpeak(lang: TtsLang): boolean {
   return router.canSpeak(lang)
 }
@@ -86,15 +88,15 @@ export function usingEnServer(): boolean {
   return router.resolve('en')?.id === 'server-en'
 }
 
-export function getHealth(lang: TtsLang): Health {
+export function getHealth(lang: ServerLang): Health {
   return router.getHealth(lang)
 }
 
-export function probe(lang: TtsLang, signal?: AbortSignal): Promise<ProbeResult> {
+export function probe(lang: ServerLang, signal?: AbortSignal): Promise<ProbeResult> {
   return router.probe(lang, signal)
 }
 
-export function listVoices(lang: TtsLang, signal?: AbortSignal): Promise<TtsVoice[]> {
+export function listVoices(lang: ServerLang, signal?: AbortSignal): Promise<TtsVoice[]> {
   return router.listVoices(lang, signal)
 }
 

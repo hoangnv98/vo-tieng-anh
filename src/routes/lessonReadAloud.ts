@@ -1,3 +1,4 @@
+import type { Language } from '../domain/types'
 import type { TtsLang } from '../lib/tts'
 
 export interface ReadAloudStep {
@@ -17,17 +18,18 @@ export function plainSpeech(s: string): string {
 }
 
 /**
- * Chuỗi đọc "cả trang": từng mục theo thứ tự, EN rồi VI. Bỏ chuỗi trống;
- * `includeVi` false → chỉ tiếng Anh.
+ * Chuỗi đọc "cả trang": từng mục theo thứ tự, câu đích rồi VI. Bỏ chuỗi trống;
+ * `includeVi` false → chỉ câu đích. (T20) Bước câu đích đọc bằng `language` của buổi.
  */
 export function buildReadAloudSteps(
   items: ReadonlyArray<{ id: string; en: string; vi: string }>,
   includeVi: boolean,
+  language: Language = 'en',
 ): ReadAloudStep[] {
   const steps: ReadAloudStep[] = []
   for (const it of items) {
     const en = plainSpeech(it.en)
-    if (en) steps.push({ itemId: it.id, lang: 'en', text: en })
+    if (en) steps.push({ itemId: it.id, lang: language, text: en })
     if (includeVi) {
       const vi = plainSpeech(it.vi)
       if (vi) steps.push({ itemId: it.id, lang: 'vi', text: vi })

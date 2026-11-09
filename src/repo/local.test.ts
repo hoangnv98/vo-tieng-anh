@@ -7,7 +7,7 @@ const NOW = new Date('2026-11-09T10:00:00+07:00')
 const TS = '2026-11-09T03:00:00.000Z'
 
 function lesson(id: string, topic = 'Chào hỏi'): Lesson {
-  return { id, user_id: 'local', number: 1, date: '2026-11-09', topic, notes: '', questions: '', mistakes: '', created_at: TS, updated_at: TS }
+  return { id, user_id: 'local', number: 1, date: '2026-11-09', topic, notes: '', questions: '', mistakes: '', language: 'en', created_at: TS, updated_at: TS }
 }
 function item(id: string, lessonId: string | null): Item {
   return { id, user_id: 'local', lesson_id: lessonId, kind: 'phrase', en: 'hello', vi: 'xin chào', ipa: '', note: '', pattern_id: null, position: 0, created_at: TS, updated_at: TS }
@@ -155,7 +155,7 @@ describe('LocalRepository', () => {
   it('settings mặc định khi chưa có, và lưu được', async () => {
     const { repo } = setup()
     const s = await repo.loadSnapshot()
-    expect(s.settings).toEqual({ user_id: 'local', display_name: '', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false })
+    expect(s.settings).toEqual({ user_id: 'local', display_name: '', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false, study_language: 'all' })
     expect(s.lessons).toEqual([])
     await repo.saveSettings({ ...s.settings, daily_goal_min: 30 })
     expect((await repo.exportAll()).settings.daily_goal_min).toBe(30)
@@ -186,5 +186,40 @@ describe('LocalAuth', () => {
     const off = auth.onChange((u) => seen.push(u))
     expect(seen).toEqual([{ id: 'local', email: null }])
     off()
+  })
+})
+
+describe('(T20) LocalRepository — dữ liệu trước T20', () => {
+  it('vta:v1:lessons cũ không có language → đọc ra en; ghi zh rồi đọc giữ zh', async () => {
+    const { repo, storage } = setup()
+    const { language: _omit, ...old } = lesson('L1')
+    void _omit
+    storage.setItem(LOCAL_KEYS.lessons, JSON.stringify([old, { ...lesson('L2'), language: 'fr' }]))
+    let snap = await repo.loadSnapshot()
+    expect(snap.lessons.map((l) => l.language)).toEqual(['en', 'en'])
+
+    await repo.upsertLesson({ ...lesson('L3'), language: 'zh' })
+    snap = await repo.loadSnapshot()
+    expect(snap.lessons.find((l) => l.id === 'L3')?.language).toBe('zh')
+    // Khoá không đổi.
+    expect(JSON.parse(storage.getItem('vta:v1:lessons') ?? '[]')).toHaveLength(3)
+  })
+
+  it('settings cũ không có study_language → all; giá trị lạ → all; lưu ja đọc lại ja', async () => {
+    const { repo, storage } = setup()
+    const old = { user_id: 'local', display_name: 'Lan', daily_goal_min: 20, new_cards_per_day: 10, voice_name: null, auto_speak: true }
+    storage.setItem(LOCAL_KEYS.settings, JSON.stringify(old))
+    expect((await repo.loadSnapshot()).settings).toEqual({ ...old, study_language: 'all' })
+
+    storage.setItem(LOCAL_KEYS.settings, JSON.stringify({ ...old, study_language: 'xx' }))
+    expect((await repo.loadSnapshot()).settings.study_language).toBe('all')
+
+    await repo.saveSettings({ ...old, study_language: 'ja' })
+    expect((await repo.loadSnapshot()).settings.study_language).toBe('ja')
+  })
+
+  it('không có settings → mặc định study_language all', async () => {
+    const { repo } = setup()
+    expect((await repo.loadSnapshot()).settings.study_language).toBe('all')
   })
 })

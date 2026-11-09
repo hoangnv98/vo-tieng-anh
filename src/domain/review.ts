@@ -1,5 +1,5 @@
 import { endOfLocalDay, localDay } from '../lib/dates'
-import type { Card, Direction, Item, Settings } from './types'
+import type { Card, Direction, Item, Language, Settings } from './types'
 
 export { shouldUnlockSiblings } from '../lib/fsrs'
 
@@ -77,24 +77,55 @@ export function newCardsPerDay(settings: Settings): number {
     : NEW_PER_DAY_DEFAULT
 }
 
-/** Hàng đợi phiên ôn theo SPEC 4.4. */
-export function buildQueue(
+/**
+ * (T20) Lọc theo ngôn ngữ (4.4 bước 1b). Cả ba tuỳ chọn đều tuỳ chọn — thiếu thì hành vi như trước T20.
+ * - `language`: chỉ giữ thẻ có `langOf(item) === language`.
+ * - `langOf`: ngôn ngữ của item (thường là `itemLanguageResolver(lessons)`); thiếu → mọi item coi là 'en'.
+ * - `speakable`: thiết bị có giọng ngôn ngữ L không; thiếu → dùng `ttsSupported` cho mọi ngôn ngữ.
+ */
+export interface LanguageFilterOptions {
+  language?: Language
+  langOf?: (item: Item) => Language
+  speakable?: (lang: Language) => boolean
+}
+
+export interface QueueOptions extends LanguageFilterOptions {
+  lessonId?: string
+  ttsSupported: boolean
+}
+
+const EN_ONLY = (): Language => 'en'
+
+/** Bước 1 + 1b: bỏ suspended, thẻ mồ côi, listen không đọc được, thẻ khác ngôn ngữ lọc. */
+function usableCards(
   cards: Card[],
-  items: Item[],
-  settings: Settings,
-  now: Date,
-  options: { lessonId?: string; ttsSupported: boolean },
+  itemById: Map<string, Item>,
+  options: LanguageFilterOptions & { ttsSupported: boolean },
 ): Card[] {
-  const { lessonId, ttsSupported } = options
+  const { language, ttsSupported, speakable } = options
+  const langOf = options.langOf ?? EN_ONLY
+  return cards.filter((c) => {
+    if (c.suspended) return false
+    const item = itemById.get(c.item_id)
+    if (!item) return false
+    const needLang = language !== undefined || (speakable !== undefined && c.direction === 'listen')
+    const lang = needLang ? langOf(item) : 'en'
+    if (language !== undefined && lang !== language) return false
+    if (c.direction === 'listen') return speakable ? speakable(lang) : ttsSupported
+    return true
+  })
+}
+
+/** Hàng đợi phiên ôn theo SPEC 4.4. */
+export function buildQueue(cards: Card[], items: Item[], settings: Settings, now: Date, options: QueueOptions): Card[] {
+  const { lessonId } = options
   const itemById = new Map(items.map((it) => [it.id, it]))
   const newOrder = byNewOrder(itemById)
   const today = localDay(now)
   const endOfToday = endOfLocalDay(today).getTime()
 
-  // Bước 1.
-  let pool = cards.filter(
-    (c) => !c.suspended && itemById.has(c.item_id) && (ttsSupported || c.direction !== 'listen'),
-  )
+  // Bước 1 + 1b (T20: lọc ngôn ngữ, giọng theo ngôn ngữ).
+  let pool = usableCards(cards, itemById, options)
 
   // Bước 2: chế độ "Ôn buổi này" — gồm cả thẻ chưa đến hạn, không giới hạn thẻ mới.
   if (lessonId !== undefined) {
@@ -125,13 +156,23 @@ export function buildQueue(
 }
 
 /**
- * Số thẻ `listen` lẽ ra có trong hàng đợi (đến hạn hoặc trong hạn mức thẻ mới) nếu trình duyệt hỗ trợ TTS;
- * dùng cho dòng "· {k} thẻ nghe tạm ẩn" (6.3).
+ * Số thẻ `listen` lẽ ra có trong hàng đợi (đến hạn hoặc trong hạn mức thẻ mới) nếu có giọng đọc,
+ * trừ đi số thẻ listen thực có; dùng cho dòng "· {k} thẻ nghe tạm ẩn" (6.3). Gộp cả hai lý do ẩn:
+ * không có Web Speech, hoặc (T20) thiếu giọng của ngôn ngữ đó.
+ * `options` thiếu → `ttsSupported: false` (caller cũ chỉ gọi khi trình duyệt không có TTS) = hành vi trước T20.
  */
-export function hiddenListenCount(cards: Card[], items: Item[], settings: Settings, now: Date): number {
-  return buildQueue(cards, items, settings, now, { ttsSupported: true }).filter(
-    (c) => c.direction === 'listen',
-  ).length
+export function hiddenListenCount(
+  cards: Card[],
+  items: Item[],
+  settings: Settings,
+  now: Date,
+  options: Partial<QueueOptions> = {},
+): number {
+  const listen = (q: Card[]) => q.filter((c) => c.direction === 'listen').length
+  const base = { ...options, ttsSupported: options.ttsSupported ?? false }
+  const possible = listen(buildQueue(cards, items, settings, now, { ...base, ttsSupported: true, speakable: () => true }))
+  const actual = listen(buildQueue(cards, items, settings, now, base))
+  return Math.max(0, possible - actual)
 }
 
 /** Ước lượng phút cho n thẻ (20 giây/thẻ, làm tròn lên). */
@@ -212,15 +253,11 @@ export function hardestCards(
   cards: Card[],
   items: Item[],
   n = 3,
-  options: { ttsSupported: boolean } = { ttsSupported: true },
+  options: LanguageFilterOptions & { ttsSupported: boolean } = { ttsSupported: true },
 ): HardCard[] {
   const itemById = new Map(items.map((it) => [it.id, it]))
-  const usable = cards.filter(
-    (c) =>
-      !c.suspended &&
-      itemById.has(c.item_id) &&
-      (options.ttsSupported || c.direction !== 'listen'),
-  )
+  // (T20) Lọc ngôn ngữ/giọng như 4.4 bước 1b, trước khi xếp hạng.
+  const usable = usableCards(cards, itemById, options)
 
   const studied = firstPerItem(usable.filter((c) => c.state !== 0).sort(byHardness))
     .slice(0, n)

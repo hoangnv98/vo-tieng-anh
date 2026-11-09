@@ -268,6 +268,22 @@ revoke all on
   public.settings, public.lessons, public.items, public.cards, public.review_logs, public.study_days
   from anon;
 
+-- -----------------------------------------------------------------------------
+-- 9. (T20) Ngôn ngữ học theo buổi + bộ lọc "Ngôn ngữ đang học"
+--    Idempotent: chạy lại nhiều lần không lỗi. Hàng cũ nhận language = 'en', study_language = 'all'.
+-- -----------------------------------------------------------------------------
+alter table public.lessons  add column if not exists language text not null default 'en';
+alter table public.lessons  drop constraint if exists lessons_language_check;
+alter table public.lessons  add constraint lessons_language_check check (language in ('en', 'zh', 'ja', 'ko'));
+create index if not exists lessons_user_language_idx on public.lessons (user_id, language);
+
+alter table public.settings add column if not exists study_language text not null default 'all';
+alter table public.settings drop constraint if exists settings_study_language_check;
+alter table public.settings add constraint settings_study_language_check check (study_language in ('all', 'en', 'zh', 'ja', 'ko'));
+
+-- PostgREST nạp lại schema cache để client thấy cột mới ngay (hết lỗi PGRST204).
+notify pgrst, 'reload schema';
+
 -- =============================================================================
 -- Hết. Kiểm tra nhanh sau khi chạy:
 --   select tablename, rowsecurity from pg_tables where schemaname = 'public';

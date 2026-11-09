@@ -45,6 +45,7 @@ function lesson(id: string): Lesson {
     notes: '',
     questions: '',
     mistakes: '',
+    language: 'en',
     created_at: '',
     updated_at: '',
   }
@@ -194,5 +195,41 @@ describe('pickRemark', () => {
     expect(pickRemark({ todayDone: true, goalReached: false, streakCurrent: 7 })).toBe('Đều đặn lắm!')
     expect(pickRemark({ todayDone: false, goalReached: true, streakCurrent: 6 })).toBeNull()
     expect(pickRemark({ todayDone: false, goalReached: false, streakCurrent: 0 })).toBeNull()
+  })
+})
+
+describe('(T20) cardStats theo ngôn ngữ', () => {
+  const withItem = (c: Card, item_id: string): Card => ({ ...c, item_id })
+  const cards = [
+    withItem(card(0), 'zh1'),
+    withItem(card(2, 30), 'zh1'),
+    withItem(card(1), 'zh2'),
+    withItem(card(2, 30), 'en1'),
+    withItem(card(3), 'en1'),
+  ]
+  const lessons = [lesson('a'), { ...lesson('b'), language: 'zh' as const }, { ...lesson('c'), language: 'zh' as const }]
+  const langOf = (c: Card) => (c.item_id.startsWith('zh') ? 'zh' : 'en') as 'zh' | 'en'
+
+  it('language zh đếm đúng thẻ và buổi zh', () => {
+    expect(cardStats(cards, lessons, { language: 'zh', langOf })).toEqual({
+      total: 3,
+      new: 1,
+      learning: 1,
+      review: 1,
+      mastered: 1,
+      lessonsCount: 2,
+    })
+    expect(cardStats(cards, lessons, { language: 'en', langOf })).toMatchObject({ total: 2, learning: 1, review: 1, lessonsCount: 1 })
+    expect(cardStats(cards, lessons, { language: 'ja', langOf })).toMatchObject({ total: 0, lessonsCount: 0 })
+  })
+
+  it('không lọc → như trước T20; thiếu langOf → mọi thẻ là en', () => {
+    expect(cardStats(cards, lessons)).toMatchObject({ total: 5, lessonsCount: 3 })
+    expect(cardStats(cards, lessons, { language: 'en' })).toMatchObject({ total: 5, lessonsCount: 1 })
+  })
+
+  it('streak/todaySeconds không nhận tham số ngôn ngữ', () => {
+    expect(streak.length).toBe(2)
+    expect(todaySeconds.length).toBe(2)
   })
 })

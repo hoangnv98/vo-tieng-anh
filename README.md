@@ -1,6 +1,6 @@
-# Vở Tiếng Anh
+# Vở Ngoại Ngữ
 
-Web app cá nhân giúp người lớn mất gốc học lại tiếng Anh giao tiếp: ghi lại từng buổi học thành một trang vở, ôn thẻ theo lịch FSRS, học mẫu câu theo tình huống, luyện shadowing và xem tiến độ.
+Web app cá nhân giúp người lớn mất gốc học lại ngoại ngữ giao tiếp (tiếng Anh, Trung, Nhật, Hàn): ghi lại từng buổi học thành một trang vở, ôn thẻ theo lịch FSRS, học mẫu câu theo tình huống, luyện shadowing và xem tiến độ.
 
 Stack: Vite + React 19 + TypeScript, react-router-dom 6, lucide-react, ts-fsrs v6, Supabase (tuỳ chọn). Toàn bộ dịch vụ dùng gói miễn phí.
 
@@ -66,6 +66,17 @@ Lưu ý:
 
 Netlify thay thế: tạo `public/_redirects` với nội dung `/* /index.html 200`.
 
+## Ngôn ngữ học
+
+- Bốn ngôn ngữ: tiếng Anh, tiếng Trung (giản thể, pinyin), tiếng Nhật (romaji Hepburn), tiếng Hàn (Revised Romanization). Giao diện luôn tiếng Việt.
+- Mỗi buổi học thuộc **một** ngôn ngữ, chọn ở đầu form "Ghi buổi học". Khi buổi đã có thẻ được ôn thì không đổi ngôn ngữ được nữa.
+- Cài đặt → "Ngôn ngữ đang học" lọc thẻ ôn, shadowing, kho mẫu câu và thống kê thẻ theo một ngôn ngữ (mặc định "Tất cả"). Nhật ký buổi học, chuỗi ngày và phút học luôn tính chung.
+- Giọng đọc tiếng Trung/Nhật/Hàn dùng giọng có sẵn trên thiết bị (Web Speech). Thiết bị chưa có giọng thì nút loa ẩn và app báo "Thiết bị chưa có giọng …"; Cài đặt → "Ngôn ngữ" cho biết ngôn ngữ nào đã có giọng. Cài thêm giọng:
+  - **macOS**: Cài đặt hệ thống → Trợ năng → Nội dung được đọc → Giọng hệ thống → Quản lý giọng → chọn giọng Trung (Trung Quốc đại lục), Nhật, Hàn.
+  - **iOS**: Cài đặt → Trợ năng → Nội dung được đọc → Giọng → chọn ngôn ngữ và tải giọng.
+  - **Windows**: Settings → Time & language → Language & region → Add a language → chọn 中文(中华人民共和国) / 日本語 / 한국어, đánh dấu "Text-to-speech" (gói giọng nói) rồi cài; khởi động lại Chrome/Edge.
+  - **Android**: Cài đặt → Hệ thống → Ngôn ngữ và phương thức nhập → Chuyển văn bản sang giọng nói → Công cụ ưu tiên (Google) → Cài đặt dữ liệu giọng nói → tải gói ngôn ngữ.
+
 ## Cài lên màn hình chính
 
 - **iOS Safari**: nút Chia sẻ → Thêm vào MH chính.
@@ -78,7 +89,7 @@ Tạo lại icon: xem lệnh trong `public/icons/PROVENANCE.md` (nguồn `public
 
 ## Cập nhật schema
 
-Sửa `supabase/schema.sql` theo kiểu idempotent (`create table if not exists`, `add column if not exists`, …) rồi dán và chạy lại toàn bộ file trong SQL Editor. Không dùng migration tool ở giai đoạn này. Sau khi chạy, kiểm tra lại RLS bằng câu truy vấn ở bước 2.
+Sửa `supabase/schema.sql` theo kiểu idempotent (`create table if not exists`, `add column if not exists`, …) rồi dán và chạy lại toàn bộ file trong SQL Editor. Không dùng migration tool ở giai đoạn này. Sau khi chạy, kiểm tra lại RLS bằng câu truy vấn ở bước 2. Sau T20 phải chạy lại file để có cột `language`/`study_language`.
 
 ## Giọng đọc tiếng Việt bằng server local (VieNeu-TTS)
 

@@ -43,6 +43,7 @@
   color: var(--purple);
 }
 .lesson-row-date,
+.lesson-row-lang,
 .lesson-row-count {
   font-size: 14px;
   color: var(--mute);

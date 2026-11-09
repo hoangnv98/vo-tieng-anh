@@ -15,6 +15,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { streak } from '../domain/stats'
 import type { StudyDay } from '../domain/types'
+import { APP_NAME } from '../hooks/usePageTitle'
 import { localDay } from '../lib/dates'
 import { useAuth } from '../state/useAuth'
 import { useData } from '../state/useData'
@@ -152,7 +153,7 @@ export function Shell() {
         <header className="shell-top">
           <div className="shell-top-inner">
             <Link to="/" className="shell-brand">
-              Vở Tiếng Anh
+              {APP_NAME}
             </Link>
             <nav className="shell-nav" aria-label="Điều hướng chính">
               <ul>

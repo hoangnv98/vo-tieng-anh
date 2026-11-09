@@ -1,4 +1,6 @@
 /** Giới hạn cài đặt (6.11), khớp check constraint `settings` trong `supabase/schema.sql`. Dùng chung cho form và nhập JSON. */
+export { isStudyLanguage } from './languageCore'
+
 export interface IntRange {
   min: number
   max: number

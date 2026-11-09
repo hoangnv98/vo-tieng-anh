@@ -2,6 +2,13 @@ export type Direction = 'en_vi' | 'vi_en' | 'listen'
 export type Kind = 'word' | 'phrase' | 'pattern'
 export type Grade = 1 | 2 | 3 | 4 // Again, Hard, Good, Easy (trùng ts-fsrs Rating)
 
+/** (T20) Ngôn ngữ học. Giao diện luôn tiếng Việt; `vi` KHÔNG phải ngôn ngữ học. */
+export type Language = 'en' | 'zh' | 'ja' | 'ko'
+export const LANGUAGES = ['en', 'zh', 'ja', 'ko'] as const satisfies readonly Language[]
+/** (T20) Bộ lọc "Ngôn ngữ đang học": một ngôn ngữ hoặc tất cả. */
+export type StudyLanguageFilter = 'all' | Language
+export const STUDY_LANGUAGES = ['all', 'en', 'zh', 'ja', 'ko'] as const satisfies readonly StudyLanguageFilter[]
+
 export interface Lesson {
   id: string
   user_id: string
@@ -11,6 +18,8 @@ export interface Lesson {
   notes: string
   questions: string
   mistakes: string
+  /** (T20) Ngôn ngữ của buổi; dữ liệu cũ thiếu trường → 'en' khi đọc. */
+  language: Language
   created_at: string
   updated_at: string
 }
@@ -20,8 +29,10 @@ export interface Item {
   user_id: string
   lesson_id: string | null
   kind: Kind
+  /** Câu NGÔN NGỮ ĐÍCH (tên trường giữ nguyên vì lý do tương thích, xem SPEC 6.14 (5).2). */
   en: string
   vi: string
+  /** Phiên âm: IPA (en), pinyin có dấu thanh (zh), romaji Hepburn hoặc kana (ja), Revised Romanization (ko). */
   ipa: string
   note: string
   pattern_id: string | null
@@ -71,6 +82,8 @@ export interface Settings {
   new_cards_per_day: number
   voice_name: string | null
   auto_speak: boolean
+  /** (T20) Bộ lọc "Ngôn ngữ đang học", mặc định 'all'. */
+  study_language: StudyLanguageFilter
 }
 
 export interface Snapshot {
@@ -92,6 +105,7 @@ export const GRADE_LABELS = {
   4: 'Dễ',
 } as const satisfies Record<Grade, string>
 
+/** Nhãn chiều cho tiếng Anh (= `directionLabel(d, 'en')` ở `domain/language.ts`); giữ cho code/test cũ. */
 export const DIRECTION_LABELS = {
   en_vi: 'Anh → Việt',
   vi_en: 'Việt → Anh',

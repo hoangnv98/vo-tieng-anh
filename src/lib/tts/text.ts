@@ -29,24 +29,31 @@ function splitByWords(s: string, max: number): string[] {
   return out
 }
 
+/** Ngôn ngữ CJK: câu không có khoảng trắng sau dấu ngắt, mỗi câu là một đoạn riêng. */
+export function isCjk(lang: TtsLang): boolean {
+  return lang === 'zh' || lang === 'ja' || lang === 'ko'
+}
+
 /**
- * Chuẩn hoá văn bản trước khi gửi server: bỏ `*` (cú pháp `*từ*`), VI thay `{slot}` bằng "…",
- * gộp khoảng trắng, chia theo dòng rồi theo `. ! ? ;`, gộp lại thành đoạn ≤ 300 ký tự.
+ * Chuẩn hoá văn bản trước khi đọc: bỏ `*` (cú pháp `*từ*`), mọi ngôn ngữ khác `en` thay `{slot}` bằng "…",
+ * gộp khoảng trắng, chia theo dòng rồi theo `. ! ? ;` (và `。！？` không cần khoảng trắng sau),
+ * gộp lại thành đoạn ≤ 300 ký tự. (T20) Với `zh/ja/ko` không gộp: mỗi câu một đoạn.
  */
 export function prepareText(text: string, lang: TtsLang, max: number = MAX_CHUNK): string[] {
   let s = text.replace(/\*/g, '')
-  if (lang === 'vi') s = s.replace(/\{[^{}]*\}/g, '…')
+  if (lang !== 'en') s = s.replace(/\{[^{}]*\}/g, '…')
   const pieces: string[] = []
   for (const line of s.split(/\r?\n/)) {
     const l = clean(line)
     if (!l) continue
-    for (const sentence of l.split(/(?<=[.!?;])\s+/)) {
+    for (const sentence of l.split(/(?<=[.!?;])\s+|(?<=[。！？])\s*/)) {
       const t = clean(sentence)
       if (!t) continue
       if (t.length <= max) pieces.push(t)
       else pieces.push(...splitByWords(t, max))
     }
   }
+  if (isCjk(lang)) return pieces
   const chunks: string[] = []
   let cur = ''
   for (const p of pieces) {

@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Vở Tiếng Anh",
-  "short_name": "Vở TA",
-  "description": "Vở ôn tiếng Anh giao tiếp đi kèm lớp học thật.",
+  "name": "Vở Ngoại Ngữ",
+  "short_name": "Vở Ngoại Ngữ",
+  "description": "Vở ôn ngoại ngữ giao tiếp đi kèm lớp học thật.",
   "lang": "vi",
   "dir": "ltr",
   "start_url": "/",

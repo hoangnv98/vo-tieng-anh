@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react'
 import { Info, LoaderCircle, Square, Volume2 } from 'lucide-react'
 import { useTts } from '../hooks/useTts'
+import { isTtsSupported } from '../lib/speech'
 import type { TtsLang } from '../lib/tts'
+import { missingVoiceText } from '../domain/languageCore'
+import type { Language } from '../domain/types'
 import { buttonClass } from './buttonClass'
 import './SpeakButton.css'
 
@@ -11,14 +14,17 @@ export interface SpeakButtonProps {
   rate?: number
   size?: 'md' | 'lg'
   label?: string
-  /** `'vi'` chỉ hiện khi có server tiếng Việt (hoặc giọng thiết bị đã bật). Mặc định `'en'`. */
+  /**
+   * `'vi'` chỉ hiện khi có server tiếng Việt (hoặc giọng thiết bị đã bật); `zh|ja|ko` chỉ hiện khi thiết bị có giọng.
+   * Mặc định `'en'`.
+   */
   lang?: TtsLang
   /** Chữ hiển thị cạnh icon (đổi thành "Dừng" khi đang phát). */
   visibleLabel?: string
 }
 
 export function SpeakButton({ text, rate, size = 'md', label, lang = 'en', visibleLabel }: SpeakButtonProps) {
-  const { supported, viAvailable, speaking, loading, speak, cancel } = useTts()
+  const { supported, viAvailable, canSpeakLang, speaking, loading, speak, cancel } = useTts()
   const name = loading ? 'Đang tải giọng đọc. Bấm để dừng.' : speaking ? 'Dừng' : (label ?? 'Nghe phát âm')
 
   function onClick() {
@@ -29,7 +35,8 @@ export function SpeakButton({ text, rate, size = 'md', label, lang = 'en', visib
     speak(text, { rate, lang }).catch(() => {})
   }
 
-  if (lang === 'vi' ? !viAvailable : !supported) return null
+  const available = lang === 'en' ? supported : lang === 'vi' ? viAvailable : canSpeakLang(lang)
+  if (!available) return null
 
   return (
     <button
@@ -50,11 +57,18 @@ export function SpeakButton({ text, rate, size = 'md', label, lang = 'en', visib
   )
 }
 
-export function TtsUnsupportedNote({ children }: { children?: ReactNode }) {
+/**
+ * Dòng Info "không đọc được". `lang` ≠ en và trình duyệt có Web Speech → câu thiếu giọng ngôn ngữ đó;
+ * còn lại → câu cũ (hoặc `children`).
+ */
+export function TtsUnsupportedNote({ children, lang }: { children?: ReactNode; lang?: Language }) {
+  const missingVoice = lang !== undefined && lang !== 'en' && isTtsSupported()
   return (
     <p className="tts-note">
       <Info size={20} strokeWidth={1.75} aria-hidden="true" />
-      <span>{children ?? 'Trình duyệt này không đọc được câu mẫu. Hãy thử Chrome hoặc Edge.'}</span>
+      <span>
+        {missingVoice ? missingVoiceText(lang) : (children ?? 'Trình duyệt này không đọc được câu mẫu. Hãy thử Chrome hoặc Edge.')}
+      </span>
     </p>
   )
 }

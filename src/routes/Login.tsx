@@ -6,7 +6,7 @@ import { buttonClass } from '../components/buttonClass'
 import { Field } from '../components/Field'
 import { PageTitle } from '../components/PageTitle'
 import { Spinner } from '../components/Spinner'
-import { usePageTitle } from '../hooks/usePageTitle'
+import { APP_NAME, usePageTitle } from '../hooks/usePageTitle'
 import { RepoError, SEND_LINK_ERROR_MESSAGE } from '../repo/errors'
 import { consumeLoginNext, safeNext, saveLoginNext } from '../router'
 import { useAuth } from '../state/useAuth'
@@ -246,8 +246,8 @@ export default function Login() {
     <main id="main" tabIndex={-1} className="login">
       <div className="login-panel">
         <header className="login-head">
-          <PageTitle>Vở Tiếng Anh</PageTitle>
-          <p className="login-sub">Học lại tiếng Anh giao tiếp, mỗi ngày một ít.</p>
+          <PageTitle>{APP_NAME}</PageTitle>
+          <p className="login-sub">Học lại ngoại ngữ giao tiếp, mỗi ngày một ít.</p>
         </header>
         {body}
       </div>

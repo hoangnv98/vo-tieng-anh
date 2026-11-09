@@ -11,18 +11,29 @@ import { useHideBottomBar } from '../components/shellContext'
 import { SpeakButton, TtsUnsupportedNote } from '../components/SpeakButton'
 import { Spinner } from '../components/Spinner'
 import { findSituation, situationOfPattern } from '../data/patterns'
-import { sortLessons } from '../domain/lessons'
+import {
+  asStudyLanguage,
+  directionLabel,
+  itemLanguageResolver,
+  LANG_TAG,
+  LANGUAGE_SHORT,
+  languageNameInSentence,
+  latestLessonOf,
+  ROMAN_TAG,
+} from '../domain/language'
+import { hiddenListenText, noDueInLanguageText, sayAloudText } from '../domain/languageUi'
 import { buildQueue, hiddenListenCount } from '../domain/review'
 import { streak } from '../domain/stats'
 import {
-  DIRECTION_LABELS,
   GRADE_LABELS,
   GRADES,
   type Card,
   type Grade,
   type Item,
+  type Language,
   type Lesson,
   type Snapshot,
+  type StudyLanguageFilter,
 } from '../domain/types'
 import { useKeyboard, type KeyBindings } from '../hooks/useKeyboard'
 import { usePageTitle } from '../hooks/usePageTitle'
@@ -92,18 +103,24 @@ function ReviewRun({ snapshot, lessonId, lesson }: { snapshot: Snapshot; lessonI
   const navigate = useNavigate()
 
   // Hàng đợi tính một lần khi vào phiên để thẻ không nhảy khi snapshot đổi.
+  const langOf = useMemo(() => itemLanguageResolver(snapshot.lessons), [snapshot.lessons])
   const [start] = useState(() => {
     const now = new Date()
     const { cards, items, settings } = snapshot
-    const queue = buildQueue(cards, items, settings, now, { lessonId, ttsSupported: tts.supported })
-    const hidden = tts.supported
-      ? 0
-      : lessonId === undefined
-        ? hiddenListenCount(cards, items, settings, now)
-        : buildQueue(cards, items, settings, now, { lessonId, ttsSupported: true }).filter(
-            (c) => c.direction === 'listen',
-          ).length
-    return { ids: queue.map((c) => c.id), hidden }
+    // (T20) Thẻ nghe của ngôn ngữ thiết bị chưa có giọng bị loại; `en` giữ điều kiện cũ (Web Speech).
+    const speakable = (l: Language) => (l === 'en' ? tts.supported : tts.supported && tts.canSpeakLang(l))
+    // (T20) Bộ lọc "Ngôn ngữ đang học" bỏ qua khi ôn một buổi cụ thể (`?lesson=`).
+    const filter: StudyLanguageFilter = lessonId === undefined ? asStudyLanguage(settings.study_language) : 'all'
+    const opts = {
+      lessonId,
+      ttsSupported: tts.supported,
+      language: filter === 'all' ? undefined : filter,
+      langOf,
+      speakable,
+    }
+    const queue = buildQueue(cards, items, settings, now, opts)
+    const hidden = hiddenListenCount(cards, items, settings, now, opts)
+    return { ids: queue.map((c) => c.id), hidden, filter }
   })
   const [rawSession, setSession] = useState<ReviewSession>(() => startSession(start.ids))
   const [scheduler, setScheduler] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -192,7 +209,7 @@ function ReviewRun({ snapshot, lessonId, lesson }: { snapshot: Snapshot; lessonI
   } else if (session.queue.length === 0 || (finished && session.reviewed.length === 0)) {
     content = (
       <section className="card review-card review-card--center">
-        <ReviewEmpty snapshot={snapshot} lessonId={lessonId} />
+        <ReviewEmpty snapshot={snapshot} lessonId={lessonId} filter={start.filter} />
       </section>
     )
   } else if (finished) {
@@ -203,7 +220,7 @@ function ReviewRun({ snapshot, lessonId, lesson }: { snapshot: Snapshot; lessonI
         <div className="review-meta">
           <p aria-live="polite" aria-atomic="true">
             Thẻ {i}/{n}
-            {card && ` · ${DIRECTION_LABELS[card.direction]}`}
+            {card && item && ` · ${directionLabel(card.direction, langOf(item))}`}
           </p>
           <Link to="/" className={buttonClass('ghost')}>
             Dừng
@@ -220,6 +237,7 @@ function ReviewRun({ snapshot, lessonId, lesson }: { snapshot: Snapshot; lessonI
             item={item}
             snapshot={snapshot}
             tts={tts}
+            lang={langOf(item)}
             autoSpeak={snapshot.settings.auto_speak === true}
             saving={saving}
             onGrade={grade}
@@ -234,18 +252,16 @@ function ReviewRun({ snapshot, lessonId, lesson }: { snapshot: Snapshot; lessonI
     <div className="review">
       <PageTitle>{title}</PageTitle>
       {showHiddenNote && (
-        <TtsUnsupportedNote>
-          Đã tạm ẩn {start.hidden} thẻ nghe vì trình duyệt không hỗ trợ đọc. Thử Chrome hoặc Edge.
-        </TtsUnsupportedNote>
+        <TtsUnsupportedNote>{hiddenListenText(start.hidden, tts.supported)}</TtsUnsupportedNote>
       )}
       {content}
     </div>
   )
 }
 
-function Speak({ text, tts }: { text: string; tts: Tts }) {
+function Speak({ text, tts, lang }: { text: string; tts: Tts; lang: Language }) {
   if (!tts.supported) return <p className="review-mute">Trình duyệt này không đọc được.</p>
-  return <SpeakButton text={text} />
+  return <SpeakButton lang={lang} text={text} />
 }
 
 function sourceOf(item: Item, snapshot: Snapshot) {
@@ -272,6 +288,8 @@ interface CardViewProps {
   item: Item
   snapshot: Snapshot
   tts: Tts
+  /** (T20) Ngôn ngữ của thẻ (= của item): `lang`, giọng đọc, so khớp. */
+  lang: Language
   autoSpeak: boolean
   saving: boolean
   onGrade(g: Grade, durationMs: number): void
@@ -279,7 +297,7 @@ interface CardViewProps {
 }
 
 /** Một lần hiện thẻ; remount theo `session.index` nên state (lật, câu gõ, preview) tự reset. */
-function CardView({ card, item, snapshot, tts, autoSpeak, saving, onGrade, onStop }: CardViewProps) {
+function CardView({ card, item, snapshot, tts, lang, autoSpeak, saving, onGrade, onStop }: CardViewProps) {
   const uid = useId()
   const [shownAt] = useState(() => Date.now())
   // Bản thẻ lúc hiện mặt trước: snapshot đổi ngay sau khi chấm, không tính lại preview cho trạng thái mới.
@@ -314,14 +332,15 @@ function CardView({ card, item, snapshot, tts, autoSpeak, saving, onGrade, onSto
     }
   }, [flipped, frontCard])
 
+  const canSay = lang === 'en' ? tts.supported : tts.supported && tts.canSpeakLang(lang)
   function say() {
-    if (tts.supported) tts.speak(item.en).catch(() => {})
+    if (canSay) tts.speak(item.en, { lang }).catch(() => {})
   }
 
   function flip() {
     if (flipped) return
     if (listen) {
-      setAnswer(compareAnswer(typed, item.en))
+      setAnswer(compareAnswer(typed, item.en, lang))
     } else if (autoSpeak) {
       // Gọi đồng bộ trong handler để còn trong user gesture (iOS).
       say()
@@ -390,13 +409,14 @@ function CardView({ card, item, snapshot, tts, autoSpeak, saving, onGrade, onSto
 
   const source = sourceOf(item, snapshot)
   const side = flipped ? 'Mặt sau' : 'Mặt trước'
+  const sayHint = canSay ? ' · S để nghe' : ''
   const keyHint = flipped
-    ? 'Phím 1–4 để chấm · S để nghe'
+    ? `Phím 1–4 để chấm${sayHint}`
     : listen
       ? 'Space để nghe · Tab vào ô gõ, Enter để kiểm tra'
       : card.direction === 'vi_en'
         ? 'Space để lật'
-        : 'Space để lật · S để nghe'
+        : `Space để lật${sayHint}`
 
   return (
     <>
@@ -410,18 +430,18 @@ function CardView({ card, item, snapshot, tts, autoSpeak, saving, onGrade, onSto
       >
         {!flipped && card.direction === 'en_vi' && (
           <div className="review-en-row">
-            <p className="review-en" lang="en">
+            <p className="review-en" lang={LANG_TAG[lang]}>
               <span className="review-baseline" aria-hidden="true" />
               {item.en}
             </p>
-            <Speak text={item.en} tts={tts} />
+            <Speak text={item.en} tts={tts} lang={lang} />
           </div>
         )}
 
         {!flipped && card.direction === 'vi_en' && (
           <>
             <p className="review-vi-front">{item.vi}</p>
-            <p className="review-mute">Nói to câu tiếng Anh rồi lật thẻ</p>
+            <p className="review-mute">{sayAloudText(lang)}</p>
           </>
         )}
 
@@ -435,7 +455,8 @@ function CardView({ card, item, snapshot, tts, autoSpeak, saving, onGrade, onSto
               <Field
                 label="Câu bạn nghe được"
                 placeholder="Gõ lại câu bạn nghe"
-                lang="en"
+                description={lang === 'zh' || lang === 'ja' ? 'Dấu câu và khoảng trắng không tính.' : undefined}
+                lang={LANG_TAG[lang]}
                 autoCapitalize="off"
                 autoCorrect="off"
                 autoComplete="off"
@@ -450,16 +471,16 @@ function CardView({ card, item, snapshot, tts, autoSpeak, saving, onGrade, onSto
         {flipped && (
           <>
             <div className="review-en-row">
-              <p className="review-en" lang="en">
+              <p className="review-en" lang={LANG_TAG[lang]}>
                 <span className="review-baseline" aria-hidden="true" />
                 {item.en}
                 {mark !== null && <PenMark grade={mark} />}
               </p>
-              <Speak text={item.en} tts={tts} />
+              <Speak text={item.en} tts={tts} lang={lang} />
             </div>
-            {listen && answer && <ListenResult answer={answer} typed={typed} expected={item.en} />}
+            {listen && answer && <ListenResult answer={answer} typed={typed} expected={item.en} lang={lang} />}
             {item.ipa && (
-              <p className="review-ipa" lang="en">
+              <p className="review-ipa" lang={ROMAN_TAG[lang]}>
                 {item.ipa}
               </p>
             )}
@@ -471,7 +492,12 @@ function CardView({ card, item, snapshot, tts, autoSpeak, saving, onGrade, onSto
                 </div>
                 {tts.viAvailable && (
                   <div className="review-speak-pair">
-                    <SpeakButton text={item.en} visibleLabel="Anh" label="Nghe câu tiếng Anh" />
+                    <SpeakButton
+                      lang={lang}
+                      text={item.en}
+                      visibleLabel={LANGUAGE_SHORT[lang]}
+                      label={`Nghe câu ${languageNameInSentence(lang)}`}
+                    />
                     <SpeakButton lang="vi" text={item.vi} visibleLabel="Việt" label="Nghe nghĩa tiếng Việt" />
                   </div>
                 )}
@@ -552,7 +578,7 @@ function PenMark({ grade }: { grade: Grade }) {
   )
 }
 
-function ListenResult({ answer, typed, expected }: { answer: Answer; typed: string; expected: string }) {
+function ListenResult({ answer, typed, expected, lang }: { answer: Answer; typed: string; expected: string; lang: Language }) {
   if (answer === 'exact') return <p className="review-result">Đúng rồi.</p>
   return (
     <div className="review-result-block">
@@ -560,16 +586,24 @@ function ListenResult({ answer, typed, expected }: { answer: Answer; typed: stri
         {answer === 'wrong' ? 'Chưa đúng.' : 'Gần đúng.'}
       </p>
       <p className="review-mute">
-        Bạn gõ: <span lang="en">{typed.trim() || '(trống)'}</span>
+        Bạn gõ: <span lang={LANG_TAG[lang]}>{typed.trim() || '(trống)'}</span>
       </p>
       <p className="review-mute">
-        Đáp án: <span lang="en">{expected}</span>
+        Đáp án: <span lang={LANG_TAG[lang]}>{expected}</span>
       </p>
     </div>
   )
 }
 
-function ReviewEmpty({ snapshot, lessonId }: { snapshot: Snapshot; lessonId?: string }) {
+function ReviewEmpty({
+  snapshot,
+  lessonId,
+  filter,
+}: {
+  snapshot: Snapshot
+  lessonId?: string
+  filter: StudyLanguageFilter
+}) {
   if (snapshot.cards.length === 0) {
     return (
       <EmptyState
@@ -588,10 +622,10 @@ function ReviewEmpty({ snapshot, lessonId }: { snapshot: Snapshot; lessonId?: st
       />
     )
   }
-  const latest = sortLessons(snapshot.lessons)[0]
+  const latest = latestLessonOf(snapshot.lessons, filter)
   return (
     <EmptyState
-      title="Không có thẻ nào đến hạn."
+      title={filter === 'all' ? 'Không có thẻ nào đến hạn.' : noDueInLanguageText(filter)}
       description="Bạn có thể ôn thêm buổi gần nhất, hoặc luyện shadowing."
       action={
         <Link to="/shadowing" className={buttonClass('primary')}>

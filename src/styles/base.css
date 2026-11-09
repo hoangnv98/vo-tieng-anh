@@ -22,6 +22,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* (T20) Chữ ngôn ngữ đích theo thuộc tính `lang` (5.2). Phiên âm `*-Latn` khớp `^=` và dùng cùng stack —
+   chữ Latin vẫn ra Be Vietnam Pro vì đứng đầu. Cỡ chữ giữ nguyên theo vai trò. */
+[lang="zh-Hans"], [lang^="zh-"] {
+  font-family: var(--font-zh);
+  line-break: strict;
+  overflow-wrap: anywhere;
+}
+[lang="ja"], [lang^="ja-"] {
+  font-family: var(--font-ja);
+  line-break: strict;
+  overflow-wrap: anywhere;
+}
+[lang="ko"], [lang^="ko-"] {
+  font-family: var(--font-ko);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
 h1, h2, h3, h4, p, ul, ol, figure, blockquote {
   margin: 0;
 }

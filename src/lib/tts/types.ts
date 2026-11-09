@@ -1,6 +1,6 @@
-import type { TtsLang } from '../ttsConfig'
+import type { ServerLang, TtsLang } from '../ttsConfig'
 
-export type { TtsLang }
+export type { ServerLang, TtsLang }
 
 export interface SpeakRequest {
   text: string
@@ -59,8 +59,8 @@ export interface TtsProvider {
   listVoices(signal?: AbortSignal): Promise<TtsVoice[]>
 }
 
-export const MODEL: Record<TtsLang, string> = { vi: 'vieneu-v3-turbo', en: 'kokoro' }
-export const DEFAULT_VOICE: Record<TtsLang, string> = { vi: 'Hải Đăng', en: 'af_heart' }
+export const MODEL: Record<ServerLang, string> = { vi: 'vieneu-v3-turbo', en: 'kokoro' }
+export const DEFAULT_VOICE: Record<ServerLang, string> = { vi: 'Hải Đăng', en: 'af_heart' }
 export const TIMEOUT_SPEAK_MS = 8000
 export const TIMEOUT_PROBE_MS = 4000
 export const HEALTH_DOWN_TTL_MS = 60000

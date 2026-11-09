@@ -9,6 +9,7 @@ import { NotebookPage } from '../components/NotebookPage'
 import { SpeakButton, TtsUnsupportedNote } from '../components/SpeakButton'
 import { StatusMark } from '../components/StatusMark'
 import { cardStatus } from '../domain/lessons'
+import { LANG_TAG, LANGUAGE_LABELS, languagesInUse, lessonLanguage, ROMAN_TAG } from '../domain/language'
 import type { Card } from '../domain/types'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { formatDateVi } from '../lib/dates'
@@ -33,7 +34,7 @@ export default function LessonView() {
   const { snapshot, deleteLesson, notify } = useData()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const { supported: tts, viAvailable } = useTts()
+  const { supported: tts, viAvailable, canSpeakLang } = useTts()
   const [readingId, setReadingId] = useState<string | null>(null)
   const [reading, setReading] = useState(false)
   const [resumeAt, setResumeAt] = useState<number | null>(null)
@@ -42,6 +43,12 @@ export default function LessonView() {
   const voiceName = snapshot?.settings?.voice_name ?? null
 
   const lesson = snapshot?.lessons.find((l) => l.id === id)
+  /** (T20) Ngôn ngữ của trang: câu đích, phiên âm, giọng đọc. */
+  const L = lessonLanguage(lesson)
+  /** `en` giữ điều kiện cũ (Web Speech); ngôn ngữ khác cần giọng thiết bị. */
+  const canSpeakTarget = tts && (L === 'en' || canSpeakLang(L))
+  /** Hậu tố ngôn ngữ ở dateLine chỉ khi vở có hơn một ngôn ngữ (6.5 (9)). */
+  const multiLanguage = useMemo(() => languagesInUse(snapshot?.lessons ?? []).length > 1, [snapshot?.lessons])
   const items = useMemo(
     () =>
       (snapshot?.items ?? [])
@@ -72,7 +79,7 @@ export default function LessonView() {
   )
 
   const startReading = (from = 0) => {
-    const steps = buildReadAloudSteps(items, true)
+    const steps = buildReadAloudSteps(items, true, L)
     if (steps.length === 0) return
     const run = ++runRef.current
     const owner = {}
@@ -133,7 +140,7 @@ export default function LessonView() {
           <Mic size={20} strokeWidth={1.75} aria-hidden="true" />
           Shadowing
         </Link>
-        {tts && viAvailable && items.length > 0 && (
+        {canSpeakTarget && viAvailable && items.length > 0 && (
           <Button variant="secondary" onClick={reading ? stopReading : () => startReading(resumeAt ?? 0)}>
             {reading ? (
               <Square size={20} strokeWidth={1.75} aria-hidden="true" />
@@ -150,9 +157,10 @@ export default function LessonView() {
       </div>
 
       {!tts && items.length > 0 && <TtsUnsupportedNote />}
+      {tts && !canSpeakTarget && items.length > 0 && <TtsUnsupportedNote lang={L} />}
 
       <NotebookPage
-        dateLine={`Buổi ${lesson.number} · ${formatDateVi(lesson.date)}`}
+        dateLine={`Buổi ${lesson.number} · ${formatDateVi(lesson.date)}${multiLanguage ? ` · ${LANGUAGE_LABELS[L]}` : ''}`}
         title={lesson.topic}
         remark={null}
         className="lesson-page"
@@ -178,18 +186,18 @@ export default function LessonView() {
                 >
                   <div className="lesson-entry-main">
                     <p className="lesson-entry-text">
-                      <span className="en" lang="en">
+                      <span className="en" lang={LANG_TAG[L]}>
                         <span className={readingId === item.id ? 'is-reading' : undefined}>{item.en}</span>
                       </span>
                       <span className="vi">
                         <span className={readingId === item.id ? 'is-reading' : undefined}>{item.vi}</span>
                       </span>
                     </p>
-                    <SpeakButton text={item.en} label={`Nghe: ${item.en}`} />
+                    <SpeakButton lang={L} text={item.en} label={`Nghe: ${item.en}`} />
                   </div>
                   {hasMeta && (
                     <p className="lesson-entry-meta">
-                      {item.ipa && <span lang="en">{item.ipa}</span>}
+                      {item.ipa && <span lang={ROMAN_TAG[L]}>{item.ipa}</span>}
                       {item.note && <span>{item.note}</span>}
                       {card && <CardMark card={card} />}
                     </p>

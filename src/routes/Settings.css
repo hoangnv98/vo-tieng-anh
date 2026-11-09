@@ -24,6 +24,10 @@
   font-size: 14px;
   color: var(--mute);
 }
+.settings-group .settings-language {
+  width: 220px;
+  max-width: 100%;
+}
 .settings-after-rule {
   margin-top: 8px;
   padding-top: 24px;

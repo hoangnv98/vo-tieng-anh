@@ -14,10 +14,22 @@
   font-size: 16px;
   color: var(--mute);
 }
+.patterns-group {
+  padding: 0 24px;
+}
+/* (T20) Heading nhóm ngôn ngữ khi "Tất cả"; một ngôn ngữ → không heading (như trước T20). */
+.patterns-group-title {
+  margin: 0;
+  padding: 16px 0 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: var(--rule);
+}
 .patterns-list {
   list-style: none;
   margin: 0;
-  padding: 0 24px;
+  padding: 0;
 }
 .patterns-list li + li {
   border-top: var(--rule);
@@ -61,7 +73,7 @@
   flex: none;
 }
 @media (max-width: 767px) {
-  .patterns-list {
+  .patterns-group {
     padding: 0 16px;
   }
 }

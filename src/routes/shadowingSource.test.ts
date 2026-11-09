@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { fillPattern, findPattern, findSituation } from '../data/patterns'
-import type { Item, Kind, Lesson } from '../domain/types'
+import type { Item, Kind, Language, Lesson } from '../domain/types'
 import {
+  defaultSituationFor,
   lessonSentences,
   lessonSourceLabel,
   MAX_SENTENCES,
@@ -12,8 +13,8 @@ import {
 
 const T = '2026-11-09T00:00:00.000Z'
 
-function lesson(id: string, number: number, date: string): Lesson {
-  return { id, user_id: 'u', number, date, topic: '', notes: '', questions: '', mistakes: '', created_at: T, updated_at: T }
+function lesson(id: string, number: number, date: string, language: Language = 'en'): Lesson {
+  return { id, user_id: 'u', number, date, topic: '', notes: '', questions: '', mistakes: '', language, created_at: T, updated_at: T }
 }
 
 function item(id: string, lessonId: string | null, kind: Kind, position: number, extra: Partial<Item> = {}): Item {
@@ -118,5 +119,63 @@ describe('lessonSourceLabel', () => {
   it('buổi mới nhất → "Buổi gần nhất", buổi khác → "Buổi {n}"', () => {
     expect(lessonSourceLabel(lessons, 'L3')).toBe('Buổi gần nhất')
     expect(lessonSourceLabel(lessons, 'L1')).toBe('Buổi 1')
+  })
+})
+
+describe('(T20) ngôn ngữ', () => {
+  // Buổi zh mới hơn mọi buổi en; buổi ja cũ nhất.
+  const multi = [...lessons, lesson('Z1', 4, '2026-11-09', 'zh'), lesson('J1', 5, '2026-10-01', 'ja')]
+  const multiItems = [...items, item('z1', 'Z1', 'phrase', 0, { en: '你好' }), item('j1', 'J1', 'phrase', 0, { en: 'こんにちは' })]
+
+  it('lessonSentences gán language (mặc định en)', () => {
+    expect(lessonSentences(items, 'L3').every((s) => s.language === 'en')).toBe(true)
+    expect(lessonSentences(multiItems, 'Z1', 'zh')[0]).toMatchObject({ key: 'z1', language: 'zh' })
+  })
+  it('sourceSentences lấy ngôn ngữ của buổi; không truyền lessons → en', () => {
+    const src = { kind: 'lesson' as const, lessonId: 'Z1', situationId: 'greetings', index: 0 }
+    expect(sourceSentences(src, multiItems, multi)[0].language).toBe('zh')
+    expect(sourceSentences(src, multiItems)[0].language).toBe('en')
+  })
+  it('situationSentences: tình huống en → language en', () => {
+    expect(situationSentences('ordering').every((s) => s.language === 'en')).toBe(true)
+  })
+  it('filter all → buổi mới nhất mọi ngôn ngữ (như cũ)', () => {
+    expect(resolveSource(multi, multiItems, {})).toMatchObject({ kind: 'lesson', lessonId: 'Z1' })
+    expect(resolveSource(multi, multiItems, {}, 'all')).toMatchObject({ kind: 'lesson', lessonId: 'Z1' })
+  })
+  it('filter en/ja → buổi mới nhất trong ngôn ngữ đó', () => {
+    expect(resolveSource(multi, multiItems, {}, 'en')).toMatchObject({ kind: 'lesson', lessonId: 'L3' })
+    expect(resolveSource(multi, multiItems, {}, 'ja')).toMatchObject({ kind: 'lesson', lessonId: 'J1' })
+  })
+  it('filter ko không có buổi → Mẫu câu với tình huống ko đầu tiên (ko-greetings)', () => {
+    const src = resolveSource(multi, multiItems, {}, 'ko')
+    expect(src).toMatchObject({ kind: 'patterns', lessonId: null, situationId: 'ko-greetings', index: 0 })
+    expect(sourceSentences(src, multiItems, multi).every((x) => x.language === 'ko')).toBe(true)
+  })
+  it('tình huống mặc định: all → greetings; ngôn ngữ cụ thể → tình huống đầu tiên của ngôn ngữ đó', () => {
+    expect(defaultSituationFor('all')).toBe('greetings')
+    expect(defaultSituationFor('en')).toBe('greetings')
+    expect(defaultSituationFor('zh')).toBe('zh-greetings')
+    expect(defaultSituationFor('ja')).toBe('ja-greetings')
+    expect(defaultSituationFor('ko')).toBe('ko-greetings')
+    expect(findSituation(defaultSituationFor('zh'))?.language).toBe('zh')
+  })
+  it('?pattern của bộ khởi đầu → tình huống đó, câu mang ngôn ngữ tình huống', () => {
+    const src = resolveSource([], [], { pattern: 'ja-restaurant-03' })
+    expect(src).toMatchObject({ kind: 'patterns', situationId: 'ja-restaurant', index: 2 })
+    const sentences = situationSentences('ja-restaurant')
+    expect(sentences).toHaveLength(5)
+    expect(sentences.every((x) => x.language === 'ja')).toBe(true)
+    expect(sentences[2].ipa).toBe(findPattern('ja-restaurant-03')?.ipa)
+  })
+  it('?lesson/?item/?pattern bỏ qua bộ lọc', () => {
+    expect(resolveSource(multi, multiItems, { lesson: 'L1' }, 'zh')).toMatchObject({ kind: 'lesson', lessonId: 'L1' })
+    expect(resolveSource(multi, multiItems, { item: 'w1' }, 'ja')).toMatchObject({ kind: 'lesson', lessonId: 'L3' })
+    const p = resolveSource(multi, multiItems, { pattern: 'ordering-03' }, 'zh')
+    expect(p).toMatchObject({ kind: 'patterns', situationId: 'ordering', lessonId: 'Z1' })
+  })
+  it('lessonSourceLabel theo bộ lọc', () => {
+    expect(lessonSourceLabel(multi, 'L3')).toBe('Buổi 3')
+    expect(lessonSourceLabel(multi, 'L3', 'en')).toBe('Buổi gần nhất')
   })
 })

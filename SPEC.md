@@ -1,6 +1,7 @@
-# Đặc tả hệ thống — Vở Tiếng Anh
+# Đặc tả hệ thống — Vở Ngoại Ngữ (tên cũ: Vở Tiếng Anh)
 
-Phiên bản: 1.0 (MVP / Giai đoạn 1) · Ngày: 2026-11-09
+Phiên bản: 1.1 (MVP / Giai đoạn 1 + T18–T20) · Ngày: 2026-11-09
+Từ T20 (mục 6.14) app đổi tên thành **"Vở Ngoại Ngữ"** và hỗ trợ bốn ngôn ngữ học: Anh, Trung, Nhật, Hàn. Các mục viết trước T20 vẫn dùng chữ "tiếng Anh"/"EN" cho ví dụ; đọc là "ngôn ngữ đích" trừ khi mục đó nói rõ chỉ áp dụng cho `en`.
 Nguồn sự thật sản phẩm: `PRODUCT.md`. Hướng thiết kế: `.impeccable/surfaces/src-routes-today-tsx.md` ("Vở ô ly mực tím"). Quy ước dự án: `CLAUDE.md`.
 
 Tài liệu này viết cho developer (subagent `coder`) code thẳng MVP mà không phải hỏi lại. Mỗi màn hình có đủ: mục đích, user story, luồng, dữ liệu, trạng thái, quy tắc, microcopy, tiêu chí chấp nhận. Mục 9 là danh sách task theo thứ tự.
@@ -20,7 +21,7 @@ Quy ước trong tài liệu:
 4. Thuật toán và quy tắc chung (ngày giờ, FSRS, phiên ôn, thời gian học, chuỗi ngày)
 5. Hệ thống giao diện (design tokens, typography, component, quy tắc)
 6. Màn hình
-   - 6.1 Đăng nhập · 6.2 Shell/điều hướng · 6.3 Hôm nay · 6.4 Nhật ký buổi học (danh sách) · 6.5 Trang buổi học (xem) · 6.6 Tạo/sửa buổi học · 6.7 Ôn thẻ · 6.8 Mẫu câu tình huống · 6.9 Shadowing · 6.10 Tiến độ · 6.11 Cài đặt · 6.12 Giọng đọc & nhà cung cấp TTS (T19) · 6.13 Dán danh sách, Nhập JSON, PWA (T18)
+   - 6.1 Đăng nhập · 6.2 Shell/điều hướng · 6.3 Hôm nay · 6.4 Nhật ký buổi học (danh sách) · 6.5 Trang buổi học (xem) · 6.6 Tạo/sửa buổi học · 6.7 Ôn thẻ · 6.8 Mẫu câu tình huống · 6.9 Shadowing · 6.10 Tiến độ · 6.11 Cài đặt · 6.12 Giọng đọc & nhà cung cấp TTS (T19) · 6.13 Dán danh sách, Nhập JSON, PWA (T18) · 6.14 Đa ngôn ngữ học Anh/Trung/Nhật/Hàn và đổi tên "Vở Ngoại Ngữ" (T20)
 7. Dữ liệu seed
 8. Yêu cầu phi chức năng
 9. Kế hoạch triển khai (task có thứ tự)
@@ -37,6 +38,8 @@ Phụ lục A. Microcopy dùng chung · Phụ lục B. Lưu ý kỹ thuật đã
 
 Web app cá nhân đi kèm lớp học tiếng Anh giao tiếp thật. Sau mỗi buổi học, người học ghi lại từ/cụm/mẫu câu vào "trang vở" của buổi đó; mỗi mục tự thành thẻ ôn giãn cách (FSRS). Mỗi ngày 15–20 phút: ôn thẻ đến hạn, shadowing vài câu, xem lại lỗi hay gặp. Giao diện tiếng Việt, nội dung học tiếng Anh. Miễn phí 100%, dữ liệu theo tài khoản, đồng bộ laptop và điện thoại.
 
+**Từ T20 (6.14):** cùng một vở ghi được buổi học của bốn ngôn ngữ — tiếng Anh (`en`), tiếng Trung giản thể (`zh`), tiếng Nhật (`ja`), tiếng Hàn (`ko`). Mỗi buổi học gắn **một** ngôn ngữ; chuỗi ngày và phút học tính chung; Cài đặt có bộ lọc "Ngôn ngữ đang học" (mặc định "Tất cả") cho hàng đợi ôn, Shadowing, Kho mẫu câu và thống kê thẻ. Giao diện vẫn tiếng Việt. Tên app: **Vở Ngoại Ngữ**.
+
 ### 1.2 Phạm vi MVP (Giai đoạn 1) — những gì tài liệu này đặc tả đầy đủ
 
 | # | Chức năng | Route |
@@ -46,7 +49,7 @@ Web app cá nhân đi kèm lớp học tiếng Anh giao tiếp thật. Sau mỗi
 | 3 | Hôm nay | `/` |
 | 4 | Nhật ký buổi học: danh sách, xem trang vở, tạo/sửa, xoá | `/lessons`, `/lessons/:id`, `/lessons/new`, `/lessons/:id/edit` |
 | 5 | Ôn thẻ FSRS: 3 chiều, 4 mức chấm, TTS | `/review` |
-| 6 | Mẫu câu tình huống (9 tình huống, seed) + thêm vào thẻ ôn | `/patterns`, `/patterns/:situationId` |
+| 6 | Mẫu câu tình huống (9 tình huống `en` + 12 tình huống khởi đầu zh/ja/ko từ T20, seed) + thêm vào thẻ ôn | `/patterns`, `/patterns/:situationId` |
 | 7 | Shadowing: nghe mẫu, ghi âm, nghe lại, tốc độ 0.5/0.75/1x | `/shadowing` |
 | 8 | Tiến độ: lịch 8 tuần, chuỗi ngày, thống kê thẻ, mục tiêu phút | `/progress` |
 | 9 | Cài đặt: tên hiển thị, mục tiêu phút, giọng đọc, tự phát âm, xuất dữ liệu, đăng xuất | `/settings` |
@@ -64,7 +67,7 @@ Kiểm tra đầu vào, ghi chú ngữ pháp tối giản tiếng Việt, nhật
 
 ### 1.5 Ngoài phạm vi (mọi giai đoạn)
 
-Bảng xếp hạng, chia sẻ công khai, chấm điểm giữa người dùng, quảng cáo, mua trong app, upload bản ghi âm, đăng nhập mật khẩu/Google (chỉ magic link), đa ngôn ngữ giao diện, chế độ tối (dark mode) — direction contract là giấy sáng; không làm dark mode ở MVP.
+Bảng xếp hạng, chia sẻ công khai, chấm điểm giữa người dùng, quảng cáo, mua trong app, upload bản ghi âm, đăng nhập mật khẩu/Google (chỉ magic link), đa ngôn ngữ **giao diện** (giao diện luôn tiếng Việt; đa ngôn ngữ *học* xem 6.14), chế độ tối (dark mode) — direction contract là giấy sáng; không làm dark mode ở MVP. Cũng ngoài phạm vi T20: ngôn ngữ học khác bốn ngôn ngữ trên, phiên âm tự động (pinyin/romaji sinh từ máy), nhận dạng giọng nói, tải font CJK từ mạng.
 
 ---
 
@@ -225,9 +228,9 @@ File đầy đủ: `supabase/schema.sql` (idempotent, chạy 1 lần trong SQL E
 
 | Bảng | Khoá | Cột chính | Ghi chú |
 |---|---|---|---|
-| `settings` | `user_id` pk | `display_name`, `daily_goal_min` (5–120, mặc định 15), `new_cards_per_day` (5–30, mặc định 15), `voice_name`, `auto_speak` (false) | Tự tạo bằng trigger khi user đăng ký |
-| `lessons` | `id` uuid | `number` (unique theo user), `date`, `topic` (1–80), `notes` (≤2000), `questions` (≤1000), `mistakes` (≤500) | 1 buổi = 1 trang vở |
-| `items` | `id` | `lesson_id` (null nếu từ thư viện), `kind` word/phrase/pattern, `en` (1–200), `vi` (1–200), `ipa` (≤120), `note` (≤200), `pattern_id`, `position` | unique (user_id, pattern_id) khi pattern_id not null |
+| `settings` | `user_id` pk | `display_name`, `daily_goal_min` (5–120, mặc định 15), `new_cards_per_day` (5–30, mặc định 15), `voice_name`, `auto_speak` (false), **(T20)** `study_language` (`'all'` \| `'en'` \| `'zh'` \| `'ja'` \| `'ko'`, mặc định `'all'`) | Tự tạo bằng trigger khi user đăng ký |
+| `lessons` | `id` uuid | `number` (unique theo user), `date`, `topic` (1–80), `notes` (≤2000), `questions` (≤1000), `mistakes` (≤500), **(T20)** `language` (`'en'`/`'zh'`/`'ja'`/`'ko'`, `not null default 'en'`) | 1 buổi = 1 trang vở; 1 buổi = 1 ngôn ngữ |
+| `items` | `id` | `lesson_id` (null nếu từ thư viện), `kind` word/phrase/pattern, `en` (1–200; **câu ngôn ngữ đích** — tên cột giữ nguyên, xem 6.14 (5).2), `vi` (1–200), `ipa` (≤120; **phiên âm** chung: IPA/pinyin/romaji/RR), `note` (≤200), `pattern_id`, `position` | unique (user_id, pattern_id) khi pattern_id not null; **không có cột ngôn ngữ** — suy từ lesson hoặc từ tình huống seed của `pattern_id` |
 | `cards` | `id` | `item_id`, `direction` en_vi/vi_en/listen, `due`, `state` 0–3, `reps`, `lapses`, `first_reviewed_at`, `suspended`, `fsrs` jsonb | unique (item_id, direction); index (user_id, due) |
 | `review_logs` | `id` | `card_id`, `rating` 1–4, `reviewed_at`, `duration_ms`, `revlog` jsonb | chỉ ghi |
 | `study_days` | (`user_id`, `day`) | `seconds`, `reviews`, `shadowing_count` | `day` là ngày địa phương dạng `YYYY-MM-DD`; cộng dồn qua rpc `add_study_time` |
@@ -237,15 +240,25 @@ RLS: mọi bảng bật RLS, một policy `for all to authenticated using (user_
 ### 3.1 Kiểu TypeScript (`domain/types.ts`)
 
 ```ts
-export type Direction = 'en_vi' | 'vi_en' | 'listen'
+export type Direction = 'en_vi' | 'vi_en' | 'listen'   // mã kỹ thuật giữ nguyên cho mọi ngôn ngữ (T20): en_vi = "Đích → Việt"
 export type Kind = 'word' | 'phrase' | 'pattern'
 export type Grade = 1 | 2 | 3 | 4        // Again, Hard, Good, Easy (trùng ts-fsrs Rating)
 
+// (T20) Ngôn ngữ học. Giao diện luôn tiếng Việt; `vi` KHÔNG phải ngôn ngữ học.
+export type Language = 'en' | 'zh' | 'ja' | 'ko'
+export const LANGUAGES = ['en', 'zh', 'ja', 'ko'] as const satisfies readonly Language[]
+export type StudyLanguageFilter = 'all' | Language
+export const STUDY_LANGUAGES = ['all', 'en', 'zh', 'ja', 'ko'] as const satisfies readonly StudyLanguageFilter[]
+
 export interface Lesson { id: string; user_id: string; number: number; date: string /*YYYY-MM-DD*/;
-  topic: string; notes: string; questions: string; mistakes: string; created_at: string; updated_at: string }
+  topic: string; notes: string; questions: string; mistakes: string;
+  language: Language /* (T20) mặc định 'en'; dữ liệu cũ thiếu trường → 'en' khi đọc */;
+  created_at: string; updated_at: string }
 
 export interface Item { id: string; user_id: string; lesson_id: string | null; kind: Kind;
-  en: string; vi: string; ipa: string; note: string; pattern_id: string | null; position: number;
+  en: string /* câu NGÔN NGỮ ĐÍCH (tên trường giữ nguyên, xem 6.14 (5).2) */; vi: string;
+  ipa: string /* phiên âm: IPA (en), pinyin có dấu thanh (zh), romaji Hepburn hoặc kana (ja), Revised Romanization (ko) */;
+  note: string; pattern_id: string | null; position: number;
   created_at: string; updated_at: string }
 
 export interface Card { id: string; user_id: string; item_id: string; direction: Direction;
@@ -259,12 +272,33 @@ export interface ReviewLogEntry { id: string; user_id: string; card_id: string; 
 export interface StudyDay { user_id: string; day: string; seconds: number; reviews: number; shadowing_count: number }
 
 export interface Settings { user_id: string; display_name: string; daily_goal_min: number;
-  new_cards_per_day: number; voice_name: string | null; auto_speak: boolean }
+  new_cards_per_day: number; voice_name: string | null; auto_speak: boolean;
+  study_language: StudyLanguageFilter /* (T20) bộ lọc "Ngôn ngữ đang học", mặc định 'all' */ }
 
 export interface Snapshot { lessons: Lesson[]; items: Item[]; cards: Card[]; studyDays: StudyDay[]; settings: Settings }
 ```
 
 KHÔNG dùng `enum` (tsconfig `erasableSyntaxOnly: true`). Dùng union type và object `as const`.
+
+### 3.2 (T20) Migration đa ngôn ngữ — thêm vào cuối `supabase/schema.sql`, idempotent
+
+```sql
+-- 9. (T20) Ngôn ngữ học theo buổi + bộ lọc "Ngôn ngữ đang học"
+alter table public.lessons  add column if not exists language text not null default 'en';
+alter table public.lessons  drop constraint if exists lessons_language_check;
+alter table public.lessons  add constraint lessons_language_check check (language in ('en', 'zh', 'ja', 'ko'));
+create index if not exists lessons_user_language_idx on public.lessons (user_id, language);
+
+alter table public.settings add column if not exists study_language text not null default 'all';
+alter table public.settings drop constraint if exists settings_study_language_check;
+alter table public.settings add constraint settings_study_language_check check (study_language in ('all', 'en', 'zh', 'ja', 'ko'));
+```
+
+Quy tắc đọc/ghi (mọi lớp):
+- **Đọc** (`toLesson`, `toSettings` ở `repo/supabase.ts`; `loadSnapshot` ở `repo/local.ts`; `planImport` ở `domain/importSnapshot.ts`): `language` thiếu/`null` → `'en'`; `study_language` thiếu/không hợp lệ → `'all'`. Hàm chuẩn hoá duy nhất: `asLanguage(x, 'en')`, `asStudyLanguage(x)` trong `domain/language.ts`.
+- **Ghi**: client luôn gửi `language`/`study_language`. Nếu Supabase **chưa chạy migration**, PostgREST trả `PGRST204` ("Could not find the 'language' column…"): `SupabaseRepository` bắt mã này ở `upsertLesson/upsertLessons/saveSettings`, **gửi lại một lần không có cột mới**, đặt cờ module `schemaOutdated = true` và gọi `notify` đúng **1 lần/phiên**: "Supabase chưa có cột ngôn ngữ. Chạy lại supabase/schema.sql để lưu ngôn ngữ buổi học." Dữ liệu khác vẫn lưu bình thường; buổi học đó trên server tạm là `en`. `PGRST204` **không** đưa vào dead-letter.
+- Không đổi tên cột `items.en`, không đổi khoá `localStorage` `vta:v1:*` (đổi là mất dữ liệu cục bộ).
+- `cards` **không** có cột ngôn ngữ: ngôn ngữ của thẻ = ngôn ngữ của item = `lesson.language` (item thuộc buổi) hoặc `situation.language` của `pattern_id` (item từ thư viện) — `itemLanguageResolver(lessons)` (6.14 (3)).
 
 ---
 
@@ -314,31 +348,32 @@ KHÔNG dùng `enum` (tsconfig `erasableSyntaxOnly: true`). Dùng union type và 
 
 ### 4.4 Hàng đợi phiên ôn (`domain/review.ts: buildQueue`)
 
-Đầu vào: `cards`, `items`, `settings`, `now`, tuỳ chọn `{ lessonId?: string; ttsSupported: boolean }`.
+Đầu vào: `cards`, `items`, `settings`, `now`, tuỳ chọn `{ lessonId?: string; ttsSupported: boolean; language?: Language; langOf?: (item: Item) => Language; speakable?: (lang: Language) => boolean }` (ba tuỳ chọn cuối thêm ở T20, đều **tuỳ chọn** — caller cũ không đổi hành vi).
 
 1. Loại bỏ thẻ `suspended`, thẻ có item không tồn tại, và nếu `!ttsSupported` loại thẻ `listen`.
+   **1b (T20).** Nếu có `language` → chỉ giữ thẻ có `langOf(item) === language` (`langOf` thiếu → mọi item coi là `'en'`). Nếu có `speakable` → thẻ `listen` của item ngôn ngữ `L` bị loại khi `!speakable(L)` (thiết bị không có giọng `L`); `speakable` thiếu → dùng `ttsSupported` cho mọi ngôn ngữ. Bộ lọc này áp **trước** bước 2–4, nên hạn mức thẻ mới (bước 4) vẫn đếm `introducedToday` trên **toàn bộ** `cards` (mọi ngôn ngữ) — một hạn mức chung cho cả vở, không phải mỗi ngôn ngữ một hạn mức (xem 12.2 T20).
 2. Nếu có `lessonId` → chỉ thẻ của item thuộc buổi đó (chế độ "Ôn buổi này"), gồm cả chưa đến hạn; bỏ qua bước 3–4 (không giới hạn thẻ mới, vẫn áp dụng bước 1), sắp xếp: đến hạn trước (state 1/3 rồi state 2, theo `due`), rồi New theo `created_at`, rồi còn lại theo `due`.
-3. **Đến hạn**: `state !== 0 && due <= endOfLocalDay(today)`. Sắp xếp: state 1/3 (đang học) trước theo `due` tăng dần, rồi state 2 theo `due` tăng dần; tie-break theo `id` để tất định giữa các thiết bị.
+3. **Đến hạn**: `state !== 0 && due <= endOfLocalDay(today)`. Sắp xếp: state 1/3 (đang học) trước theo `due` tăng dần, rồi state 2 theo `due` tăng dần; tie-break theo `id` để tất định giữa các thiết bị. **(T20)** Lọc theo ngôn ngữ không đổi thứ tự hay tie-break: hàng đợi lọc = hàng đợi không lọc đã bỏ các thẻ ngôn ngữ khác, **trừ** phần thẻ mới (bước 4) được lấy lại từ đầu danh sách New đã lọc theo cùng `newLeft`.
 4. **Thẻ mới**: `state === 0`, sắp theo `created_at` tăng dần. Giới hạn `newPerDay = settings.new_cards_per_day` (5–30, mặc định 15): `newLeft = newPerDay - |{c : c.first_reviewed_at != null && localDay(first_reviewed_at) === today}|`; lấy `max(0, newLeft)` thẻ đầu. Hạn mức đếm trên **toàn bộ** `cards` (kể cả suspended và listen bị lọc); thẻ ôn lần đầu trong chế độ "Ôn buổi này" cũng tiêu hạn mức. Tie-break thẻ New: `created_at` → `item.position` → direction (`en_vi` < `vi_en` < `listen`) → `id`. `new_cards_per_day` không hợp lệ (thiếu/NaN) → 15.
 5. Hàng đợi = đến hạn ++ thẻ mới. `estimateMinutes(n) = ceil(n * 20 / 60)`; n = 0 → 0.
-6. **Yêu cầu lại trong phiên** (`shouldRequeue(nextCard, now, timesShownIncludingCurrent)`): sau khi chấm, nếu `nextCard.due - now <= 15 phút` và `timesShownIncludingCurrent < 3` (đếm cả lần vừa chấm → tối đa 3 lần hiện mỗi phiên) → đẩy về cuối hàng đợi. Helper `hiddenListenCount(...)` = số thẻ listen lẽ ra vào hàng đợi nếu có TTS (dùng cho 6.3 "{k} thẻ nghe tạm ẩn").
+6. **Yêu cầu lại trong phiên** (`shouldRequeue(nextCard, now, timesShownIncludingCurrent)`): sau khi chấm, nếu `nextCard.due - now <= 15 phút` và `timesShownIncludingCurrent < 3` (đếm cả lần vừa chấm → tối đa 3 lần hiện mỗi phiên) → đẩy về cuối hàng đợi. Helper `hiddenListenCount(cards, items, settings, now, options?)` = số thẻ listen lẽ ra vào hàng đợi nếu có giọng đọc (dùng cho 6.3 "{k} thẻ nghe tạm ẩn"); **(T20)** nhận cùng `language`/`langOf` như `buildQueue` và tính bằng `speakable = () => true`, trừ đi số listen thực có — gộp cả hai lý do ẩn (không Web Speech, hoặc thiếu giọng của ngôn ngữ đó).
 7. Phiên kết thúc khi hàng đợi rỗng. Mỗi lần chấm đều lưu ngay; thoát giữa chừng không mất gì.
 
 ### 4.5 Thời gian học và chuỗi ngày (`domain/stats.ts`, `hooks/useStudyTimer.ts`)
 
 - **Ôn thẻ**: mỗi lần chấm cộng `min(duration_ms, 60000)/1000` giây vào `study_days[today].seconds`, `reviews += 1`. `duration_ms` = từ lúc hiện mặt trước đến lúc bấm chấm.
 - **Shadowing**: `useStudyTimer(active)` cộng 1 giây mỗi giây khi `active && document.visibilityState === 'visible'`; `active` = đã bấm nghe/ghi âm ít nhất 1 lần trong 120 giây gần nhất (idle 2 phút thì ngừng đếm). Flush xuống repository mỗi 30 giây và khi unmount/ẩn tab (gộp lại thành một `addStudyTime`). Mỗi bản ghi âm hoàn tất → `shadowing += 1`.
-- **Ngày tính vào chuỗi**: `seconds >= 60`.
+- **Ngày tính vào chuỗi**: `seconds >= 60`. **(T20) Bất biến**: `study_days` không có chiều ngôn ngữ; chuỗi ngày, phút hôm nay, lịch 8 tuần và mục tiêu ngày tính **chung mọi ngôn ngữ**, kể cả khi "Ngôn ngữ đang học" ≠ Tất cả.
 - **Chuỗi hiện tại** `streak(studyDays, today)`: đếm liên tiếp lùi từ `today` nếu today đạt; nếu today chưa đạt thì bắt đầu từ `yesterday` (chuỗi chưa đứt, chỉ "chưa học hôm nay"). Trả `{ current, best, todayDone }`. `best` = chuỗi dài nhất trong cửa sổ `studyDays` của snapshot (120 ngày), bỏ qua ngày sau `today` (đồng hồ lệch); bản ghi trùng `day` cộng dồn.
 - Mục tiêu ngày đạt khi `todaySeconds >= daily_goal_min * 60`.
 
-### 4.6 Thẻ khó nhất (`hardestCards(cards, items, n=3)`)
+### 4.6 Thẻ khó nhất (`hardestCards(cards, items, n=3, options)`)
 
-Lọc `state !== 0`; sắp theo `lapses` giảm dần, rồi `fsrs.difficulty` giảm dần; lấy n. Nhãn trạng thái: `lapses > 0` → "quên {lapses} lần" (đỏ); ngược lại `difficulty >= 7` → "khó" (mute); ngược lại → "đang học" (mute). Nếu không đủ n thẻ đã học (nhưng có ≥ 1), bổ sung thẻ New với nhãn "mới"; không có thẻ đã học nào → trả `[]` (UI ẩn khối). Bỏ thẻ suspended, thẻ không có item, thẻ listen khi `!ttsSupported`; **dedupe theo `item_id`** (giữ thẻ khó nhất). Thiếu `difficulty` coi là 0.
+**(T20)** `options` thêm `language?`, `langOf?`, `speakable?` với ngữ nghĩa như 4.4 bước 1b (lọc trước khi xếp hạng). Lọc `state !== 0`; sắp theo `lapses` giảm dần, rồi `fsrs.difficulty` giảm dần; lấy n. Nhãn trạng thái: `lapses > 0` → "quên {lapses} lần" (đỏ); ngược lại `difficulty >= 7` → "khó" (mute); ngược lại → "đang học" (mute). Nếu không đủ n thẻ đã học (nhưng có ≥ 1), bổ sung thẻ New với nhãn "mới"; không có thẻ đã học nào → trả `[]` (UI ẩn khối). Bỏ thẻ suspended, thẻ không có item, thẻ listen khi `!ttsSupported`; **dedupe theo `item_id`** (giữ thẻ khó nhất). Thiếu `difficulty` coi là 0.
 
 ### 4.7 So khớp câu trả lời nghe → gõ (`lib/text.ts`)
 
-`normalizeAnswer(s)`: lowercase, bỏ dấu câu `.,!?;:'"’“”-`, gộp khoảng trắng, trim; chuẩn hoá `’ → '` trước khi bỏ. `compareAnswer(input, expected)` → `'exact' | 'close' | 'wrong'`; `close` khi khoảng cách Levenshtein ≤ `max(1, floor(len/8))`. Chỉ dùng để gợi ý, không tự chấm.
+`normalizeAnswer(s, language = 'en')`: lowercase, bỏ dấu câu `.,!?;:'"’“”-`, gộp khoảng trắng, trim; chuẩn hoá `’ → '` trước khi bỏ. **(T20)** Với mọi ngôn ngữ bỏ thêm dấu câu CJK/fullwidth `。、，！？；：「」『』（）《》・～` và khoảng trắng fullwidth (U+3000); với `zh` và `ja` **bỏ hết khoảng trắng** (không có ranh giới từ); `ko` giữ khoảng trắng; NFC normalize trước khi so (Hangul tổ hợp). `compareAnswer(input, expected, language = 'en')` → `'exact' | 'close' | 'wrong'`; `close` khi khoảng cách Levenshtein (tính theo **code point**, không theo UTF-16 unit) ≤ `max(1, floor(len/8))`. Chỉ dùng để gợi ý, không tự chấm. Tham số mặc định giữ hành vi cũ cho `en`.
 
 ---
 
@@ -366,6 +401,12 @@ Bám direction contract. Không bịa hướng thẩm mỹ mới. Mọi giá tr�
 
   --font-ui: 'Be Vietnam Pro', system-ui, sans-serif;
   --font-remark: 'Charm', cursive;
+  /* (T20) Font hệ thống cho chữ CJK — KHÔNG tải từ Google Fonts. Be Vietnam Pro đứng trước để
+     dấu câu/chữ Latin trong câu CJK giữ nét UI; glyph Hán/Kana/Hangul rơi xuống font hệ thống.
+     Tách theo ngôn ngữ để trình duyệt chọn đúng biến thể chữ Hán (zh ≠ ja). */
+  --font-zh: 'Be Vietnam Pro', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Noto Sans SC', system-ui, sans-serif;
+  --font-ja: 'Be Vietnam Pro', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'Noto Sans CJK JP', 'Noto Sans JP', system-ui, sans-serif;
+  --font-ko: 'Be Vietnam Pro', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans CJK KR', 'Noto Sans KR', system-ui, sans-serif;
 
   --line: 48px;          /* bước dòng kẻ chính của vở; baseline tiếng Anh */
   --topbar-h: 68px; --topbar-h-mobile: 56px; --bottombar-h: 64px;
@@ -394,7 +435,8 @@ Font: Google Fonts `Be+Vietnam+Pro:wght@400;500;600;700` và `Charm:wght@700`, `
 Quy tắc:
 - **Không dùng nhãn uppercase/eyebrow ở bất kỳ đâu** (kể cả trên số liệu) — finish review xếp đây là lệnh cấm sàn. Nhãn khối/số liệu là heading thường 16px/600 ink chữ thường. Class `.stat-label` đã bị xoá.
 - Charm: **tối đa 1 lời phê / màn hình**, luôn là `Remark`, chỉ 3 nội dung: "Tốt lắm!", "Đều đặn lắm!", "Cố lên nhé!". Không render Remark rỗng. Không dùng Charm cho bất kỳ chữ nào khác.
-- Mọi chữ tiếng Anh bọc `<span lang="en">` (hoặc phần tử có `lang="en"`).
+- Mọi chữ tiếng Anh bọc `<span lang="en">` (hoặc phần tử có `lang="en"`). **(T20)** Tổng quát: mọi chữ **ngôn ngữ đích** mang `lang={LANG_TAG[language]}` với `LANG_TAG = { en: 'en', zh: 'zh-Hans', ja: 'ja', ko: 'ko' }`; phiên âm mang `lang={ROMAN_TAG[language]}` = `{ en: 'en', zh: 'zh-Latn', ja: 'ja-Latn', ko: 'ko-Latn' }` (kana trong ô phiên âm vẫn dùng `ja-Latn` — chấp nhận). Không hard-code `lang="en"` ở nơi hiển thị dữ liệu người dùng nữa; chỉ giữ `lang="en"` cho chuỗi tiếng Anh cố định của UI (vd lệnh cài VieNeu).
+- **(T20) CSS theo `lang`** (`styles/base.css`): `[lang="zh-Hans"], [lang^="zh-"] { font-family: var(--font-zh); line-break: strict; overflow-wrap: anywhere }` · `[lang="ja"], [lang^="ja-"] { font-family: var(--font-ja); line-break: strict; overflow-wrap: anywhere }` · `[lang="ko"], [lang^="ko-"] { font-family: var(--font-ko); word-break: keep-all; overflow-wrap: anywhere }` (`zh-Latn`/`ja-Latn`/`ko-Latn` vẫn khớp `^=` và dùng cùng stack — chữ Latin vẫn ra Be Vietnam Pro vì đứng đầu stack). Cỡ chữ CJK **giữ nguyên** cỡ hiện có của từng vai trò; chỉ nâng `line-height` ở nơi đang < 1.4: `.sh-en` (32px/1.25) → `[lang^=zh|ja|ko]` 1.4; mặt trước `vi_en`/`listen` của Ôn thẻ (28px/1.3) → 1.4. Câu trên lưới vở (26px/48px, mobile 20px/24px) và `.review-en` (36px/48px) đã ≥ 1.2 với glyph CJK nằm gọn trong em-box → không đổi, không phá lưới 48/24px.
 - Cỡ chữ tối thiểu 14px; không dùng < 13px.
 
 ### 5.3 Màu đỏ
@@ -494,6 +536,8 @@ Mỗi màn hình có 8 mục: (1) Mục đích & user story, (2) Luồng chính 
 
 **(8) Task:** T07.
 
+**(9) T20 — đổi tên:** H1 "Vở Ngoại Ngữ"; phụ đề "Học lại ngoại ngữ giao tiếp, mỗi ngày một ít." Mọi thứ khác giữ nguyên.
+
 ---
 
 ### 6.2 Shell và điều hướng (`components/Shell.tsx`)
@@ -525,6 +569,8 @@ Mỗi màn hình có 8 mục: (1) Mục đích & user story, (2) Luồng chính 
 - [ ] Không bóng đổ, không radius > 10px, không viền màu dày.
 
 **(8) Task:** T06.
+
+**(9) T20 — đổi tên:** thương hiệu trên thanh trên "Vở Ngoại Ngữ" (`APP_NAME` trong `hooks/usePageTitle.ts` là nguồn duy nhất; Shell đọc từ đó, không hard-code). Tiêu đề tài liệu "{Tên màn} · Vở Ngoại Ngữ". Nav không đổi (không thêm mục ngôn ngữ vào nav; bộ lọc nằm ở Cài đặt).
 
 ---
 
@@ -578,6 +624,8 @@ Mỗi màn hình có 8 mục: (1) Mục đích & user story, (2) Luồng chính 
 
 **(8) Task:** T12.
 
+**(9) T20 — đa ngôn ngữ (chi tiết 6.14):** `filter = settings.study_language`; `langOf = itemLanguageResolver(lessons)`; `speakable = (L) => tts.canSpeakLang(L)`. `queue`, `hardestCards`, `hiddenListenCount` nhận `{ language: filter === 'all' ? undefined : filter, langOf, speakable }`. `latestLesson` = buổi mới nhất **trong ngôn ngữ lọc** (Tất cả → như cũ). Dòng 14px dưới nút "Ôn ngay" thêm hậu tố " · {Tên ngôn ngữ}" khi lọc (vd "Hôm nay: 4/15 phút · chuỗi 3 ngày · Tiếng Trung"). Trạng thái **chưa có thẻ** khi lọc và không có thẻ của ngôn ngữ đó (nhưng vở có thẻ ngôn ngữ khác): dòng phụ "Chưa có thẻ {tên ngôn ngữ} nào. Ghi buổi học hoặc thêm mẫu câu {tên ngôn ngữ}." + primary "Ghi buổi học" (`/lessons/new`, form mặc định ngôn ngữ lọc) + ghost "Học tất cả ngôn ngữ" (→ `saveSettings({ study_language: 'all' })`, toast "Đã lưu."). Câu trên trang vở mang `lang={LANG_TAG[latest.language]}`; dòng "3 thẻ khó nhất" mang `lang` theo ngôn ngữ của từng item. Không thêm nút/chip nào khác vào viewport đầu.
+
 ---
 
 ### 6.4 Nhật ký buổi học — danh sách `/lessons` (`routes/Lessons.tsx`)
@@ -604,6 +652,8 @@ Mỗi màn hình có 8 mục: (1) Mục đích & user story, (2) Luồng chính 
 - [ ] Số mục và số đến hạn đúng.
 
 **(8) Task:** T08.
+
+**(9) T20 — nhãn ngôn ngữ:** danh sách **không lọc** theo "Ngôn ngữ đang học" (nhật ký là của cả vở). Khi `languagesInUse(lessons).length > 1`, mỗi hàng thêm chữ 14px mute "{Tên ngôn ngữ}" (vd "Tiếng Trung") sau ngày, dạng chữ thường như StatusMark — không badge, không màu. Một ngôn ngữ duy nhất → không hiện gì (màn không đổi so với trước T20). `topic` giữ `lang` mặc định (chủ đề thường gõ tiếng Việt).
 
 ---
 
@@ -635,6 +685,8 @@ Mỗi màn hình có 8 mục: (1) Mục đích & user story, (2) Luồng chính 
 - [ ] Không có Charm trên màn này.
 
 **(8) Task:** T08.
+
+**(9) T20 — ngôn ngữ của trang:** `L = lesson.language`. `dateLine` thêm " · {Tên ngôn ngữ}" chỉ khi vở có > 1 ngôn ngữ. Câu đích `lang={LANG_TAG[L]}`, phiên âm `lang={ROMAN_TAG[L]}`; `SpeakButton lang={L}` cho từng mục (ẩn khi `!canSpeakLang(L)`; khi đó đầu trang hiện 1 dòng Info "Thiết bị chưa có giọng {tên ngôn ngữ}. Bạn vẫn đọc được phiên âm." — thay cho câu "Trình duyệt này không đọc được câu mẫu…" nếu Web Speech có nhưng thiếu giọng). "Nghe cả trang" (6.12) dùng `buildReadAloudSteps(items, includeVi, L)` → bước đích có `lang: L`; điều kiện hiện nút **giữ như T19** (`viAvailable`) **và** thêm `canSpeakLang(L)` — thiếu giọng đích thì ẩn nút (không đọc nửa trang). Nút "Ôn buổi này" và "Shadowing" không đổi (phạm vi buổi đã xác định ngôn ngữ).
 
 ---
 
@@ -692,6 +744,14 @@ Hàng "trống hoàn toàn" = cả en, vi, ipa, note đều rỗng → bỏ qua,
 
 **(8) Task:** T08. Nút "Dán danh sách" (nhiều dòng → nhiều hàng mục) đặc tả ở 6.13-A (T18a).
 
+**(9) T20 — chọn ngôn ngữ buổi học (chi tiết 6.14 (2)-A, (3), (4)):**
+- Hàng đầu form thành 3 cột "Buổi số" (120px) · "Ngày" · **"Ngôn ngữ"** (select 4 option "Tiếng Anh/Trung/Nhật/Hàn", rộng 160px; mobile xuống dòng riêng full-width). Mặc định khi tạo: `study_language !== 'all'` → ngôn ngữ đó; ngược lại → ngôn ngữ của buổi gần nhất (`sortLessons(lessons)[0]?.language`); không có buổi nào → `'en'`.
+- **Khoá**: khi sửa buổi mà có ≥ 1 thẻ của buổi có `reps > 0` → select `disabled` + mô tả "Buổi này đã có thẻ được ôn nên không đổi ngôn ngữ được." (Lý do: lịch sử FSRS/log và thống kê theo ngôn ngữ của thẻ đã ôn gắn với ngôn ngữ cũ; đổi sẽ làm giọng đọc, nhãn chiều và thống kê sai lệch so với những gì người dùng đã học.) Chưa có thẻ nào được ôn → đổi tự do, kể cả đã có item.
+- Nhãn/placeholder hàng mục đổi theo ngôn ngữ đang chọn (6.14 (6)): nhãn ô đích "Tiếng Anh/Tiếng Trung/Tiếng Nhật/Tiếng Hàn", `lang={LANG_TAG[L]}`, `autoCapitalize` chỉ `sentences` với `en`, còn lại `off`; nhãn phiên âm **"Phiên âm"** cho mọi ngôn ngữ, `lang={ROMAN_TAG[L]}`, placeholder theo ngôn ngữ. Lỗi thiếu ô đích: "Nhập tiếng Anh." / "Nhập tiếng Trung." / "Nhập tiếng Nhật." / "Nhập tiếng Hàn." (`validateItem(input, { language })`, mặc định `'en'` → test cũ giữ nguyên).
+- Mô tả dưới "Mục trong buổi": "Mỗi mục sẽ thành một thẻ ôn {Ngắn} → Việt. Hai chiều còn lại mở sau khi bạn ôn thẻ đó ở hai ngày khác nhau." với `{Ngắn}` = Anh/Trung/Nhật/Hàn.
+- Lưu: `lesson.language` đi cùng `upsertLesson`; items/cards không đổi. Đổi select khi form đã có hàng → form *dirty*, không hỏi gì.
+- "Dán danh sách": `parsePastedList(text, language)` — quy tắc phần 3 theo ngôn ngữ ở 6.14 (3)-E; mô tả/placeholder panel đổi theo ngôn ngữ.
+
 ---
 
 ### 6.7 Ôn thẻ — `/review` (`routes/Review.tsx`)
@@ -739,6 +799,8 @@ Hàng "trống hoàn toàn" = cả en, vi, ipa, note đều rỗng → bỏ qua,
 
 **(8) Task:** T09, T10, T11.
 
+**(9) T20 — đa ngôn ngữ (chi tiết 6.14):** `L = langOf(item)` cho thẻ đang hiện. Hàng đợi (`buildQueue`) nhận `language` (từ `study_language`, bỏ qua khi có `?lesson=`), `langOf`, `speakable`. Nhãn chiều trong hàng meta dùng `directionLabel(direction, L)`: "Anh → Việt" / "Trung → Việt" / "Nhật → Việt" / "Hàn → Việt", "Việt → Anh" / "Việt → Trung" / …, "Nghe → gõ" chung. Câu đích `lang={LANG_TAG[L]}`, phiên âm `lang={ROMAN_TAG[L]}`; `SpeakButton lang={L}` (nhãn aria "Nghe phát âm" giữ; nhãn hiển thị cạnh nút VI đổi "Anh" → `LANGUAGE_SHORT[L]`); `auto_speak` đọc câu đích bằng `L`. Ô nhập thẻ `listen`: `lang={LANG_TAG[L]}`, `autoCapitalize="off"`, `autoCorrect="off"`, `spellCheck={false}`; so khớp `compareAnswer(input, expected, L)`; gợi ý mute dưới ô với `zh`/`ja`: "Dấu câu và khoảng trắng không tính." Thẻ `listen` của ngôn ngữ thiếu giọng bị loại khỏi hàng đợi (4.4 1b) và tính vào dòng "Đã tạm ẩn {k} thẻ nghe…" với câu mới: "Đã tạm ẩn {k} thẻ nghe vì thiết bị chưa có giọng đọc phù hợp." (thay câu cũ khi Web Speech có nhưng thiếu giọng; thiếu Web Speech → câu cũ). Rỗng khi lọc: "Không có thẻ {tên ngôn ngữ} nào đến hạn." Phím `S` đọc câu đích bằng `L`. Không đổi FSRS, không đổi quy tắc mở khoá.
+
 ---
 
 ### 6.8 Mẫu câu tình huống — `/patterns`, `/patterns/:situationId` (`routes/Patterns.tsx`, `routes/PatternSituation.tsx`)
@@ -781,6 +843,8 @@ Hàng "trống hoàn toàn" = cả en, vi, ipa, note đều rỗng → bỏ qua,
 - [ ] Id sai → NotFound.
 
 **(8) Task:** T13.
+
+**(9) T20 — kho mẫu câu nhiều ngôn ngữ (chi tiết 6.14 (2)-D, (3)-F, (4)):** `Situation.language` (9 tình huống hiện có = `'en'`; thêm 12 tình huống khởi đầu zh/ja/ko — 6.14 (3)-F). `/patterns`: lọc theo `study_language`; **Tất cả** → nhóm theo ngôn ngữ: mỗi nhóm một card với `<h2>` 20px ink "Tiếng Anh" (9 hàng) · "Tiếng Trung" (4) · "Tiếng Nhật" (4) · "Tiếng Hàn" (4), thứ tự `LANGUAGES`; một ngôn ngữ → một card không heading nhóm (giống trước T20). Dòng tình huống: `nameTarget ?? nameEn` 14px mute với `lang={LANG_TAG[s.language]}`. Mô tả đầu trang: "Câu ngắn theo tình huống thật, bằng ngôn ngữ bạn đang học. Thêm câu bạn cần vào thẻ ôn, hoặc luyện shadowing ngay." `/patterns/:situationId`: câu đích `lang={LANG_TAG}`, phiên âm `lang={ROMAN_TAG}` (không bắt buộc dạng `/…/` với zh/ja/ko), `SpeakButton lang={s.language}` (ẩn + dòng Info "Thiết bị chưa có giọng {tên}…" khi thiếu giọng), nút Shadowing → `/shadowing?pattern=…` như cũ. Item thêm từ thư viện: không đổi (`lesson_id=null`, `pattern_id`); ngôn ngữ suy ra qua `situationOfPattern`. Tổng seed `PATTERN_COUNT = 87 + 60 = 147`.
 
 ---
 
@@ -826,6 +890,8 @@ Hàng "trống hoàn toàn" = cả en, vi, ipa, note đều rỗng → bỏ qua,
 
 **(8) Task:** T14.
 
+**(9) T20 — shadowing theo ngôn ngữ (chi tiết 6.14):** `ShadowSentence` thêm `language: Language`; `lessonSentences` gán theo `lesson.language`, `situationSentences` theo `situation.language`. `resolveSource(lessons, items, params, filter)`: "Buổi gần nhất" = buổi mới nhất **trong ngôn ngữ lọc**; mặc định tình huống = tình huống đầu tiên của ngôn ngữ lọc (`'all'` → `greetings`). Select "Tình huống": lọc theo ngôn ngữ; Tất cả → `<optgroup label="Tiếng Anh">`… theo `LANGUAGES`. `?lesson/?item/?pattern` bỏ qua bộ lọc (nguồn đã xác định). "Nghe mẫu"/"Nghe lần lượt": `tts.speak(sentence.en, { rate, lang: sentence.language })`. Câu lớn `lang={LANG_TAG}`, phiên âm `lang={ROMAN_TAG}`, `.sh-en[lang]` line-height 1.4 với CJK (5.2). Thiếu giọng của ngôn ngữ câu đang luyện (Web Speech có nhưng `!canSpeakLang(L)`): ẩn "Nghe mẫu"/"Nghe lần lượt", hiện Info "Thiết bị chưa có giọng {tên ngôn ngữ}. Bạn vẫn có thể ghi âm và nghe lại." Server EN (T19) chỉ áp dụng khi `L === 'en'`; dòng "Giọng mẫu: server local." chỉ hiện khi `L === 'en' && enServer`. EmptyState không hỗ trợ: "Hãy mở Vở Ngoại Ngữ bằng Chrome hoặc Edge để luyện shadowing."
+
 ---
 
 ### 6.10 Tiến độ — `/progress` (`routes/Progress.tsx`)
@@ -857,6 +923,8 @@ Hàng "trống hoàn toàn" = cả en, vi, ipa, note đều rỗng → bỏ qua,
 - [ ] Không dùng màu ngoài tokens; không màu xanh lá.
 
 **(8) Task:** T15.
+
+**(9) T20 — thống kê theo ngôn ngữ:** Khối 1 (hôm nay/chuỗi/tuần) và Khối 2 (lịch 8 tuần) **không lọc** (4.5 bất biến). Khối 3 "Thẻ ôn": `cardStats(cards, lessons, { language?, langOf? })` — khi lọc, chỉ đếm thẻ có `langOf(item) === language` và `lessonsCount` = số buổi `lesson.language === language`; tiêu đề khối thành "Thẻ ôn · {Tên ngôn ngữ}" (chữ thường, không uppercase) và dưới khối dòng 14px mute "Chuỗi ngày và phút học tính chung mọi ngôn ngữ." (chỉ hiện khi lọc). Tất cả → như trước T20.
 
 ---
 
@@ -899,6 +967,8 @@ Hàng "trống hoàn toàn" = cả en, vi, ipa, note đều rỗng → bỏ qua,
 - [ ] Nút nguy hiểm luôn tách khỏi nút khác bằng đường kẻ + ≥ 24px.
 
 **(8) Task:** T16. Khối "Giọng đọc" được mở rộng ở 6.12 (T19b). Khối "Dữ liệu" thêm "Nhập dữ liệu (JSON)" ở 6.13-B (T18b).
+
+**(9) T20 — khối "Ngôn ngữ" (chi tiết 6.14 (2)-B, (4)):** card mới, H2 "Ngôn ngữ", đặt **giữa** "Tài khoản" và "Mục tiêu". Field select "Ngôn ngữ đang học" (option "Tất cả" · "Tiếng Anh" · "Tiếng Trung" · "Tiếng Nhật" · "Tiếng Hàn"), mô tả "Lọc thẻ ôn, shadowing, kho mẫu câu và thống kê thẻ theo một ngôn ngữ. Nhật ký buổi học, chuỗi ngày và phút học luôn tính chung." Lưu ngay `saveSettings({ ...settings, study_language })` → toast "Đã lưu." (đồng bộ qua Supabase như các trường khác). Dưới select, dòng 14px mute "Giọng đọc trên thiết bị này: Anh — có · Trung — có · Nhật — chưa có · Hàn — có" tính từ `canSpeakLang` (reactive theo `voiceschanged`); không có Web Speech → "Trình duyệt này không có giọng đọc." Khối "Giọng đọc" **không đổi** (select "Giọng trình duyệt" vẫn chỉ giọng tiếng Anh; giọng zh/ja/ko tự chọn — 12.2 T20). Tên tệp xuất đổi thành `vo-ngoai-ngu-{YYYY-MM-DD}.json`.
 
 ---
 
@@ -1162,6 +1232,8 @@ Màn học (T19c)
 
 **(8) Task:** T19a, T19b, T19c (mục 9).
 
+**(9) T20 — mở rộng `TtsLang` (chi tiết 6.14 (3)-D):** `TtsLang = 'en' | 'vi' | 'zh' | 'ja' | 'ko'`; `ServerLang = 'en' | 'vi'` (chỉ hai ngôn ngữ này có server; `TtsConfig` không đổi). `zh`/`ja`/`ko` **luôn** đi `web-speech` với utterance `lang = TTS_TAG[L]` và giọng chọn theo 6.14 (5).6; không fallback server, không toast. "Dùng server local cho tiếng Anh" chỉ áp dụng cho `en`.
+
 ---
 
 ### 6.13 Dán danh sách, Nhập JSON, PWA (T18) — `routes/LessonEdit.tsx`, `routes/Settings.tsx`, `public/manifest.webmanifest`
@@ -1417,15 +1489,252 @@ C — PWA cơ bản (T18c)
 
 **(8) Task:** T18a, T18b, T18c (mục 9).
 
+**(9) T20 — ngôn ngữ trong dán danh sách, nhập JSON, manifest (chi tiết 6.14 (3)-E, (3)-C):**
+- A: `parsePastedList(text, language = 'en')` — với `en` không đổi; với `zh`/`ja`/`ko`: phần 3 **luôn** là phiên âm (không cần `/…/`), phần 4 (nếu có) là ghi chú; `inferKind(en, language)`: `ko` tách theo khoảng trắng như cũ; `zh`/`ja` đếm **ký tự chữ** (bỏ dấu câu) — ≤ 3 → `word`, còn lại `phrase`. Mô tả panel theo ngôn ngữ (6.14 (6)).
+- B: `planImport` đọc `lesson.language` (thiếu/`null` → `'en'`; chuỗi không thuộc `LANGUAGES` → bỏ qua bản ghi, lý do `lesson-invalid`), `settings.study_language` (không hợp lệ → giữ giá trị hiện tại). Tệp xuất từ bản trước T20 nhập bình thường (mọi buổi thành `en`). Câu lỗi định dạng: "Tệp không đúng định dạng của Vở Ngoại Ngữ. Hãy chọn tệp đã xuất từ mục Cài đặt." Mô tả checkbox "Nhập cả cài đặt" thêm "ngôn ngữ đang học".
+- C: manifest `name` "Vở Ngoại Ngữ", `short_name` "Vở Ngoại Ngữ" (12 ký tự, trong giới hạn khuyến nghị), `description` "Vở ôn ngoại ngữ giao tiếp đi kèm lớp học thật."; `apple-mobile-web-app-title` "Vở Ngoại Ngữ"; `<title>` "Vở Ngoại Ngữ". Icon không đổi (chữ "V" vẫn đúng).
+
+---
+
+### 6.14 Đa ngôn ngữ học (Anh, Trung, Nhật, Hàn) và đổi tên app "Vở Ngoại Ngữ" (T20) — `domain/language.ts`, `domain/types.ts`, `supabase/schema.sql`, `repo/*`, `lib/tts/*`, `data/patterns.ts`, mở rộng 6.1–6.13
+
+**(1) Mục đích & user story.**
+
+App đang học lại tiếng Anh; người dùng (và người thân dùng chung app) muốn ghi cả buổi học tiếng Trung/Nhật/Hàn vào **cùng một vở**, với cùng cơ chế thẻ FSRS, giọng đọc, shadowing, chuỗi ngày. Không phải "app riêng cho từng tiếng": một vở, nhiều ngôn ngữ, mỗi trang (buổi) viết bằng một ngôn ngữ.
+
+- *Là người học hai lớp (Anh + Trung), tôi muốn ghi buổi tiếng Trung tối nay vào vở như buổi tiếng Anh, chọn "Tiếng Trung" ở đầu trang, gõ câu – phiên âm pinyin – nghĩa, và sáng mai thẻ tiếng Trung hiện lên cùng thẻ tiếng Anh với giọng đọc đúng tiếng Trung.*
+- *Là người đang tập trung thi tiếng Nhật, tôi muốn đặt "Ngôn ngữ đang học: Tiếng Nhật" để Hôm nay, Ôn thẻ, Shadowing và kho mẫu câu chỉ còn tiếng Nhật, nhưng chuỗi ngày không bị đứt khi hôm nào tôi chỉ ôn tiếng Anh.*
+- *Là người mới bắt đầu tiếng Hàn, tôi muốn có sẵn vài chục câu chào hỏi, gọi món, hỏi giá, hỏi đường kèm phiên âm và nghĩa để thêm vào thẻ và nghe trước khi có bài của lớp.*
+- *Là người cài app lên điện thoại, tôi muốn tên app là "Vở Ngoại Ngữ" vì nó không còn chỉ là tiếng Anh.*
+
+**(2) Luồng.**
+
+A — Ghi buổi học bằng ngôn ngữ khác (chính):
+1. `/lessons/new` → hàng đầu form có select "Ngôn ngữ" (mặc định theo 6.6 (9)). Chọn "Tiếng Trung".
+2. Nhãn ô đích đổi thành "Tiếng Trung" (`lang="zh-Hans"`, bàn phím hệ điều hành tự chuyển IME), placeholder `你好`; ô "Phiên âm" placeholder `nǐ hǎo`; mô tả "Mỗi mục sẽ thành một thẻ ôn Trung → Việt…".
+3. Nhập mục (gõ tay hoặc "Dán danh sách" theo quy tắc ngôn ngữ (3)-E) → "Lưu buổi học" → `lesson.language = 'zh'`, items + thẻ `en_vi` như cũ → toast "Đã lưu buổi {n}. {k} thẻ ôn mới." → `/lessons/:id` hiển thị trang vở với câu tiếng Trung trên lưới, nút loa đọc bằng giọng `zh-CN`.
+
+B — Đổi "Ngôn ngữ đang học" (chính):
+1. `/settings` → khối "Ngôn ngữ" → select "Ngôn ngữ đang học" → chọn "Tiếng Trung" → lưu ngay (toast "Đã lưu."), đồng bộ như mọi `settings`.
+2. Về `/`: số thẻ đến hạn chỉ đếm thẻ tiếng Trung; trang vở là buổi tiếng Trung gần nhất; dòng phụ có hậu tố "· Tiếng Trung". `/review`, `/shadowing`, `/patterns`, `/progress` (khối thẻ) lọc theo. `/lessons` không lọc, chỉ gắn nhãn ngôn ngữ.
+3. Chọn lại "Tất cả" → mọi màn như trước T20.
+
+C — Ôn thẻ / Shadowing với giọng đúng ngôn ngữ (chính):
+1. Thẻ tiếng Nhật hiện lên: hàng meta "Thẻ 3/12 · Nhật → Việt"; bấm loa → `speak(text, { lang: 'ja' })` → router chọn `web-speech`, utterance `lang='ja-JP'`, giọng `ja-*` đầu tiên theo (5).6.
+2. Thẻ `listen` tiếng Nhật: "Nghe" → gõ bằng IME → "Kiểm tra" → so khớp bỏ dấu câu/khoảng trắng (4.7).
+3. Shadowing: chọn buổi tiếng Nhật hoặc tình huống `ja-*`; "Nghe mẫu" với rate 0.5/0.75/1 bằng giọng `ja`; ghi âm, nghe lại như cũ.
+
+D — Kho mẫu câu (chính): `/patterns` với "Tất cả" → 4 nhóm theo ngôn ngữ; mở `ja-restaurant` → 5 câu tiếng Nhật, phiên âm romaji, nghĩa Việt, "Lưu ý phát âm" tiếng Việt → "Thêm vào thẻ ôn" → item `lesson_id=null, pattern_id='ja-restaurant-01'` → ngôn ngữ thẻ suy ra `ja` qua `situationOfPattern`.
+
+E — Dữ liệu cũ (tự động): sau deploy, người dùng cũ mở app → `loadSnapshot` đọc buổi thiếu `language` → `'en'`; `settings.study_language` thiếu → `'all'`; mọi màn giống hệt trước T20 (không có nhãn ngôn ngữ vì chỉ có một ngôn ngữ). Chủ Supabase chạy lại `schema.sql` (3.2) một lần.
+
+F — Đổi tên (một lần, T20c): `APP_NAME`, `<title>`, manifest, `apple-mobile-web-app-title`, Đăng nhập, Shadowing EmptyState, thông báo lỗi nhập JSON, tên tệp xuất, README, dòng tên trong PRODUCT.md.
+
+Luồng phụ:
+- **Thiết bị không có giọng ngôn ngữ đó** (Web Speech có, `getVoices()` không có `zh*`): nút loa ẩn; màn có câu đích hiện **một** dòng Info "Thiết bị chưa có giọng tiếng Trung. Bạn vẫn đọc được phiên âm." (5.6 kiểu không hỗ trợ — tím, không đỏ); thẻ `listen` tiếng Trung tạm ẩn khỏi hàng đợi (4.4 1b) và đếm vào "{k} thẻ nghe tạm ẩn". Cài đặt → "Ngôn ngữ" hiện dòng tình trạng giọng từng ngôn ngữ để người dùng biết cần cài giọng trong hệ điều hành.
+- **Chrome tải giọng trễ** (`voiceschanged`): `canSpeakLang` là external store nghe `subscribe()` của facade (đã có `voiceschanged`) → Hôm nay/Shadowing/Cài đặt cập nhật tự động; Ôn thẻ tính hàng đợi một lần khi vào phiên (như hiện tại) — vào phiên quá sớm có thể thiếu thẻ listen CJK; chấp nhận (lần vào sau có).
+- **Supabase chưa migrate**: 3.2 — gửi lại không cột mới + toast 1 lần/phiên; không mất dữ liệu khác.
+- **Bộ lọc trỏ vào ngôn ngữ chưa có dữ liệu**: Hôm nay trạng thái "chưa có thẻ {tên}" với ghost "Học tất cả ngôn ngữ" (6.3 (9)); Ôn thẻ rỗng "Không có thẻ {tên} nào đến hạn."; Shadowing không có buổi ngôn ngữ đó → sang "Mẫu câu" với tình huống đầu của ngôn ngữ đó (luôn có vì có bộ khởi đầu); Tiến độ khối thẻ toàn 0.
+- **Đổi ngôn ngữ buổi đã ôn**: select khoá (6.6 (9)). Người dùng muốn đổi thật sự → xoá các mục (mất tiến độ) hoặc tạo buổi mới.
+- **JSON nhập có `language` lạ** → bản ghi buổi bị bỏ qua (đếm `skipped`), các item của buổi đó cũng bị bỏ vì `lesson_id` không tồn tại (quy tắc T18b sẵn có).
+- **Câu đích dán có cả hai thứ tiếng trộn** (vd "こんにちは (konnichiwa)") → không tách phiên âm tự động; người dùng tự sửa ô. Không đoán.
+
+**(3) Dữ liệu & validation.**
+
+*A — Kiểu và helper thuần (`domain/types.ts` đã nêu ở 3.1; mới: `domain/language.ts`, có test `domain/language.test.ts`):*
+
+```ts
+// domain/language.ts (thuần, không React; được phép import data/patterns để suy ngôn ngữ item thư viện)
+export const LANGUAGE_LABELS: Record<Language, string> = { en: 'Tiếng Anh', zh: 'Tiếng Trung', ja: 'Tiếng Nhật', ko: 'Tiếng Hàn' }
+export const LANGUAGE_SHORT:  Record<Language, string> = { en: 'Anh', zh: 'Trung', ja: 'Nhật', ko: 'Hàn' }
+export const STUDY_LANGUAGE_LABELS: Record<StudyLanguageFilter, string> = { all: 'Tất cả', ...LANGUAGE_LABELS }
+export const LANG_TAG:   Record<Language, string> = { en: 'en', zh: 'zh-Hans', ja: 'ja', ko: 'ko' }        // thuộc tính HTML lang cho câu đích
+export const ROMAN_TAG:  Record<Language, string> = { en: 'en', zh: 'zh-Latn', ja: 'ja-Latn', ko: 'ko-Latn' } // cho phiên âm
+export const TTS_TAG:    Record<Language, string> = { en: 'en-US', zh: 'zh-CN', ja: 'ja-JP', ko: 'ko-KR' }   // BCP-47 cho SpeechSynthesisUtterance
+export const TARGET_PLACEHOLDER: Record<Language, string> = { en: 'Can I have the bill, please?', zh: '你好', ja: 'こんにちは', ko: '안녕하세요' }
+export const IPA_PLACEHOLDER:    Record<Language, string> = { en: '/kæn aɪ hæv ðə bɪl/', zh: 'nǐ hǎo', ja: 'konnichiwa', ko: 'annyeonghaseyo' }
+export function isLanguage(x: unknown): x is Language
+export function asLanguage(x: unknown, fallback: Language = 'en'): Language
+export function isStudyLanguage(x: unknown): x is StudyLanguageFilter
+export function asStudyLanguage(x: unknown): StudyLanguageFilter            // không hợp lệ → 'all'
+export function lessonLanguage(l: Pick<Lesson, 'language'> | undefined): Language   // l?.language ?? 'en' (qua asLanguage)
+export function directionLabel(d: Direction, lang: Language): string      // en_vi → `${SHORT} → Việt`; vi_en → `Việt → ${SHORT}`; listen → 'Nghe → gõ'
+export function itemLanguageResolver(lessons: readonly Lesson[]): (item: Pick<Item, 'lesson_id' | 'pattern_id'>) => Language
+//   lesson_id có và tìm thấy → lesson.language; không có lesson_id và pattern_id có → language của situationOfPattern(pattern_id); còn lại → 'en'
+export function languagesInUse(lessons: readonly Lesson[]): Language[]    // theo thứ tự LANGUAGES, chỉ ngôn ngữ có ≥ 1 buổi
+export function latestLessonOf(lessons: readonly Lesson[], filter: StudyLanguageFilter): Lesson | undefined // sortLessons rồi lọc
+export function defaultLessonLanguage(lessons: readonly Lesson[], filter: StudyLanguageFilter): Language    // 6.6 (9) quy tắc mặc định
+export function matchesFilter(lang: Language, filter: StudyLanguageFilter): boolean   // filter === 'all' || lang === filter
+```
+
+`DIRECTION_LABELS` trong `types.ts` **giữ nguyên** (= `directionLabel(d, 'en')`) để code/test cũ không đổi; UI mới gọi `directionLabel`.
+
+Validation (`domain/lessons.ts`): `LessonInput.language: Language`; `validateLesson` thêm lỗi `language` "Chọn ngôn ngữ." khi giá trị không thuộc `LANGUAGES` (chỉ xảy ra khi state hỏng; select không cho giá trị khác). `validateItem(input, { required?, language? = 'en' })`: câu lỗi thiếu ô đích theo `LANGUAGE_LABELS` viết thường sau "Nhập " ("Nhập tiếng Trung."). Giới hạn ký tự 200/120 **không đổi** cho mọi ngôn ngữ (đếm theo `length` UTF-16 như check constraint `char_length` — khác nhau không đáng kể với BMP; không có emoji trong câu học).
+
+*B — Repository:*
+- `repo/supabase.ts`: `LessonRow.language?: string | null`, `SettingsRow.study_language?: string | null`; `toLesson` → `language: asLanguage(r.language)`; `toSettings` → `study_language: asStudyLanguage(r.study_language)`; `defaultSettings()` thêm `study_language: 'all'`. Xử lý `PGRST204` theo 3.2: hàm `stripNewColumns(payload)` bỏ `language`/`study_language`; `isSchemaOutdatedError(e)` = `e.code === 'PGRST204'`; thử lại một lần; `schemaOutdated` là biến module + `onSchemaOutdated` callback để `DataProvider` nối toast (giống `setNotifier` của TTS). Test `repo/supabase.test.ts`: (a) row thiếu `language` → `'en'`; (b) upsert trả PGRST204 → gọi lại không có `language`, callback 1 lần dù lỗi 3 lần.
+- `repo/local.ts`: `loadSnapshot` map `lessons` qua `{ ...l, language: asLanguage(l.language) }`; settings merge có `study_language: asStudyLanguage(stored.study_language)`. Không đổi khoá. Test: dữ liệu `vta:v1:lessons` cũ (không `language`) → đọc ra `'en'`; ghi rồi đọc giữ `'zh'`.
+- `repo/pending.ts`: không đổi (payload mang nguyên `Lesson`).
+- `state/dataReducer.ts`: không đổi hình dạng action; `settings/save` chứa `study_language`.
+
+*C — Settings & import:*
+- `domain/settingsLimits.ts`: thêm `isStudyLanguage` re-export hoặc dùng từ `domain/language.ts`; `importSnapshot.ts` phần settings: `study_language` hợp lệ → nhận, không → giữ hiện tại; phần lessons: `language = raw.language == null ? 'en' : (isLanguage(raw.language) ? raw.language : null)`; `null` → `skip('lesson-invalid')`.
+- Dialog nhập: mô tả checkbox "Tên hiển thị, mục tiêu mỗi ngày, thẻ mới mỗi ngày, giọng đọc, tự phát âm, ngôn ngữ đang học."
+
+*D — TTS (`lib/ttsConfig.ts`, `lib/tts/*`, `hooks/useTts.ts`, `components/SpeakButton.tsx`):*
+- `TtsLang = 'en' | 'vi' | 'zh' | 'ja' | 'ko'`; `ServerLang = 'en' | 'vi'`; `isServerLang(x)`. `TtsConfig` **không đổi** (`vi`, `en`). `MODEL`, `DEFAULT_VOICE`: `Record<ServerLang, string>`. `TOAST_DOWN: Record<ServerLang, string>`.
+- `TtsRouter`: `servers: Record<ServerLang, TtsProvider>`; `health`/`timers` theo `ServerLang`; `resolve(lang)`: `isServerLang(lang) && serverEnabled(lang) && health[lang] !== 'down'` → server; `lang === 'en'` → `web.supports('en') ? web : null`; `lang === 'vi'` → `deviceFallback && web.supports('vi') ? web : null`; `zh|ja|ko` → `web.supports(lang) ? web : null`. Nhánh fallback/markDown/toast chỉ chạy khi `isServer` (không đổi). `probe/listVoices(lang)` chỉ nhận `ServerLang` (kiểu hẹp lại; Settings chỉ gọi en/vi).
+- `WebSpeechProvider`: `supports(lang)`: `en` → `isTtsSupported()`; khác → `pickVoiceFor(lang) !== undefined`. `speak(req)`: `en` → `lib/speech.ts` (không đổi); khác → `speakWithVoice(req, voice, TTS_TAG[lang])` — tổng quát hoá `speakVi` hiện có thành hàm dùng chung cho `vi|zh|ja|ko` (utterance `lang = voice.lang`, `rate = req.rate`, cùng cơ chế settle/timeout; hệ số timeout `text.length * 120 / rate + 5000` giữ — với CJK `length` nhỏ hơn nhưng mỗi ký tự đọc lâu hơn, nên dùng `max(text.length * 400, 3000) / rate + 5000` cho `zh|ja|ko`). `listVoices()` giữ tiếng Anh. `stopAll()` không đổi.
+- `pickVoiceFor(lang)` (hàm thuần trong `webSpeech.ts`, test với mảng voice giả): chuẩn hoá `v.lang.replace('_','-').toLowerCase()`; thứ tự ưu tiên: (1) khớp đúng `TTS_TAG[lang]` thường hoá (`zh-cn`, `ja-jp`, `ko-kr`, `vi-vn`); (2) với `zh`: bất kỳ `zh-*` **trừ** `zh-hk`, `zh-tw`, `yue*` (Quảng Đông/phồn thể đọc khác), rồi (3) bất kỳ `zh-*`/`cmn*`; với `ja|ko|vi`: bất kỳ `ja*`/`ko*`/`vi*`. Trong cùng bậc ưu tiên: giọng `localService` trước, rồi `default`, rồi thứ tự gốc. Không có `voice_name` theo ngôn ngữ ở T20 (12.2).
+- `lib/tts/text.ts` `prepareText(text, lang)`: thêm dấu ngắt câu CJK `。！？` vào tập ranh giới chia đoạn; `{slot}` → "…" cho mọi ngôn ngữ khác `en` (như `vi`).
+- Facade `index.ts`: `canSpeak(lang)` đã có → dùng cho mọi `TtsLang`; `effectiveRate` không đổi (`vi` dùng `config.vi.speed`, còn lại 1).
+- `hooks/useTts.ts`: thêm `canSpeakLang(lang: Language): boolean` = `useSyncExternalStore(subscribe, () => canSpeak(lang))` — vì hook không nhận tham số động cho nhiều ngôn ngữ, cài bằng một snapshot `speakable: Record<Language, boolean>` (một `useSyncExternalStore` trả object ổn định theo chuỗi `"1010"`), và `canSpeakLang = (l) => speakable[l]`. `supported` giữ nghĩa Web Speech. `speak(text, { rate, lang })` nhận `TtsLang` mở rộng.
+- `components/SpeakButton.tsx`: `lang?: TtsLang` (mặc định `'en'`); ẩn khi `lang === 'en' ? !supported : !canSpeakLang(lang)` (`vi` tiếp tục theo `viAvailable`, là trường hợp riêng của `canSpeak('vi')`). `TtsUnsupportedNote` thêm prop `lang?: Language` → mặc định câu cũ; có `lang` ≠ en và Web Speech có → "Thiết bị chưa có giọng {tên ngôn ngữ}. Bạn vẫn đọc được phiên âm."
+- `routes/lessonReadAloud.ts`: `buildReadAloudSteps(items, includeVi, language: Language = 'en')` → bước đích `lang: language`.
+
+*E — Dán danh sách (`domain/paste.ts`):* `parsePastedList(text, language: Language = 'en')`, `inferKind(en, language = 'en')`.
+- `en`: thuật toán 6.13 (3)-A không đổi.
+- `zh|ja|ko`: bước 5 thay bằng: `en = p1`; `vi = p2 ?? ''`; `ipa = p3 ?? ''`; `note = p4 ?? ''` (tách tối đa **4** phần; phần dư nối vào phần 4). Bước 6 (IPA liền `/…/`) chỉ cho `en`. `inferKind`: `ko` → như `en` (tách khoảng trắng); `zh|ja` → đếm ký tự thuộc `\p{L}|\p{N}` sau khi bỏ dấu câu: ≤ 3 → `word`, ngược lại `phrase`.
+- Ví dụ phải pass: `"你好 - xin chào - nǐ hǎo"` (zh) → en `你好`, vi `xin chào`, ipa `nǐ hǎo`, kind `word`; `"请给我菜单。 | Cho tôi xem thực đơn. | qǐng gěi wǒ càidān | lịch sự"` → 4 phần đúng, kind `phrase`; `"こんにちは\tXin chào\tkonnichiwa"` (ja) → kind `phrase` (5 ký tự); `"안녕하세요 - Xin chào - annyeonghaseyo"` (ko) → kind `word` (1 token); `"hello /həˈloʊ/ – xin chào"` với `language='en'` → như T18a; cùng chuỗi với `language='ja'` → en `hello /həˈloʊ/` nguyên (không cắt IPA liền).
+
+*F — Kho mẫu câu (`data/patterns.ts`):*
+- `Situation` thêm `language: Language` (bắt buộc) và `nameTarget?: string` (tên tình huống bằng ngôn ngữ đích; bắt buộc với `zh|ja|ko`, hiển thị thay `nameEn`). 9 tình huống hiện có: `language: 'en'`, không sửa nội dung khác. `Pattern` **không đổi** (`en` = câu đích, `ipa` = phiên âm, `vi`, `level`, `slots?`, `note?`).
+- **Bộ khởi đầu** 12 tình huống, id `{lang}-{slug}`: `zh-greetings`, `zh-restaurant`, `zh-shopping`, `zh-directions`, `ja-greetings`, `ja-restaurant`, `ja-shopping`, `ja-directions`, `ko-greetings`, `ko-restaurant`, `ko-shopping`, `ko-directions`. `nameVi` lần lượt "Chào hỏi & giới thiệu" · "Nhà hàng & gọi món" · "Mua sắm & hỏi giá" · "Hỏi đường & đi lại"; `icon` dùng lại icon của tình huống EN tương ứng (`greetings`/`ordering`/`shopping`/`directions`) để không thêm map icon mới. Mỗi tình huống **đúng 5** mẫu câu, id `{situationId}-01..05`, `level: 'A1'`, **không dùng `slots`** (giữ bộ khởi đầu đơn giản, dễ kiểm phiên âm), `note` tuỳ chọn (lưu ý phát âm cho người Việt), `intro` và `pronunciationFocus` tiếng Việt (bắt buộc, 1–2 câu).
+- **Nội dung bắt buộc theo nghĩa** (mỗi ngôn ngữ dịch cùng 20 ý sau, câu ngắn, thông dụng, lịch sự ở mức trung tính — zh: dạng 您/请 khi phù hợp; ja: thể です/ます; ko: 해요체):
+  - Chào hỏi & giới thiệu: 01 "Xin chào." · 02 "Tôi tên là … (dùng tên ví dụ phổ biến bản xứ)." · 03 "Rất vui được gặp bạn." · 04 "Bạn khoẻ không?" · 05 "Tạm biệt. Hẹn gặp lại."
+  - Nhà hàng & gọi món: 01 "Cho tôi xem thực đơn." · 02 "Tôi muốn gọi món này." · 03 "Cho tôi một ly nước." · 04 "Tính tiền giúp tôi." · 05 "Ngon lắm, cảm ơn."
+  - Mua sắm & hỏi giá: 01 "Cái này bao nhiêu tiền?" · 02 "Đắt quá." · 03 "Bớt chút được không?" · 04 "Tôi lấy cái này." · 05 "Có cỡ khác không?"
+  - Hỏi đường & đi lại: 01 "Xin lỗi, nhà ga ở đâu?" · 02 "Đi thẳng rồi rẽ trái." · 03 "Có xa không?" · 04 "Xe buýt này có đến … không?" · 05 "Cảm ơn nhiều."
+- **Chuẩn phiên âm** (reviewer kiểm từng câu):
+  - `zh`: Hanyu Pinyin **có dấu thanh** (ā á ǎ à, ü), tách theo từ (vd `qǐng gěi wǒ càidān`, không `qing3`), chữ thường, dấu câu giữ `,`/`?`; biến điệu **không** ghi vào pinyin (viết `nǐ hǎo`, ghi chú biến điệu trong `note` nếu cần). Chữ Hán **giản thể**.
+  - `ja`: Hepburn, nguyên âm dài bằng macron (`ō`, `ū`; vd `arigatō`), trợ từ は/へ/を viết `wa`/`e`/`o`, `n` trước nguyên âm có dấu `'` (`kon'nichiwa` chấp nhận; chọn một cách và dùng nhất quán trong file — mặc định `konnichiwa` không dấu), tách theo từ. Câu dùng kana + kanji thông dụng N5.
+  - `ko`: Revised Romanization (2000), tách theo từ như tiếng Hàn (vd `igeo eolmayeyo`), không gạch nối bắt buộc.
+  - `en`: như hiện tại (`/…/`).
+- Ví dụ định dạng (một mẫu mỗi ngôn ngữ; coder viết phần còn lại):
+  ```ts
+  { id: 'zh-greetings-01', en: '你好！', vi: 'Xin chào!', ipa: 'nǐ hǎo', level: 'A1',
+    note: 'Hai thanh 3 liền nhau: chữ đầu đọc thành thanh 2 (ní hǎo). Đừng đọc đều đều như tiếng Việt không dấu.' }
+  { id: 'ja-greetings-01', en: 'こんにちは。', vi: 'Xin chào (ban ngày).', ipa: 'konnichiwa', level: 'A1',
+    note: 'は cuối câu chào đọc là "wa". Mỗi âm tiết dài bằng nhau, không nhấn mạnh như tiếng Việt.' }
+  { id: 'ko-greetings-01', en: '안녕하세요.', vi: 'Xin chào.', ipa: 'annyeonghaseyo', level: 'A1',
+    note: 'Âm cuối "ng" trong 안녕 rõ; 세요 đọc liền, lên giọng nhẹ ở cuối khi hỏi thăm.' }
+  ```
+- `PATTERN_COUNT = 147`. Test `data/patterns.test.ts` cập nhật: 21 tình huống; `language ∈ LANGUAGES`; tình huống `en` 8–10 mẫu và `ipa` dạng `/…/`; tình huống khác đúng 5 mẫu, có `nameTarget`, `ipa` không rỗng và **không chứa** `/`, `en` chứa ký tự đúng hệ chữ (`zh`: `\p{Script=Han}`; `ja`: Hiragana/Katakana/Han; `ko`: `\p{Script=Hangul}`), `ipa` chỉ gồm chữ Latin cho phép + khoảng trắng + `,.?!'’-` (`zh` thêm dấu thanh `āáǎàēéěèīíǐìōóǒòūúǔùüǖǘǚǜ`; `ja` thêm `āīūēō`; `ko` chỉ a–z); mọi test cũ về slot/id vẫn chạy cho toàn bộ.
+- Helper mới: `situationsOf(filter: StudyLanguageFilter): Situation[]` (lọc), `firstSituationId(lang: Language): string`, `languageOfPattern(patternId): Language | undefined`.
+
+**(4) Trạng thái (tổng hợp theo màn; chi tiết từng màn ở mục (9) của 6.1–6.13).**
+
+| Màn | Lọc theo "Ngôn ngữ đang học" | Thay đổi hiển thị | Thiếu giọng ngôn ngữ đích |
+|---|---|---|---|
+| Hôm nay | Có (queue, khó nhất, buổi gần nhất) | hậu tố "· {Tên}" ở dòng phút; trạng thái "chưa có thẻ {tên}" + ghost "Học tất cả ngôn ngữ" | "· {k} thẻ nghe tạm ẩn" |
+| Nhật ký (danh sách) | **Không** | nhãn "{Tên}" mute khi > 1 ngôn ngữ | — |
+| Trang buổi học | — | `lang` đúng; dateLine "· {Tên}" khi > 1 ngôn ngữ | loa ẩn + 1 dòng Info; "Nghe cả trang" ẩn |
+| Tạo/sửa buổi | Mặc định select | select "Ngôn ngữ"; nhãn/placeholder theo ngôn ngữ; khoá khi đã ôn | — |
+| Ôn thẻ | Có (trừ `?lesson`) | nhãn chiều theo ngôn ngữ; `lang` đúng; so khớp CJK | listen ẩn + dòng Info đầu phiên |
+| Mẫu câu | Có; Tất cả → nhóm | 12 tình huống mới; `nameTarget` | loa ẩn + 1 dòng Info |
+| Shadowing | Có (buổi gần nhất, select tình huống) | `lang` đúng; line-height CJK | "Nghe mẫu" ẩn + Info |
+| Tiến độ | Chỉ khối "Thẻ ôn" | tiêu đề "Thẻ ôn · {Tên}" + dòng giải thích | — |
+| Cài đặt | — | khối "Ngôn ngữ" mới; dòng tình trạng giọng | "chưa có" trong dòng tình trạng |
+| Đăng nhập / Shell / manifest | — | tên "Vở Ngoại Ngữ" | — |
+
+Trạng thái chung:
+- *Loading*: không có loading mới (dữ liệu từ snapshot; voices theo `voiceschanged`).
+- *Rỗng*: theo bảng; mọi câu rỗng có tên ngôn ngữ khi đang lọc.
+- *Lỗi*: chỉ thêm toast schema (3.2) và lỗi validation "Chọn ngôn ngữ." (hiếm).
+- *Thành công*: toast hiện có ("Đã lưu buổi…", "Đã lưu.", "Đã thêm vào thẻ ôn.").
+- *Trình duyệt không hỗ trợ*: Web Speech thiếu → như trước T20 (câu cũ). Web Speech có nhưng thiếu giọng ngôn ngữ → câu mới "Thiết bị chưa có giọng {tên}…". Trình duyệt không có font CJK hệ thống (rất hiếm trên macOS/iOS/Windows/Android hiện đại) → chữ hiện ô vuông; không xử lý thêm (không tải font mạng — 1.5).
+
+**(5) Quy tắc nghiệp vụ (bất biến).**
+
+1. **Thẻ FSRS không đổi**: không thêm cột vào `cards`, không đổi `lib/fsrs.ts`, không đổi quy tắc mở khoá 4.3, hạn mức thẻ mới 4.4 là **một hạn mức chung** cho cả vở.
+2. **Tên trường `items.en` giữ nguyên**, gọi là "câu ngôn ngữ đích" trong tài liệu/JSDoc. Lý do: đổi tên cột cần `alter table rename` (không idempotent-an toàn khi chạy lại file schema), đổi ~30 file + test, tệp JSON đã xuất và op trong hàng đợi pending của client cũ vẫn mang `en` → nguy cơ mất dữ liệu khi replay; lợi ích chỉ là tên đẹp. Tương tự giữ `ipa` (nhãn UI "Phiên âm"), giữ mã `Direction` `en_vi/vi_en/listen`.
+3. **Ngôn ngữ của card = ngôn ngữ của item**, suy ra qua `itemLanguageResolver(lessons)`: item thuộc buổi → `lesson.language`; item thư viện → `situation.language` của `pattern_id`; không xác định → `'en'`. Không lưu trùng ở items/cards.
+4. **Một buổi một ngôn ngữ**; khoá đổi khi buổi có thẻ `reps > 0` (6.6 (9)).
+5. **Bộ lọc** `settings.study_language` áp cho: hàng đợi Hôm nay/Ôn thẻ (trừ `?lesson=`), thẻ khó nhất, buổi gần nhất trên Hôm nay, Shadowing (buổi gần nhất + tình huống), Kho mẫu câu, khối "Thẻ ôn" của Tiến độ. **Không** áp cho: danh sách Nhật ký, trang buổi học, chuỗi ngày, phút, lịch 8 tuần, mục tiêu ngày, xuất/nhập JSON, hạn mức thẻ mới. Khi lọc, thứ tự và tie-break hàng đợi tuân 4.4 nguyên vẹn.
+6. **Giọng đọc**: `en→en-US`, `zh→zh-CN`, `ja→ja-JP`, `ko→ko-KR`; `zh|ja|ko` luôn Web Speech, chọn giọng theo (3)-D `pickVoiceFor`; thiếu giọng → ẩn nút + Info, không toast, không lỗi đỏ. Server local (T19) chỉ cho `en` (và `vi`). `auto_speak` đọc câu đích bằng ngôn ngữ của thẻ. Không tự phát khi vào trang (không đổi).
+7. **Thuộc tính `lang`** đúng theo ngôn ngữ trên mọi câu đích/phiên âm (5.2); `<html lang="vi">` không đổi.
+8. **Font**: chỉ font hệ thống cho CJK qua `--font-zh/ja/ko`; không thêm request font. Cỡ chữ giữ; line-height CJK ≥ 1.4 ở hai chỗ nêu 5.2.
+9. **Dữ liệu cũ** = `en`; migration idempotent; client chịu được server chưa migrate (3.2).
+10. **Seed**: không sửa 9 tình huống EN ngoài thêm `language`; 12 tình huống mới đúng cấu trúc (3)-F; nội dung do coder viết, reviewer kiểm phiên âm theo chuẩn (3)-F và nghĩa khớp 20 ý bắt buộc.
+11. **Tên app**: một hằng `APP_NAME = 'Vở Ngoại Ngữ'`; mọi nơi UI đọc từ đó. `index.html` và `manifest.webmanifest` là văn bản tĩnh, sửa tay; kiểm bằng checklist mục 10 và lệnh `grep -rn "Vở Tiếng Anh" src index.html public README.md` → 0 kết quả (không viết test đọc tệp tĩnh). Domain Vercel giữ nguyên.
+12. **Không đổi khoá `localStorage`**, không đổi `vta:v1:tts`, không đổi tên bảng.
+
+**(6) Microcopy (nguyên văn; thêm vào Phụ lục A).**
+
+- Tên ngôn ngữ: "Tiếng Anh" · "Tiếng Trung" · "Tiếng Nhật" · "Tiếng Hàn" · "Tất cả". Dạng ngắn: "Anh" · "Trung" · "Nhật" · "Hàn".
+- Chiều ôn: "Anh → Việt" · "Trung → Việt" · "Nhật → Việt" · "Hàn → Việt" · "Việt → Anh" · "Việt → Trung" · "Việt → Nhật" · "Việt → Hàn" · "Nghe → gõ".
+- Form buổi học: nhãn "Ngôn ngữ"; nhãn ô đích = tên ngôn ngữ; nhãn "Phiên âm"; placeholder đích `Can I have the bill, please?` / `你好` / `こんにちは` / `안녕하세요`; placeholder phiên âm `/kæn aɪ hæv ðə bɪl/` / `nǐ hǎo` / `konnichiwa` / `annyeonghaseyo`; lỗi "Nhập tiếng Anh." / "Nhập tiếng Trung." / "Nhập tiếng Nhật." / "Nhập tiếng Hàn." · "Chọn ngôn ngữ."; khoá: "Buổi này đã có thẻ được ôn nên không đổi ngôn ngữ được."; mô tả: "Mỗi mục sẽ thành một thẻ ôn {Ngắn} → Việt. Hai chiều còn lại mở sau khi bạn ôn thẻ đó ở hai ngày khác nhau."
+- Dán danh sách (zh/ja/ko): mô tả "Câu, nghĩa tiếng Việt và phiên âm cách nhau bằng dấu gạch ngang, dấu | hoặc tab. Phần thứ tư, nếu có, là ghi chú."; placeholder `你好 - Xin chào - nǐ hǎo` / `こんにちは - Xin chào - konnichiwa` / `안녕하세요 - Xin chào - annyeonghaseyo` (một dòng). Với `en` giữ câu T18a.
+- Cài đặt: H2 "Ngôn ngữ"; nhãn "Ngôn ngữ đang học"; mô tả "Lọc thẻ ôn, shadowing, kho mẫu câu và thống kê thẻ theo một ngôn ngữ. Nhật ký buổi học, chuỗi ngày và phút học luôn tính chung."; dòng giọng "Giọng đọc trên thiết bị này: Anh — có · Trung — có · Nhật — chưa có · Hàn — có" ("có"/"chưa có"); không Web Speech: "Trình duyệt này không có giọng đọc."
+- Hôm nay: hậu tố " · {Tên ngôn ngữ}"; rỗng lọc: "Chưa có thẻ {tên ngôn ngữ} nào. Ghi buổi học hoặc thêm mẫu câu {tên ngôn ngữ}." ("tiếng Trung" viết thường giữa câu); ghost "Học tất cả ngôn ngữ".
+- Ôn thẻ: rỗng lọc "Không có thẻ {tên ngôn ngữ} nào đến hạn."; ẩn listen: "Đã tạm ẩn {k} thẻ nghe vì thiết bị chưa có giọng đọc phù hợp."; gợi ý listen CJK: "Dấu câu và khoảng trắng không tính."
+- Thiếu giọng (Info, dùng chung): "Thiết bị chưa có giọng {tên ngôn ngữ}. Bạn vẫn đọc được phiên âm." · Shadowing: "Thiết bị chưa có giọng {tên ngôn ngữ}. Bạn vẫn có thể ghi âm và nghe lại."
+- Nhật ký: nhãn hàng "{Tên ngôn ngữ}". Trang buổi học: dateLine "Buổi {n} · {ngày} · {Tên ngôn ngữ}".
+- Mẫu câu: heading nhóm = tên ngôn ngữ; mô tả trang "Câu ngắn theo tình huống thật, bằng ngôn ngữ bạn đang học. Thêm câu bạn cần vào thẻ ôn, hoặc luyện shadowing ngay."; `nameVi` 12 tình huống: "Chào hỏi & giới thiệu" · "Nhà hàng & gọi món" · "Mua sắm & hỏi giá" · "Hỏi đường & đi lại".
+- Tiến độ: "Thẻ ôn · {Tên ngôn ngữ}" · "Chuỗi ngày và phút học tính chung mọi ngôn ngữ."
+- Đồng bộ: toast "Supabase chưa có cột ngôn ngữ. Chạy lại supabase/schema.sql để lưu ngôn ngữ buổi học."
+- Nhập JSON: "Tệp không đúng định dạng của Vở Ngoại Ngữ. Hãy chọn tệp đã xuất từ mục Cài đặt." · mô tả checkbox "Tên hiển thị, mục tiêu mỗi ngày, thẻ mới mỗi ngày, giọng đọc, tự phát âm, ngôn ngữ đang học."
+- Tên app: "Vở Ngoại Ngữ" (title, Shell, Đăng nhập, manifest name/short_name, apple title); Đăng nhập phụ đề "Học lại ngoại ngữ giao tiếp, mỗi ngày một ít."; manifest description "Vở ôn ngoại ngữ giao tiếp đi kèm lớp học thật."; Shadowing EmptyState "Hãy mở Vở Ngoại Ngữ bằng Chrome hoặc Edge để luyện shadowing."; tệp xuất `vo-ngoai-ngu-{YYYY-MM-DD}.json`.
+
+**(7) Tiêu chí chấp nhận.**
+
+T20a — data model, migration, repository, import/paste, bộ lọc
+- [ ] `domain/language.test.ts`: `asLanguage('zh')='zh'`, `asLanguage(undefined)='en'`, `asLanguage('fr')='en'`; `asStudyLanguage('x')='all'`; `directionLabel('en_vi','ko')='Hàn → Việt'`, `('vi_en','zh')='Việt → Trung'`, `('listen','ja')='Nghe → gõ'`; `itemLanguageResolver`: item buổi zh → `zh`, item `pattern_id='ja-restaurant-01'` → `ja`, item `pattern_id='greetings-01'` → `en`, item mồ côi → `en`; `languagesInUse` đúng thứ tự `LANGUAGES`; `defaultLessonLanguage`: filter zh → zh; all + buổi gần nhất ko → ko; all + không buổi → en.
+- [ ] `schema.sql` chạy **hai lần** liên tiếp không lỗi; `lessons.language` default `'en'`, check 4 giá trị; `settings.study_language` default `'all'`; dữ liệu cũ sau migration có `language='en'`.
+- [ ] `repo/supabase.test.ts`: row thiếu `language` → `'en'`; PGRST204 → gửi lại không cột mới, callback 1 lần; `repo/local.test.ts`: lessons cũ không `language` → `'en'`; settings cũ → `study_language 'all'`.
+- [ ] `domain/review.test.ts`: `buildQueue` với `language:'zh'` chỉ trả thẻ zh; thứ tự trong kết quả lọc = thứ tự tương đối trong kết quả không lọc (đến hạn); `newLeft` tính trên toàn bộ cards (tạo 15 thẻ en đã ôn hôm nay + 5 thẻ zh mới → lọc zh trả 0 thẻ mới); `speakable: (l) => l !== 'zh'` → listen zh bị loại, listen en giữ; không `langOf` → mọi thẻ coi là en; `hiddenListenCount` với speakable thiếu zh đếm đúng; `hardestCards` lọc đúng.
+- [ ] `domain/stats.test.ts`: `cardStats` với `language` đếm đúng, `lessonsCount` theo ngôn ngữ; `streak`/`todaySeconds` không nhận tham số ngôn ngữ (không đổi).
+- [ ] `lib/text.test.ts`: `normalizeAnswer('你好，世界！','zh')='你好世界'`; `('こんにちは 。','ja')='こんにちは'`; `('안녕하세요. 반가워요','ko')='안녕하세요 반가워요'`; `compareAnswer('你好世界','你好，世界！','zh')='exact'`; Levenshtein theo code point (`'𠀋'` 1 ký tự).
+- [ ] `domain/paste.test.ts`: 6 ca ở (3)-E pass; ca cũ `en` không đổi.
+- [ ] `domain/importSnapshot.test.ts`: lesson thiếu `language` → `'en'`; `language:'fr'` → skipped; `settings.study_language:'zh'` → nhận; `'xx'` → giữ hiện tại.
+- [ ] `domain/lessons.test.ts`: `validateItem({...}, { language:'zh' })` → "Nhập tiếng Trung."; không truyền → "Nhập tiếng Anh."
+- [ ] Settings mặc định (`defaultSettings`) có `study_language:'all'`; xuất JSON có trường này; nhập tệp cũ không có → giữ `'all'`.
+- [ ] `npm test`, `npm run build`, `npm run lint` pass.
+
+T20b — TTS, `lang`, font
+- [ ] `lib/tts/webSpeech.test.ts` (mới) `pickVoiceFor`: `[zh-TW, zh-CN]` → zh-CN; `[zh-HK, zh-TW]` → zh-TW; `[yue-HK]` → yue-HK (bậc 3); `[ja_JP]` → khớp (chuẩn hoá `_`); `[]` → undefined; `localService` ưu tiên trong cùng bậc.
+- [ ] `lib/tts/router.test.ts`: `resolve('zh')` → web khi `supports('zh')`, `null` khi không; không gọi server, không markDown, không toast với zh/ja/ko kể cả lỗi; `resolve('en')`/`resolve('vi')` 5 nhánh cũ không đổi.
+- [ ] `lib/tts/text.test.ts`: `prepareText('你好。再见！','zh')` chia 2 đoạn; `{slot}` → "…" với ja.
+- [ ] `routes/lessonReadAloud.test.ts`: `buildReadAloudSteps(items, true, 'ko')` → bước đích `lang:'ko'`, bước VI `lang:'vi'`.
+- [ ] Thủ công Chrome desktop: thẻ zh/ja/ko bấm loa → nghe đúng ngôn ngữ (không đọc theo giọng Anh); `SpeechSynthesisUtterance.lang` = `zh-CN`/`ja-JP`/`ko-KR` (kiểm bằng breakpoint hoặc log tạm); gỡ hết giọng zh (hoặc mock `getVoices`) → nút ẩn, Info đúng câu, listen zh không vào hàng đợi.
+- [ ] `document.querySelectorAll('[lang]')` trên Trang buổi học zh: câu đích `zh-Hans`, phiên âm `zh-Latn`, không còn `lang="en"` quanh dữ liệu người dùng; computed `font-family` của câu zh bắt đầu bằng Be Vietnam Pro rồi PingFang SC (macOS) — kiểm bằng DevTools "Rendered Fonts" thấy font hệ thống CJK, **không** có request tới fonts.googleapis.com ngoài 2 font sẵn có.
+- [ ] `.sh-en[lang="ja"]` line-height 1.4; `.review-en` vẫn 48px; lưới vở không lệch với câu CJK 1–2 dòng (ảnh chụp 1440 và 390).
+- [ ] Server EN bật: thẻ zh vẫn dùng Web Speech; "Giọng mẫu: server local." không hiện với câu zh.
+- [ ] `npm test`/`build`/`lint` pass; `speech.test.ts` không đổi.
+
+T20c — UI, nhãn, bộ lọc, đổi tên
+- [ ] `/lessons/new`: có select "Ngôn ngữ" với 4 option; mặc định theo quy tắc (3 kịch bản: filter zh; all + buổi gần nhất ja; all + trống → en); đổi select → nhãn ô đích, placeholder, mô tả "Trung → Việt" đổi ngay; lưu → `lesson.language` đúng trong state và DB/localStorage.
+- [ ] Sửa buổi có thẻ `reps > 0` → select disabled + mô tả; buổi chưa ôn → đổi được; sau đổi, nhãn chiều trên thẻ và giọng đọc theo ngôn ngữ mới.
+- [ ] Cài đặt: khối "Ngôn ngữ" giữa "Tài khoản" và "Mục tiêu"; chọn "Tiếng Trung" → toast "Đã lưu."; reload giữ; thiết bị thứ hai (Supabase) sau reload thấy cùng giá trị; dòng tình trạng giọng đúng với `getVoices()` thực tế.
+- [ ] Hôm nay khi lọc zh: số lớn = số thẻ zh; trang vở là buổi zh gần nhất; hậu tố "· Tiếng Trung"; không có thẻ zh → trạng thái rỗng đúng câu + "Học tất cả ngôn ngữ" đặt lại `'all'`.
+- [ ] Ôn thẻ: hàng meta "Thẻ 1/N · Trung → Việt"; `?lesson=` của buổi en khi đang lọc zh vẫn ôn được buổi en; ô listen có `lang`, so khớp bỏ dấu câu.
+- [ ] Nhật ký: 1 ngôn ngữ → không nhãn; ≥ 2 → nhãn mute đúng; không lọc.
+- [ ] Mẫu câu: Tất cả → 4 nhóm đúng thứ tự, 9/4/4/4 hàng; lọc ja → 4 hàng không heading; trang tình huống ja có `lang="ja"`, phiên âm `ja-Latn`, loa đọc tiếng Nhật, "Thêm vào thẻ ôn" tạo item; thẻ đó hiện "Nhật → Việt" ở Ôn thẻ.
+- [ ] Shadowing: lọc ko → "Buổi gần nhất" là buổi ko; select tình huống chỉ ko; Tất cả → optgroup 4 nhóm; `?pattern=ja-shopping-02` mở đúng câu bất kể bộ lọc.
+- [ ] Tiến độ lọc: khối thẻ đổi tiêu đề và số; chuỗi/phút/lịch không đổi khi đổi bộ lọc.
+- [ ] Tên: tab "Hôm nay · Vở Ngoại Ngữ"; Shell "Vở Ngoại Ngữ"; Đăng nhập H1 + phụ đề mới; manifest `name`/`short_name`/`description` mới; `apple-mobile-web-app-title`; README tiêu đề + mục "Ngôn ngữ học"; PRODUCT.md có dòng tên mới; `grep -r "Vở Tiếng Anh" src index.html public README.md` chỉ còn ở chú thích lịch sử (nếu có) — mục tiêu 0 kết quả trong `src/`.
+- [ ] Không eyebrow/uppercase, không badge nền màu cho nhãn ngôn ngữ, không viền trái; nút ≥ 44px; 390px không tràn ngang ở form (select xuống dòng riêng) và `/patterns` nhóm.
+- [ ] `npm test`/`build`/`lint` pass; ảnh chụp các màn với dữ liệu chỉ `en` và `study_language='all'` **không khác** trước T20 ngoài tên app.
+
+T20d — bộ mẫu câu khởi đầu zh/ja/ko
+- [ ] `data/patterns.test.ts` cập nhật pass: 21 tình huống, `PATTERN_COUNT === 147`, ràng buộc hệ chữ và phiên âm (3)-F.
+- [ ] Reviewer đối chiếu **từng câu** (60 câu): nghĩa khớp ý bắt buộc; `zh` giản thể + pinyin đúng dấu thanh và tách từ; `ja` kanji/kana N5 + Hepburn nhất quán (macron); `ko` 해요체 + RR đúng; `note`/`pronunciationFocus` là tiếng Việt, đúng trọng tâm (thanh điệu zh; trường âm/trợ từ ja; patchim/phụ âm căng ko); không câu nào copy nguyên văn từ nguồn có bản quyền (câu giao tiếp phổ thông).
+- [ ] `/patterns/zh-greetings` hiển thị và đọc được trên Chrome desktop có giọng zh; `fillPattern` không có `{`; "Thêm cả tình huống (5 câu)" tạo 5 item.
+- [ ] `npm test`/`build`/`lint` pass.
+
+**(8) Task:** T20a, T20b, T20c, T20d (mục 9).
+
 ---
 
 ## 7. Dữ liệu seed
 
-File: `src/data/patterns.ts` (đã viết đầy đủ). 9 tình huống, 87 mẫu câu A1–A2, mỗi câu có `en`, `vi`, `ipa`, `level`, tuỳ chọn `slots` (ô trống với `hint` tiếng Việt và 2–3 ví dụ EN/VI) và `note` (lưu ý phát âm người Việt: âm cuối, -s/-ed, trọng âm, nối âm). Mỗi tình huống có `intro` và `pronunciationFocus`.
+File: `src/data/patterns.ts` (đã viết đầy đủ phần tiếng Anh). **Tiếng Anh**: 9 tình huống, 87 mẫu câu A1–A2, mỗi câu có `en` (câu đích), `vi`, `ipa`, `level`, tuỳ chọn `slots` (ô trống với `hint` tiếng Việt và 2–3 ví dụ đích/VI) và `note` (lưu ý phát âm người Việt: âm cuối, -s/-ed, trọng âm, nối âm). Mỗi tình huống có `language`, `intro`, `pronunciationFocus`, tuỳ chọn `nameTarget`.
 
-Tình huống (id → tên): `greetings` Chào hỏi · `self-intro` Giới thiệu bản thân · `ordering` Gọi món · `directions` Hỏi đường · `shopping` Mua sắm · `work` Công việc · `phone` Điện thoại · `airport` Sân bay · `hotel` Khách sạn.
+**(T20) Bộ khởi đầu zh/ja/ko**: 12 tình huống × 5 câu = 60 câu (6.14 (3)-F), không slot, phiên âm pinyin có dấu thanh / Hepburn / Revised Romanization. Tổng `PATTERN_COUNT = 147`.
 
-Hàm tiện ích xuất kèm: `fillPattern(p, i)`, `blankPattern(text)`, `splitPattern(text)`, `findPattern(id)`, `findSituation(id)`, hằng `PATTERN_COUNT`. Coder dùng các hàm này, không tự parse `{slot}`.
+Tình huống `en` (id → tên): `greetings` Chào hỏi · `self-intro` Giới thiệu bản thân · `ordering` Gọi món · `directions` Hỏi đường · `shopping` Mua sắm · `work` Công việc · `phone` Điện thoại · `airport` Sân bay · `hotel` Khách sạn. Tình huống `zh|ja|ko`: `{lang}-greetings` Chào hỏi & giới thiệu · `{lang}-restaurant` Nhà hàng & gọi món · `{lang}-shopping` Mua sắm & hỏi giá · `{lang}-directions` Hỏi đường & đi lại.
+
+Hàm tiện ích xuất kèm: `fillPattern(p, i)`, `blankPattern(text)`, `splitPattern(text)`, `findPattern(id)`, `findSituation(id)`, `situationOfPattern(id)`, **(T20)** `situationsOf(filter)`, `firstSituationId(lang)`, `languageOfPattern(id)`, hằng `PATTERN_COUNT`. Coder dùng các hàm này, không tự parse `{slot}`.
 
 Quy tắc dùng seed: không chỉnh sửa nội dung qua UI; khi thêm vào thẻ ôn, nội dung được **sao chép** vào `items` (nên sửa seed sau này không đổi thẻ đã tạo). IPA là của câu đã điền ví dụ đầu tiên.
 
@@ -1467,7 +1776,7 @@ Quy tắc dùng seed: không chỉnh sửa nội dung qua UI; khi thêm vào th�
 
 ### 8.6 Chất lượng mã
 - `npm run build` và `npm run lint` pass ở mỗi task. Không `any` trừ ranh giới JSON (`Record<string, unknown>`). Không `enum`. `import type` cho type-only. Không `console.log` còn lại.
-- Test đơn vị với `vitest` cho `lib/dates.ts`, `lib/text.ts`, `domain/review.ts`, `domain/stats.ts`, `data/patterns.ts` (fillPattern/splitPattern, mọi `{key}` có slot).
+- Test đơn vị với `vitest` cho `lib/dates.ts`, `lib/text.ts`, `domain/review.ts`, `domain/stats.ts`, `data/patterns.ts` (fillPattern/splitPattern, mọi `{key}` có slot), **(T20)** `domain/language.ts`, `lib/tts/webSpeech.ts` (`pickVoiceFor`), và các ca ngôn ngữ thêm vào test hiện có (6.14 (7)).
 
 ---
 
@@ -1625,6 +1934,59 @@ Làm:
 5. `routes/Today.tsx`: không đổi (ghi rõ trong PR).
 Xong khi: tiêu chí 6.12 (7) "Màn học" pass; build+lint pass; đếm nút loa VI mỗi màn đúng 6.12 (5).12; với cấu hình mặc định, ảnh chụp 4 màn không khác trước T19 (không có nút mới).
 
+**T20 — Đa ngôn ngữ học (Anh, Trung, Nhật, Hàn) và đổi tên "Vở Ngoại Ngữ"** (đặc tả 6.14; 4 task **tuần tự** a → b → c → d; d có thể chạy song song với c nếu cần)
+
+**T20a — Data model, migration, repository, bộ lọc, import/paste**
+Phụ thuộc: T18a, T18b, T19a. Model: **Opus** (chạm cả hai Repository, schema, domain thuần, ≥ 10 file).
+Làm, theo thứ tự:
+1. `src/domain/types.ts`: `Language`, `LANGUAGES`, `StudyLanguageFilter`, `STUDY_LANGUAGES`; `Lesson.language`; `Settings.study_language`; JSDoc "câu ngôn ngữ đích" cho `Item.en`, "phiên âm" cho `Item.ipa`. `DIRECTION_LABELS` giữ.
+2. `src/domain/language.ts` + `language.test.ts` theo 6.14 (3)-A (import `situationOfPattern`/`findSituation` từ `data/patterns` — ở T20a `Situation.language` chưa có → tạm `languageOfPattern` trả `'en'` cho mọi id tồn tại; T20d hoàn thiện. Ghi TODO rõ trong code).
+3. `supabase/schema.sql`: khối 9 theo 3.2. `README.md` mục "Cập nhật schema": thêm câu "Sau T20 phải chạy lại file để có cột `language`/`study_language`."
+4. `src/repo/supabase.ts`: `LessonRow.language?`, `SettingsRow.study_language?`, `toLesson`/`toSettings` chuẩn hoá, `defaultSettings` + `study_language`, xử lý `PGRST204` (gửi lại không cột mới, cờ `schemaOutdated`, `setSchemaOutdatedNotifier(fn)`); `src/repo/local.ts`: chuẩn hoá khi đọc; test cho cả hai (6.14 (7) T20a).
+5. `src/state/DataProvider.tsx`: nối `setSchemaOutdatedNotifier(notify)` (toast info 1 lần/phiên — repo tự đảm bảo "1 lần").
+6. `src/domain/review.ts`: `buildQueue`/`hiddenListenCount`/`hardestCards` thêm `language`/`langOf`/`speakable` (4.4 1b, 4.6) — mặc định không đổi hành vi; test mới trong `review.test.ts`. `src/domain/stats.ts`: `cardStats(cards, lessons, { language?, langOf? })`; test.
+7. `src/lib/text.ts`: `normalizeAnswer(s, language)`, `compareAnswer(a, b, language)` theo 4.7 (Levenshtein theo code point); test.
+8. `src/domain/lessons.ts`: `LessonInput.language`, `validateLesson` lỗi "Chọn ngôn ngữ.", `validateItem(input, { required?, language? })`; test.
+9. `src/domain/paste.ts`: `parsePastedList(text, language)`, `inferKind(en, language)` theo 6.14 (3)-E; test 6 ca.
+10. `src/domain/importSnapshot.ts`: `language` của lesson, `study_language` của settings theo 6.14 (3)-C; đổi câu `bad-shape` sang "…của Vở Ngoại Ngữ…"; test.
+11. `src/domain/settingsLimits.ts` (nếu Settings/Import dùng): export `isStudyLanguage` (re-export từ `language.ts`).
+Đầu ra: các file trên + test. Xong khi: tiêu chí 6.14 (7) "T20a" pass; `npm test`/`build`/`lint` pass; app chạy y hệt trước T20 ở mọi màn (chưa có UI mới) với dữ liệu cũ ở cả mode local và Supabase **đã** và **chưa** migrate (toast schema hiện đúng 1 lần ở trường hợp chưa migrate).
+
+**T20b — TTS theo ngôn ngữ, thuộc tính `lang`, font stack CJK**
+Phụ thuộc: T20a. Model: **Opus** (router/provider có đồng thời + ≥ 6 file).
+Làm, theo thứ tự:
+1. `src/lib/ttsConfig.ts`: `TtsLang` mở rộng, `ServerLang`, `isServerLang`. `src/lib/tts/types.ts`: `MODEL`/`DEFAULT_VOICE` → `Record<ServerLang, string>`.
+2. `src/lib/tts/webSpeech.ts`: `pickVoiceFor(lang)` (export, thuần), `speakWithVoice` tổng quát hoá `speakVi`, `supports(lang)` cho 5 ngôn ngữ, timeout CJK theo 6.14 (3)-D; `webSpeech.test.ts` mới cho `pickVoiceFor`. **Không sửa `lib/speech.ts`.**
+3. `src/lib/tts/router.ts`: `servers: Record<ServerLang, …>`, `resolve` 4 nhánh theo 6.14 (3)-D, `probe/listVoices(lang: ServerLang)`; cập nhật `router.test.ts` (zh/ja/ko không bao giờ chạm server/toast). `src/lib/tts/index.ts`: kiểu tham số; `canSpeak(lang)` cho mọi `TtsLang`. `src/lib/tts/text.ts`: ranh giới CJK + `{slot}`; test.
+4. `src/hooks/useTts.ts`: `canSpeakLang(lang)` qua snapshot `speakable` (external store, re-render khi `voiceschanged`); `speak(text, { rate, lang })` kiểu mở rộng. `src/components/SpeakButton.tsx`: điều kiện ẩn theo `lang`; `TtsUnsupportedNote lang?`.
+5. `src/routes/lessonReadAloud.ts`: tham số `language`; test.
+6. `src/styles/tokens.css`: `--font-zh/ja/ko`; `src/styles/base.css`: quy tắc `[lang]` (5.2); `src/routes/Shadowing.css` và `src/routes/Review.css`: line-height 1.4 cho CJK ở hai chỗ 5.2.
+7. `src/routes/Shadowing.tsx` + `shadowingSource.ts`: `ShadowSentence.language`, `resolveSource(..., filter)`, `tts.speak(..., { lang })`, Info thiếu giọng, `lang` attr; `shadowingSource.test.ts` cập nhật (lọc theo ngôn ngữ, tình huống mặc định theo ngôn ngữ — với T20d chưa có, test dùng situation `en`).
+8. `src/routes/LessonView.tsx`, `src/routes/Review.tsx`, `src/routes/PatternSituation.tsx`, `src/routes/Today.tsx`, `src/components/NotebookPage.tsx` (nếu có `lang` cố định): thay `lang="en"` trên dữ liệu người dùng bằng `LANG_TAG`/`ROMAN_TAG`; `SpeakButton lang={L}`; `auto_speak` theo `L`; phím `S` theo `L`. (Chưa làm nhãn chiều/bộ lọc — T20c.)
+Đầu ra: các file trên + test. Xong khi: tiêu chí 6.14 (7) "T20b" pass; `npm test`/`build`/`lint` pass; với dữ liệu chỉ `en` không có khác biệt hiển thị/âm thanh so với T20a.
+
+**T20c — UI: chọn ngôn ngữ buổi học, nhãn, bộ lọc, đổi tên app**
+Phụ thuộc: T20b. Model: **Opus** (≥ 10 file UI + README/manifest).
+Làm, theo thứ tự:
+1. Đổi tên: `src/hooks/usePageTitle.ts` `APP_NAME = 'Vở Ngoại Ngữ'`; `src/components/Shell.tsx` dùng `APP_NAME`; `src/routes/Login.tsx` H1 + phụ đề; `src/routes/Shadowing.tsx` EmptyState; `src/routes/Settings.tsx` tên tệp xuất; `index.html` (`<title>`, `apple-mobile-web-app-title`); `public/manifest.webmanifest` (name, short_name, description); `README.md` (tiêu đề, đoạn mở đầu, mục mới "Ngôn ngữ học" ngắn: 4 ngôn ngữ, mỗi buổi một ngôn ngữ, bộ lọc trong Cài đặt, giọng đọc phụ thuộc thiết bị + cách cài giọng trên macOS/iOS/Windows/Android); `PRODUCT.md`: **chỉ** thêm một dòng ngay dưới `# Product`: `Name: Vở Ngoại Ngữ (formerly Vở Tiếng Anh). Learning languages since T20: English, Chinese (Simplified), Japanese, Korean; UI stays Vietnamese.` — không sửa gì khác trong PRODUCT.md.
+2. `src/routes/Settings.tsx` (+ CSS): khối "Ngôn ngữ" (6.11 (9)) với select + dòng tình trạng giọng; mô tả checkbox nhập cài đặt.
+3. `src/routes/LessonEdit.tsx` (+ CSS): select "Ngôn ngữ" ở hàng đầu (3 cột; mobile xuống dòng), mặc định `defaultLessonLanguage`, khoá khi `reps > 0`, nhãn/placeholder/mô tả động, `validateItem` với `language`, `parsePastedList(text, language)`, mô tả/placeholder panel dán theo ngôn ngữ; lưu `language`.
+4. `src/routes/Lessons.tsx`: nhãn ngôn ngữ khi `languagesInUse().length > 1`. `src/routes/LessonView.tsx`: dateLine hậu tố khi > 1 ngôn ngữ; điều kiện "Nghe cả trang" thêm `canSpeakLang(L)`; Info thiếu giọng.
+5. `src/routes/Today.tsx`: bộ lọc (queue/hardest/hidden/latest), hậu tố "· {Tên}", trạng thái rỗng theo ngôn ngữ + ghost "Học tất cả ngôn ngữ".
+6. `src/routes/Review.tsx`: bộ lọc (trừ `?lesson`), `directionLabel`, rỗng theo ngôn ngữ, câu "Đã tạm ẩn {k} thẻ nghe vì thiết bị chưa có giọng đọc phù hợp.", ô listen `lang` + gợi ý CJK, nhãn hiển thị nút loa `LANGUAGE_SHORT[L]`.
+7. `src/routes/Patterns.tsx` (+ CSS): lọc + nhóm theo ngôn ngữ, `nameTarget`, mô tả mới. `src/routes/PatternSituation.tsx`: `lang` theo tình huống (phần còn lại từ T20b). `src/routes/Shadowing.tsx`: select tình huống lọc/optgroup.
+8. `src/routes/Progress.tsx`: `cardStats` với bộ lọc, tiêu đề khối + dòng giải thích.
+Đầu ra: các file trên. Xong khi: tiêu chí 6.14 (7) "T20c" pass; `npm test`/`build`/`lint` pass; checklist 10 mục "Đa ngôn ngữ" (trừ phần giọng thật trên thiết bị, làm ở T20d/deploy); `grep -rn "Vở Tiếng Anh" src index.html public README.md` → 0 kết quả.
+
+**T20d — Bộ mẫu câu khởi đầu zh/ja/ko**
+Phụ thuộc: T20a (kiểu `Language`); kiểm tra tay cần T20c. Model: **Opus** (độ chính xác phiên âm là tiêu chí chấp nhận; nội dung 60 câu × 3 trường + ghi chú).
+Làm, theo thứ tự:
+1. `src/data/patterns.ts`: `Situation.language` (9 tình huống cũ = `'en'`), `nameTarget?`; 12 tình huống mới đúng 6.14 (3)-F (id, nameVi, nameTarget, icon dùng lại, intro, pronunciationFocus, 5 mẫu/tình huống, note); `situationsOf`, `firstSituationId`, `languageOfPattern`; `PATTERN_COUNT` tự tính = 147.
+2. `src/domain/language.ts`: `languageOfPattern` dùng dữ liệu thật (bỏ TODO T20a); test item thư viện ja → `ja`.
+3. `src/data/patterns.test.ts`: cập nhật theo 6.14 (3)-F (21 tình huống, ràng buộc hệ chữ/phiên âm, `nameTarget` bắt buộc với non-EN, IPA `/…/` chỉ cho EN).
+4. `src/routes/shadowingSource.ts`: `DEFAULT_SITUATION` → `firstSituationId(lang)`/`'greetings'`; test.
+Đầu ra: 4–5 file. Xong khi: tiêu chí 6.14 (7) "T20d" pass; reviewer đã đối chiếu 60 câu; `npm test`/`build`/`lint` pass.
+
 ---
 
 ## 10. Checklist test thủ công (chạy ở T17 và trước mỗi lần deploy)
@@ -1667,6 +2029,19 @@ Thiết kế / a11y
 - [ ] Lighthouse Accessibility ≥ 95 trên Hôm nay, Ôn thẻ, Buổi học (sửa).
 - [ ] 390px: không cuộn ngang ở mọi màn; nút chấm không bị che.
 
+Đa ngôn ngữ (T20) — chạy trên **Chrome desktop (macOS/Windows)**, **iOS Safari**, **Android Chrome**; ghi rõ thiết bị + phiên bản OS vào kết quả
+- [ ] Tạo 1 buổi mỗi ngôn ngữ zh/ja/ko (2–3 mục, có phiên âm) → trang vở hiển thị đúng chữ Hán/Kana/Hangul bằng font hệ thống (không ô vuông), lưới 48px không lệch, phiên âm hiện dưới câu.
+- [ ] Nút loa trên trang buổi học zh/ja/ko: **Chrome desktop** đọc đúng ngôn ngữ (macOS có sẵn Tingting/Kyoko/Yuna; Windows cần gói ngôn ngữ — nếu thiếu, kiểm tra nút ẩn + Info đúng câu); **iOS Safari** đọc được trong một chạm (giọng Siri/hệ thống của ngôn ngữ; iOS 17+ có sẵn zh-CN/ja-JP/ko-KR); **Android Chrome** đọc bằng Google TTS (nếu gói ngôn ngữ chưa tải → nút ẩn + Info; tải trong Cài đặt → Ngôn ngữ & nhập liệu → Chuyển văn bản sang giọng nói, mở lại app → nút hiện mà không cần reload nhờ `voiceschanged`; nếu Android không bắn sự kiện, reload là chấp nhận được).
+- [ ] Ôn thẻ: thẻ zh hiện "Trung → Việt"; thẻ listen ja: "Nghe" phát tiếng Nhật, gõ kana (có/không dấu câu) → "Đúng rồi."; thẻ listen của ngôn ngữ thiếu giọng không xuất hiện và dòng "Đã tạm ẩn…" đúng.
+- [ ] Shadowing câu ko ở 0.5x/1x khác nhau rõ; ghi âm/nghe lại như cũ; dòng "Giọng mẫu: server local." không hiện với ko dù server EN bật.
+- [ ] Cài đặt → "Ngôn ngữ đang học" = Tiếng Nhật → Hôm nay chỉ thẻ ja, trang vở là buổi ja gần nhất, Mẫu câu chỉ 4 tình huống ja, Shadowing chỉ tình huống ja, Tiến độ khối thẻ "Thẻ ôn · Tiếng Nhật"; chuỗi ngày và phút không đổi; Nhật ký vẫn đủ buổi mọi ngôn ngữ với nhãn.
+- [ ] Đặt lại "Tất cả" → mọi màn như trước; Mẫu câu 4 nhóm 9/4/4/4.
+- [ ] Supabase: chạy lại `schema.sql` lần 2 không lỗi; **trước** khi chạy migration (mô phỏng bằng project phụ hoặc tạm bỏ cột) tạo buổi → toast schema 1 lần, buổi vẫn lưu (language = en trên server); sau migration tạo buổi zh → cột `language='zh'` trong Table Editor; thiết bị thứ hai reload thấy buổi zh với giọng zh.
+- [ ] Nhập JSON xuất từ bản trước T20 → mọi buổi là Tiếng Anh, không bản ghi bị bỏ qua; xuất lại có `language` và `study_language`.
+- [ ] Dán danh sách trong buổi zh với 3 phần "câu - nghĩa - pinyin" → đúng 3 ô; trong buổi en vẫn theo quy tắc cũ (`/…/`).
+- [ ] Cài PWA lại (Android/iOS) → tên "Vở Ngoại Ngữ" dưới icon; tab trình duyệt "Hôm nay · Vở Ngoại Ngữ".
+- [ ] Không có request nào tới fonts.googleapis.com ngoài Be Vietnam Pro + Charm (Network, lọc "font").
+
 ---
 
 ## 11. Cài đặt và deploy miễn phí
@@ -1697,7 +2072,7 @@ npm run dev          # http://localhost:5173 — chế độ cục bộ (localSt
 Netlify thay thế: file `public/_redirects` với `/* /index.html 200`.
 
 ### 11.4 Cập nhật schema sau này
-Sửa `supabase/schema.sql` theo kiểu idempotent (`add column if not exists`) và chạy lại toàn bộ; không dùng migration tool ở MVP.
+Sửa `supabase/schema.sql` theo kiểu idempotent (`add column if not exists`) và chạy lại toàn bộ; không dùng migration tool ở MVP. **(T20)** Bản có đa ngôn ngữ yêu cầu chạy lại file để thêm `lessons.language` và `settings.study_language` (3.2); client cũ/mới đều chạy được trước và sau khi chạy (3.2 xử lý `PGRST204`).
 
 ---
 
@@ -1730,6 +2105,15 @@ Sửa `supabase/schema.sql` theo kiểu idempotent (`add column if not exists`) 
 24. (T18b) Thêm `upsertLessons` vào Repository + op `upsertLessons` thay vì gửi từng `upsertLesson`; `addStudyTime` vẫn một op/ngày (≤ 120 request) — chấp nhận, không thêm rpc mới.
 25. (T18b) Trường `settings` không hợp lệ trong tệp → giữ giá trị hiện tại của riêng trường đó; không từ chối cả khối cài đặt.
 26. (T18c) Không service worker/offline/`beforeinstallprompt`; không `vite-plugin-pwa`; `apple-mobile-web-app-status-bar-style="default"` vì Shell chưa chừa `safe-area-inset-top`. Icon PNG sinh từ `public/icon-source.svg` (biến thể full-bleed của `favicon.svg`) bằng `qlmanage`/`rsvg-convert`, có `PROVENANCE.md`; Chrome hiện cài được không cần service worker (yêu cầu đã bỏ từ Chrome 108+) — kiểm chứng ở (7)-C.
+27. (T20) Ngôn ngữ là thuộc tính của **buổi học**; item/card không lưu ngôn ngữ, suy ra qua `itemLanguageResolver`. Item thư viện lấy ngôn ngữ từ tình huống seed; seed id bị xoá sau này → `'en'`.
+28. (T20) Hạn mức "thẻ mới mỗi ngày" là **một** hạn mức chung cho cả vở (đếm `first_reviewed_at` trên mọi ngôn ngữ), không phải mỗi ngôn ngữ 15 thẻ — giữ đúng tinh thần "mỗi ngày một ít" và không đổi thuật toán 4.4.
+29. (T20) Khoá đổi ngôn ngữ buổi khi có thẻ `reps > 0` (đã ôn ít nhất một lần), không phải khi "có thẻ" (vì mọi item đều sinh thẻ ngay khi lưu — khoá từ lúc đó sẽ không cho sửa lỗi chọn nhầm ngôn ngữ).
+30. (T20) Bộ lọc `study_language` lưu trong bảng `settings` (đồng bộ giữa thiết bị) chứ không phải `localStorage` theo thiết bị: "ngôn ngữ đang học" là trạng thái của người học, không phải của máy; và migration đã phải chạy cho `lessons.language` nên thêm một cột không tốn thêm bước.
+31. (T20) Không có chọn giọng theo từng ngôn ngữ trong Cài đặt (chỉ `voice_name` cho tiếng Anh như cũ); zh/ja/ko tự chọn theo `pickVoiceFor`. Nếu người dùng cần (vd thích giọng nữ/nam), thêm `voice_name_zh/ja/ko` ở giai đoạn sau.
+32. (T20) Bộ khởi đầu zh/ja/ko không dùng `slots` để nội dung ngắn, dễ kiểm phiên âm; `level` dùng nhãn `A1` chung (tương đương HSK1/N5/TOPIK1) thay vì thêm thang riêng.
+33. (T20) Dán danh sách với zh/ja/ko: phần 3 **luôn** là phiên âm (không dò `/…/`), vì pinyin/romaji/RR không có dấu phân biệt với tiếng Việt không dấu; quy tắc cố định dễ giải thích hơn đoán.
+34. (T20) Font CJK chỉ từ hệ thống (`--font-zh/ja/ko`); không tải Noto từ Google Fonts (dung lượng lớn, trái yêu cầu). Thiết bị không có font CJK → hiển thị ô vuông, không xử lý thêm.
+35. (T20) Client gặp `PGRST204` (server chưa có cột mới) → gửi lại không cột mới + toast hướng dẫn, thay vì dead-letter; chấp nhận buổi tạm là `en` trên server cho tới khi chạy migration.
 
 ### 12.2 Câu hỏi mở cần người dùng quyết
 
@@ -1774,6 +2158,30 @@ Sửa `supabase/schema.sql` theo kiểu idempotent (`add column if not exists`) 
 
 **Giới hạn đã biết (T18b):** nhập tệp JSON xuất từ **tài khoản Supabase khác** trên cùng project sẽ bị RLS từ chối (id là khoá chính toàn cục thuộc tài khoản cũ) → các op vào dead-letter. Luồng cục bộ → Supabase và cùng tài khoản hoạt động bình thường. Khắc phục (GĐ sau): đổi id khi gặp 42501.
 
+**Đã quyết (2026-11-09, người dùng, T20 — đa ngôn ngữ & đổi tên, xem 6.14):**
+1. Ngôn ngữ học: `en` (Anh), `zh` (Trung giản thể, pinyin có dấu thanh), `ja` (Nhật, romaji Hepburn hoặc kana), `ko` (Hàn, Revised Romanization). Giao diện và ngôn ngữ mẹ đẻ vẫn tiếng Việt.
+2. Tổ chức theo cách (a): **mỗi buổi học một ngôn ngữ** (`lessons.language`), chung một vở, chung chuỗi ngày và phút. Cài đặt có "Ngôn ngữ đang học" (một ngôn ngữ hoặc "Tất cả", mặc định "Tất cả") lọc Hôm nay/Ôn thẻ, Shadowing, Kho mẫu câu, thống kê thẻ. Danh sách buổi học gắn nhãn ngôn ngữ khi có > 1 ngôn ngữ.
+3. Tên app **"Vở Ngoại Ngữ"** (title, manifest name/short_name "Vở Ngoại Ngữ", apple title, Đăng nhập, README, dòng tên PRODUCT.md). Domain `tienganh-giaotiep.vercel.app` giữ nguyên.
+4. Dữ liệu cũ = `en`; migration idempotent (`add column if not exists` + check + default 'en'); localStorage thiếu trường → 'en'.
+5. Giữ tên trường/cột `ipa` (nhãn UI "Phiên âm", placeholder theo ngôn ngữ) và `en` (gọi là "câu ngôn ngữ đích"; lý do ở 6.14 (5).2).
+6. Giọng: `en→en-US`, `zh→zh-CN`, `ja→ja-JP`, `ko→ko-KR`, Web Speech chọn giọng theo lang, thiếu giọng → "Thiết bị chưa có giọng {ngôn ngữ}…"; server local EN chỉ cho `en`; thuộc tính HTML `lang` đúng (`en`, `zh-Hans`, `ja`, `ko`); font stack CJK hệ thống, không tải từ Google Fonts; cỡ chữ CJK giữ, tăng line-height nơi cần (5.2).
+7. Kho mẫu câu: `Situation.language`; 9 tình huống cũ = `en`; bộ khởi đầu zh/ja/ko mỗi ngôn ngữ 4 tình huống × 5 câu (Chào hỏi & giới thiệu, Nhà hàng & gọi món, Mua sắm & hỏi giá, Hỏi đường & đi lại); coder viết nội dung, reviewer kiểm phiên âm; màn Kho mẫu câu lọc theo ngôn ngữ, "Tất cả" → nhóm theo ngôn ngữ.
+8. Form buổi học: chọn ngôn ngữ ở đầu (mặc định = ngôn ngữ đang học nếu ≠ Tất cả, ngược lại = buổi gần nhất, mặc định `en`); không đổi sau khi đã có thẻ ôn; dán danh sách và nhập JSON mang `language` (JSON thiếu → `en`).
+9. Chiều ôn giữ mã `en_vi/vi_en/listen`; nhãn "Trung → Việt"/"Việt → Trung"… theo ngôn ngữ.
+
+**Đã quyết (T20, spec-writer theo uỷ quyền "chọn phương án ít rủi ro", 2026-11-09):**
+- Q16: "Đã có thẻ ôn" hiểu là **có thẻ `reps > 0`** (12.1.29). Nếu muốn chặt hơn (khoá ngay khi có item), đổi điều kiện trong `LessonEdit` — một dòng.
+- Q17: Bộ lọc lưu trong **`settings.study_language`** (đồng bộ), không phải theo thiết bị (12.1.30).
+- Q18: Hạn mức thẻ mới **chung** cho cả vở (12.1.28). Nếu muốn mỗi ngôn ngữ một hạn mức: đếm `introducedToday` theo `langOf` khi có `language` — đổi 3 dòng trong `buildQueue` + test.
+- Q19: Không có chọn giọng theo ngôn ngữ ở Cài đặt (12.1.31); chỉ dòng tình trạng "có/chưa có".
+- Q20: Bộ khởi đầu không dùng `slots`, `level: 'A1'` (12.1.32); `nameTarget` là trường mới tuỳ chọn thay vì nhồi vào `nameEn`.
+- Q21: Dán danh sách zh/ja/ko: phần 3 luôn là phiên âm (12.1.33).
+- Q22: Server chưa migrate → gửi lại không cột mới + toast (12.1.35), không chặn ghi.
+- Q23: Nhật ký buổi học **không** lọc theo ngôn ngữ (chỉ gắn nhãn) — bám đúng câu chữ quyết định 2; trang buổi học/`?lesson=` bỏ qua bộ lọc.
+- Q24: `normalizeAnswer` nhận `language` để bỏ dấu câu CJK và khoảng trắng (zh/ja); mặc định `en` không đổi.
+- Q25: "Nghe cả trang" (T19) giữ điều kiện `viAvailable`, thêm `canSpeakLang(L)`; không mở rộng thành "đọc chỉ ngôn ngữ đích" ở T20.
+- Q26: `PRODUCT.md` chỉ thêm **một dòng tên** (quyết định 3); `CLAUDE.md` không thuộc phạm vi coder (xem câu hỏi mở 16).
+
 **Chưa quyết (coder theo giả định 12.1 / spec hiện tại):**
 9. **(T19) Giọng tiếng Việt của thiết bị làm dự phòng**: spec để một switch phụ tắt mặc định. Nếu bạn thấy chất lượng giọng `vi` của iOS/macOS chấp nhận được thì giữ; nếu muốn gọn, bỏ hẳn switch này (xoá `deviceFallback`, nhánh `web-speech` cho `vi` trong router).
 10. **(T19) Dùng trên điện thoại**: app deploy HTTPS không gọi được `http://192.168.x.x` (mixed content). Bạn định dùng tiếng Việt chủ yếu trên laptop (localhost — chạy ngay), hay cần cả điện thoại? Nếu cần: (a) mở app bằng `npm run dev --host` trên laptop và truy cập qua `http://<ip-laptop>:5173` từ điện thoại; (b) hoặc đặt server sau https (Tailscale Serve/Cloudflare Tunnel — có cảnh báo "ngoài mạng nội bộ"). Spec hỗ trợ cả hai nhưng không tự động hoá.
@@ -1783,6 +2191,11 @@ Sửa `supabase/schema.sql` theo kiểu idempotent (`add column if not exists`) 
 13. **(T18b) Thẻ trùng `(item_id, direction)` khác id**: spec giữ thẻ hiện có, bỏ thẻ trong tệp. Lựa chọn khác là giữ bản có `reps` lớn hơn (gộp tiến độ) — phức tạp hơn một chút; chỉ cần nếu bạn hay gộp dữ liệu từ hai thiết bị dùng chế độ cục bộ riêng rẽ.
 14. **(T18c) Script sinh icon**: dùng `qlmanage`/`rsvg-convert` tay (không thêm package) hay đồng ý thêm devDependency `@resvg/resvg-js` để có `npm run icons` lặp lại được? Spec mặc định cách tay + PROVENANCE.md.
 15. **(T18c) Thanh trạng thái iOS**: `default` (an toàn) hay `black-translucent` để thanh tím tràn lên dưới đồng hồ (cần sửa Shell chừa `safe-area-inset-top`)? Spec: `default`.
+16. ~~**(T20) `CLAUDE.md`**~~ Đã quyết (2026-11-09, người điều phối thay mặt người dùng "tự quyết tên"): đổi tên và mô tả trong `CLAUDE.md` ở T20c.
+17. **(T20) Domain Vercel** `tienganh-giaotiep.vercel.app` giữ nguyên theo quyết định; nếu sau này đổi, nhớ cập nhật Supabase Redirect URLs (11.2.3).
+18. ~~**(T20) Giọng zh/ja/ko trên Windows Chrome**~~ Đã quyết: T20 chỉ hiện thông báo thiếu giọng + mục ngắn trong README hướng dẫn cài gói ngôn ngữ; server local cho zh/ja/ko để giai đoạn sau nếu người dùng cần.
+19. ~~**(T20) Phiên âm tiếng Nhật**~~ Đã quyết: romaji Hepburn có macron cho bộ khởi đầu; đổi sang kana chỉ là sửa dữ liệu nếu sau này cần.
+20. **(T20c, ghi nhận sau review)** Dòng tên trong PRODUCT.md viết "Vở Ngoại Ngữ" không kèm "(formerly Vở Tiếng Anh)" để `grep` tên cũ trên toàn bộ tệp app ra 0; tên cũ chỉ còn trong SPEC.md. Chấp nhận lệch nguyên văn §9 T20c.
 5. **Thẻ `word`** (từ đơn) có nên bỏ qua chiều `listen` (nghe một từ rồi gõ dễ nhầm chính tả) hay giữ như cụm/mẫu câu? Spec hiện giữ cho cả 3 loại.
 6. **Lời phê Charm**: 3 câu cố định ("Tốt lắm!", "Đều đặn lắm!", "Cố lên nhé!") có hợp ý không? "Cố lên nhé!" hiện chưa dùng ở màn nào — có muốn hiện khi chuỗi vừa đứt không? (Rủi ro: cảm giác bị chấm điểm, trái nguyên tắc 3.)
 7. **Tên hiển thị trên thanh trên**: dùng tên tự đặt hay phần trước @ email? Spec: tên tự đặt, fallback email.
@@ -1833,7 +2246,20 @@ Sửa `supabase/schema.sql` theo kiểu idempotent (`add column if not exists`) 
 | (T18b) Nhập JSON — lỗi tệp | "Tệp quá lớn (tối đa 5 MB)." · "Tệp không phải JSON hợp lệ." · "Tệp không đúng định dạng của Vở Tiếng Anh. Hãy chọn tệp đã xuất từ mục Cài đặt." · không hỗ trợ "Trình duyệt này không chọn được tệp. Hãy thử Chrome, Edge hoặc Safari mới." |
 | (T18b) Nhập JSON — dialog | "Nhập dữ liệu từ tệp?" · "Dữ liệu hiện có được giữ nguyên. Bản ghi trùng id sẽ được cập nhật theo tệp." · "Không có gì mới để nhập. Dữ liệu trong tệp đã có sẵn." · "Buổi học: thêm {a}, cập nhật {b}" · "Mục: thêm {a}, cập nhật {b}" · "Thẻ ôn: thêm {a}, cập nhật {b}" · "Ngày học: cộng thêm cho {n} ngày" · "Bỏ qua {n} bản ghi không hợp lệ hoặc trùng." · checkbox "Nhập cả cài đặt" / "Tên hiển thị, mục tiêu mỗi ngày, thẻ mới mỗi ngày, giọng đọc, tự phát âm." · "Huỷ" · "Nhập" · "Đang nhập…" |
 | (T18b) Nhập JSON — toast | "Đã nhập {a} buổi, {b} mục, {c} thẻ." · hậu tố " Đã cập nhật cài đặt." |
-| (T18c) Manifest | name "Vở Tiếng Anh" · short_name "Vở TA" · description "Vở ôn tiếng Anh giao tiếp đi kèm lớp học thật." · apple-mobile-web-app-title "Vở TA" |
+| (T18c) Manifest | ~~name "Vở Tiếng Anh" · short_name "Vở TA" · description "Vở ôn tiếng Anh giao tiếp đi kèm lớp học thật." · apple-mobile-web-app-title "Vở TA"~~ → thay bởi (T20) |
+| (T20) Tên app | `APP_NAME` "Vở Ngoại Ngữ" · tiêu đề tab "{Màn} · Vở Ngoại Ngữ" · manifest name/short_name "Vở Ngoại Ngữ" · description "Vở ôn ngoại ngữ giao tiếp đi kèm lớp học thật." · apple-mobile-web-app-title "Vở Ngoại Ngữ" · Đăng nhập phụ đề "Học lại ngoại ngữ giao tiếp, mỗi ngày một ít." · Shadowing "Hãy mở Vở Ngoại Ngữ bằng Chrome hoặc Edge để luyện shadowing." · tệp xuất `vo-ngoai-ngu-{YYYY-MM-DD}.json` · lỗi nhập "Tệp không đúng định dạng của Vở Ngoại Ngữ. Hãy chọn tệp đã xuất từ mục Cài đặt." |
+| (T20) Tên ngôn ngữ | "Tiếng Anh" · "Tiếng Trung" · "Tiếng Nhật" · "Tiếng Hàn" · "Tất cả" · ngắn "Anh" · "Trung" · "Nhật" · "Hàn" |
+| (T20) Chiều ôn theo ngôn ngữ | "{Ngắn} → Việt" · "Việt → {Ngắn}" · "Nghe → gõ" (vd "Trung → Việt", "Việt → Nhật") |
+| (T20) Form buổi học | nhãn "Ngôn ngữ" · nhãn ô đích = tên ngôn ngữ · nhãn "Phiên âm" · placeholder đích `Can I have the bill, please?` / `你好` / `こんにちは` / `안녕하세요` · placeholder phiên âm `/kæn aɪ hæv ðə bɪl/` / `nǐ hǎo` / `konnichiwa` / `annyeonghaseyo` · lỗi "Nhập tiếng Anh." / "Nhập tiếng Trung." / "Nhập tiếng Nhật." / "Nhập tiếng Hàn." · "Chọn ngôn ngữ." · khoá "Buổi này đã có thẻ được ôn nên không đổi ngôn ngữ được." · mô tả "Mỗi mục sẽ thành một thẻ ôn {Ngắn} → Việt. Hai chiều còn lại mở sau khi bạn ôn thẻ đó ở hai ngày khác nhau." |
+| (T20) Dán danh sách zh/ja/ko | mô tả "Câu, nghĩa tiếng Việt và phiên âm cách nhau bằng dấu gạch ngang, dấu \| hoặc tab. Phần thứ tư, nếu có, là ghi chú." · placeholder `你好 - Xin chào - nǐ hǎo` / `こんにちは - Xin chào - konnichiwa` / `안녕하세요 - Xin chào - annyeonghaseyo` |
+| (T20) Cài đặt — Ngôn ngữ | H2 "Ngôn ngữ" · nhãn "Ngôn ngữ đang học" · mô tả "Lọc thẻ ôn, shadowing, kho mẫu câu và thống kê thẻ theo một ngôn ngữ. Nhật ký buổi học, chuỗi ngày và phút học luôn tính chung." · "Giọng đọc trên thiết bị này: Anh — có · Trung — có · Nhật — chưa có · Hàn — có" · "Trình duyệt này không có giọng đọc." · checkbox nhập "Tên hiển thị, mục tiêu mỗi ngày, thẻ mới mỗi ngày, giọng đọc, tự phát âm, ngôn ngữ đang học." |
+| (T20) Hôm nay | hậu tố " · {Tên ngôn ngữ}" · "Chưa có thẻ {tên ngôn ngữ} nào. Ghi buổi học hoặc thêm mẫu câu {tên ngôn ngữ}." · ghost "Học tất cả ngôn ngữ" |
+| (T20) Ôn thẻ | "Không có thẻ {tên ngôn ngữ} nào đến hạn." · "Đã tạm ẩn {k} thẻ nghe vì thiết bị chưa có giọng đọc phù hợp." · gợi ý "Dấu câu và khoảng trắng không tính." |
+| (T20) Thiếu giọng | "Thiết bị chưa có giọng {tên ngôn ngữ}. Bạn vẫn đọc được phiên âm." · Shadowing "Thiết bị chưa có giọng {tên ngôn ngữ}. Bạn vẫn có thể ghi âm và nghe lại." |
+| (T20) Nhật ký / Trang buổi | nhãn hàng "{Tên ngôn ngữ}" · dateLine "Buổi {n} · {ngày} · {Tên ngôn ngữ}" |
+| (T20) Mẫu câu | heading nhóm = tên ngôn ngữ · mô tả "Câu ngắn theo tình huống thật, bằng ngôn ngữ bạn đang học. Thêm câu bạn cần vào thẻ ôn, hoặc luyện shadowing ngay." · tình huống "Chào hỏi & giới thiệu" · "Nhà hàng & gọi món" · "Mua sắm & hỏi giá" · "Hỏi đường & đi lại" |
+| (T20) Tiến độ | "Thẻ ôn · {Tên ngôn ngữ}" · "Chuỗi ngày và phút học tính chung mọi ngôn ngữ." |
+| (T20) Đồng bộ | "Supabase chưa có cột ngôn ngữ. Chạy lại supabase/schema.sql để lưu ngôn ngữ buổi học." |
 
 Giọng văn: thân thiện, ngắn, không dấu chấm than dồn dập, không emoji, không "bạn ơi". Lỗi luôn nói việc cần làm tiếp theo.
 

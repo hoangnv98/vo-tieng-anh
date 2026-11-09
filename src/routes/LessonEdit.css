@@ -16,9 +16,13 @@
 }
 .lesson-form-head {
   display: grid;
-  grid-template-columns: 120px minmax(0, 220px);
+  grid-template-columns: 120px minmax(0, 220px) minmax(160px, 1fr);
   gap: 16px;
   align-items: start;
+}
+/* (T20) Select rộng 160px; mô tả khoá đổi ngôn ngữ dùng phần còn lại của hàng. */
+.lesson-form-head .lesson-language {
+  width: 160px;
 }
 .lesson-form-block {
   display: flex;
@@ -129,6 +133,13 @@
   }
   .lesson-form-head {
     grid-template-columns: 120px minmax(0, 1fr);
+  }
+  /* (T20) Select "Ngôn ngữ" xuống dòng riêng, full-width. */
+  .lesson-form-head > .field:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+  .lesson-form-head .lesson-language {
+    width: 100%;
   }
   .item-row-main {
     grid-template-columns: minmax(0, 1fr) 44px;

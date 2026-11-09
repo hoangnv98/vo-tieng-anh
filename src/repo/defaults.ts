@@ -12,5 +12,6 @@ export function defaultSettings(userId: string, email?: string | null): Settings
     new_cards_per_day: 15,
     voice_name: null,
     auto_speak: false,
+    study_language: 'all',
   }
 }

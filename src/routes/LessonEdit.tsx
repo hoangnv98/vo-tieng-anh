@@ -14,8 +14,25 @@ import {
   type ItemField,
   type LessonField,
 } from '../domain/lessons'
+import {
+  asLanguage,
+  asStudyLanguage,
+  IPA_PLACEHOLDER,
+  LANG_TAG,
+  LANGUAGE_LABELS,
+  ROMAN_TAG,
+  TARGET_PLACEHOLDER,
+} from '../domain/languageCore'
+import {
+  initialLessonLanguage,
+  isLessonLanguageLocked,
+  LANGUAGE_LOCKED_TEXT,
+  lessonItemsDescription,
+  PASTE_DESCRIPTION,
+  PASTE_PLACEHOLDER,
+} from '../domain/languageUi'
 import { PASTE_MAX_LINES, parsePastedList } from '../domain/paste'
-import { KIND_LABELS, KINDS, type Item, type Kind, type Lesson, type Snapshot } from '../domain/types'
+import { KIND_LABELS, KINDS, LANGUAGES, type Item, type Kind, type Language, type Lesson, type Snapshot } from '../domain/types'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { addDays, localDay } from '../lib/dates'
 import { newId } from '../lib/ids'
@@ -39,6 +56,8 @@ interface Row {
 interface FormState {
   number: string
   date: string
+  /** (T20) Ngôn ngữ của buổi. */
+  language: Language
   topic: string
   questions: string
   mistakes: string
@@ -46,17 +65,19 @@ interface FormState {
   rows: Row[]
 }
 
-const LESSON_FIELDS: LessonField[] = ['number', 'date', 'topic']
+const LESSON_FIELDS: LessonField[] = ['number', 'date', 'language', 'topic']
 const TAIL_FIELDS: LessonField[] = ['questions', 'mistakes', 'notes']
 const ROW_FIELDS: ItemField[] = ['en', 'vi', 'ipa', 'note']
 
 const emptyRow = (): Row => ({ key: newId(), itemId: null, kind: 'phrase', en: '', vi: '', ipa: '', note: '' })
 
 function initialForm(snapshot: Snapshot, lesson: Lesson | undefined): FormState {
+  const language = initialLessonLanguage(lesson, snapshot.lessons, asStudyLanguage(snapshot.settings.study_language))
   if (!lesson) {
     return {
       number: String(nextLessonNumber(snapshot.lessons)),
       date: localDay(new Date()),
+      language,
       topic: '',
       questions: '',
       mistakes: '',
@@ -70,6 +91,7 @@ function initialForm(snapshot: Snapshot, lesson: Lesson | undefined): FormState 
   return {
     number: String(lesson.number),
     date: lesson.date,
+    language,
     topic: lesson.topic,
     questions: lesson.questions,
     mistakes: lesson.mistakes,
@@ -85,7 +107,7 @@ function serialize(f: FormState): string {
   const rows = f.rows
     .filter((r) => r.itemId || !isBlankItem(r))
     .map((r) => [r.itemId, r.kind, r.en, r.vi, r.ipa, r.note])
-  return JSON.stringify([f.number, f.date, f.topic, f.questions, f.mistakes, f.notes, rows])
+  return JSON.stringify([f.number, f.date, f.language, f.topic, f.questions, f.mistakes, f.notes, rows])
 }
 
 const fieldId = (name: string) => `lesson-${name}`
@@ -160,7 +182,14 @@ function LessonForm({ snapshot, lesson }: { snapshot: Snapshot; lesson: Lesson |
     return m
   }, [snapshot.cards])
 
-  const parsed = useMemo(() => parsePastedList(pasteText), [pasteText])
+  const L = form.language
+  /** (T20) Buổi đã có thẻ được ôn → không đổi ngôn ngữ (6.6 (9)). */
+  const languageLocked = useMemo(
+    () => isLessonLanguageLocked(lesson?.id, snapshot.items, snapshot.cards),
+    [lesson?.id, snapshot.items, snapshot.cards],
+  )
+
+  const parsed = useMemo(() => parsePastedList(pasteText, L), [pasteText, L])
 
   const dupes = useMemo(() => duplicateRows(form.rows), [form.rows])
 
@@ -169,7 +198,7 @@ function LessonForm({ snapshot, lesson }: { snapshot: Snapshot; lesson: Lesson |
     const le = validateLesson(f, { lessons: snapshot.lessons, selfId: lesson?.id ?? null, today: localDay(new Date()) })
     for (const [k, v] of Object.entries(le)) out[fieldId(k)] = v
     for (const r of f.rows) {
-      const ie = validateItem(r, { required: r.itemId !== null })
+      const ie = validateItem(r, { required: r.itemId !== null, language: f.language })
       for (const [k, v] of Object.entries(ie)) out[rowFieldId(r.key, k)] = v
     }
     return out
@@ -189,7 +218,8 @@ function LessonForm({ snapshot, lesson }: { snapshot: Snapshot; lesson: Lesson |
     if (submitted) setErrors(validate(next))
   }
 
-  const setField = (name: Exclude<keyof FormState, 'rows'>, value: string) => update({ ...form, [name]: value })
+  const setField = (name: Exclude<keyof FormState, 'rows' | 'language'>, value: string) =>
+    update({ ...form, [name]: value })
 
   const setRow = (key: string, patch: Partial<Row>) =>
     update({ ...form, rows: form.rows.map((r) => (r.key === key ? { ...r, ...patch } : r)) })
@@ -290,6 +320,7 @@ function LessonForm({ snapshot, lesson }: { snapshot: Snapshot; lesson: Lesson |
       questions: form.questions.trim(),
       mistakes: form.mistakes.trim(),
       notes: form.notes.trim(),
+      language: form.language,
       created_at: lesson?.created_at ?? now,
       updated_at: now,
     }
@@ -382,6 +413,23 @@ function LessonForm({ snapshot, lesson }: { snapshot: Snapshot; lesson: Lesson |
             error={errors[fieldId('date')]}
             onChange={(e) => setField('date', e.target.value)}
           />
+          <Field
+            as="select"
+            id={fieldId('language')}
+            label="Ngôn ngữ"
+            className="lesson-language"
+            value={L}
+            disabled={languageLocked}
+            description={languageLocked ? LANGUAGE_LOCKED_TEXT : undefined}
+            error={errors[fieldId('language')]}
+            onChange={(e) => update({ ...form, language: asLanguage(e.target.value, form.language) })}
+          >
+            {LANGUAGES.map((l) => (
+              <option key={l} value={l}>
+                {LANGUAGE_LABELS[l]}
+              </option>
+            ))}
+          </Field>
         </div>
         <Field
           id={fieldId('topic')}
@@ -396,7 +444,7 @@ function LessonForm({ snapshot, lesson }: { snapshot: Snapshot; lesson: Lesson |
             Mục trong buổi
           </h2>
           <p className="lesson-form-desc">
-            Mỗi mục sẽ thành một thẻ ôn Anh → Việt. Hai chiều còn lại mở sau khi bạn ôn thẻ đó ở hai ngày khác nhau.
+            {lessonItemsDescription(L)}
           </p>
 
           <ol className="item-rows">
@@ -425,11 +473,11 @@ function LessonForm({ snapshot, lesson }: { snapshot: Snapshot; lesson: Lesson |
                       </Field>
                       <Field
                         id={rowFieldId(r.key, 'en')}
-                        label="Tiếng Anh"
-                        lang="en"
-                        autoCapitalize="sentences"
-                        spellCheck
-                        placeholder="Can I have the bill, please?"
+                        label={LANGUAGE_LABELS[L]}
+                        lang={LANG_TAG[L]}
+                        autoCapitalize={L === 'en' ? 'sentences' : 'off'}
+                        spellCheck={L === 'en'}
+                        placeholder={TARGET_PLACEHOLDER[L]}
                         value={r.en}
                         description={dup !== undefined ? `Mục này trùng với dòng ${dup + 1}` : undefined}
                         error={errors[rowFieldId(r.key, 'en')]}
@@ -458,8 +506,8 @@ function LessonForm({ snapshot, lesson }: { snapshot: Snapshot; lesson: Lesson |
                         <Field
                           id={rowFieldId(r.key, 'ipa')}
                           label="Phiên âm"
-                          lang="en"
-                          placeholder="/kæn aɪ hæv ðə bɪl/"
+                          lang={ROMAN_TAG[L]}
+                          placeholder={IPA_PLACEHOLDER[L]}
                           value={r.ipa}
                           error={errors[rowFieldId(r.key, 'ipa')]}
                           onChange={(e) => setRow(r.key, { ipa: e.target.value })}
@@ -514,12 +562,12 @@ function LessonForm({ snapshot, lesson }: { snapshot: Snapshot; lesson: Lesson |
                 as="textarea"
                 id="lesson-paste"
                 label="Dán mỗi dòng một mục"
-                description="Tiếng Anh và tiếng Việt cách nhau bằng dấu gạch ngang, dấu | hoặc tab. Phần thứ ba, nếu có, là phiên âm /…/ hoặc ghi chú."
+                description={PASTE_DESCRIPTION[L]}
                 rows={6}
                 spellCheck={false}
                 autoCapitalize="off"
                 autoFocus
-                placeholder={'Can I have the bill, please? - Cho tôi tính tiền\nbill - hoá đơn - /bɪl/'}
+                placeholder={PASTE_PLACEHOLDER[L]}
                 value={pasteText}
                 onChange={(e) => setPasteText(e.target.value)}
                 onKeyDown={onPasteKeyDown}
@@ -543,7 +591,7 @@ function LessonForm({ snapshot, lesson }: { snapshot: Snapshot; lesson: Lesson |
                 <ol className="paste-preview">
                   {parsed.rows.map((p) => (
                     <li key={p.line} className="paste-preview-row">
-                      <span className="paste-en" lang="en">
+                      <span className="paste-en" lang={LANG_TAG[L]}>
                         {p.en}
                       </span>
                       <span className={p.vi ? 'paste-vi' : 'paste-vi paste-vi--missing'}>

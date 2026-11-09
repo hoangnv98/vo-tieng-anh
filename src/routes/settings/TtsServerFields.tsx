@@ -4,7 +4,7 @@ import { Button } from '../../components/Button'
 import { Field } from '../../components/Field'
 import { Spinner } from '../../components/Spinner'
 import { useTts } from '../../hooks/useTts'
-import { getHealth, listVoices, probe, resetServer, subscribe, TtsError, type TtsLang, type TtsVoice } from '../../lib/tts'
+import { getHealth, listVoices, probe, resetServer, subscribe, TtsError, type ServerLang, type TtsVoice } from '../../lib/tts'
 import { classifyHost, isMixedContentBlocked, normalizeBaseUrl, VI_SPEEDS } from '../../lib/ttsConfig'
 import './TtsServerFields.css'
 
@@ -17,7 +17,7 @@ export interface ServerValues {
 }
 
 interface Props {
-  lang: TtsLang
+  lang: ServerLang
   values: ServerValues
   onChange(patch: Partial<ServerValues>): void
 }

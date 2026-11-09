@@ -31,4 +31,5 @@ export {
   shouldRefreshBeforeFail,
 } from './errors'
 export type { RepoErrorOptions } from './errors'
+export { SCHEMA_OUTDATED_MESSAGE, isSchemaOutdated, setSchemaOutdatedNotifier } from './schemaStatus'
 export type { AuthService, AuthUser, PendingOp, PendingOpPayload, Repository, StudyTimeDelta } from './types'

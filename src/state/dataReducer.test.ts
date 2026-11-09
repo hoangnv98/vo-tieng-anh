@@ -11,7 +11,7 @@ import { SyncEngine, type SyncCallbacks } from './syncEngine'
 const T = '2026-11-09T00:00:00.000Z'
 
 function lesson(id: string): Lesson {
-  return { id, user_id: 'u', number: 1, date: '2026-11-09', topic: 't', notes: '', questions: '', mistakes: '', created_at: T, updated_at: T }
+  return { id, user_id: 'u', number: 1, date: '2026-11-09', topic: 't', notes: '', questions: '', mistakes: '', language: 'en', created_at: T, updated_at: T }
 }
 function item(id: string, lesson_id: string | null, pattern_id: string | null = null): Item {
   return { id, user_id: 'u', lesson_id, kind: 'phrase', en: 'hi', vi: 'chào', ipa: '', note: '', pattern_id, position: 0, created_at: T, updated_at: T }
@@ -25,7 +25,7 @@ function snapshot(): Snapshot {
     items: [item('I1', 'L1'), item('I2', 'L1'), item('I3', 'L2'), item('P1', null, 'pat-1')],
     cards: [card('C1', 'I1'), card('C2', 'I2'), card('C3', 'I3'), card('C4', 'P1')],
     studyDays: [{ user_id: 'u', day: '2026-11-09', seconds: 30, reviews: 1, shadowing_count: 0 }],
-    settings: { user_id: 'u', display_name: 'A', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false },
+    settings: { user_id: 'u', display_name: 'A', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false, study_language: 'all' },
   }
 }
 function ready(): DataState {
@@ -102,6 +102,28 @@ describe('dataReducer', () => {
     expect(a.snapshot?.lessons.map((l) => [l.id, l.topic])).toEqual([['L1', 'mới'], ['L2', 't'], ['L7', 't']])
     const s = applyPendingOps(snapshot(), [{ type: 'upsertLessons', lessons: [lesson('L8'), lesson('L9')] }], 'u')
     expect(s.lessons.map((l) => l.id)).toEqual(['L1', 'L2', 'L8', 'L9'])
+  })
+
+  it('(T20) op pending lưu từ trước T20 (thiếu language/study_language) → state đủ trường', () => {
+    const { language: _l, ...oldLesson } = lesson('L5')
+    const { study_language: _s, ...oldSettings } = snapshot().settings
+    const ops = [
+      { type: 'upsertLesson', lesson: oldLesson },
+      { type: 'upsertLessons', lessons: [{ ...oldLesson, id: 'L6' }, { ...lesson('L7'), language: 'zh' }, { ...oldLesson, id: 'L8', language: 'fr' }] },
+      { type: 'saveSettings', settings: { ...oldSettings, display_name: 'B' } },
+    ] as unknown as PendingOpPayload[]
+    const s = applyPendingOps(snapshot(), ops, 'u')
+    expect(s.lessons.map((l) => [l.id, l.language])).toEqual([
+      ['L1', 'en'],
+      ['L2', 'en'],
+      ['L5', 'en'],
+      ['L6', 'en'],
+      ['L7', 'zh'],
+      ['L8', 'en'],
+    ])
+    expect(s.settings).toMatchObject({ display_name: 'B', study_language: 'all' })
+    const zh = applyPendingOps(snapshot(), [{ type: 'saveSettings', settings: { ...snapshot().settings, study_language: 'zh' } }], 'u')
+    expect(zh.settings.study_language).toBe('zh')
   })
 
   it('import/apply: một dispatch áp lessons/items/cards/studyDays; settings chỉ khi tick', () => {

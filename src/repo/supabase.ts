@@ -1,5 +1,6 @@
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js'
 import type { Card, Item, Lesson, ReviewLogEntry, Settings, Snapshot, StudyDay } from '../domain/types'
+import { asLanguage, asStudyLanguage } from '../domain/languageCore'
 import { addDays, localDay } from '../lib/dates'
 import { STUDY_DAYS_WINDOW, defaultSettings } from './defaults'
 import {
@@ -14,6 +15,7 @@ import {
   toRepoError,
 } from './errors'
 import type { PostgrestLikeError } from './errors'
+import { markSchemaOutdated } from './schemaStatus'
 import type { AuthService, AuthUser, Repository, StudyTimeDelta } from './types'
 
 export {
@@ -30,6 +32,12 @@ export {
   toRepoError,
 } from './errors'
 export type { NetworkLikeError, PostgrestLikeError, RepoErrorOptions } from './errors'
+export {
+  SCHEMA_OUTDATED_MESSAGE,
+  isSchemaOutdated,
+  resetSchemaOutdatedForTest,
+  setSchemaOutdatedNotifier,
+} from './schemaStatus'
 
 /**
  * Kích thước trang khi đọc snapshot. Phân trang keyset nên vẫn đúng nếu Dashboard đặt
@@ -49,6 +57,8 @@ export interface LessonRow {
   notes: string
   questions: string
   mistakes: string
+  /** (T20) Thiếu khi server chưa chạy migration khối 9. */
+  language?: string | null
   created_at: string
   updated_at: string
 }
@@ -111,6 +121,8 @@ export interface SettingsRow {
   new_cards_per_day: number
   voice_name: string | null
   auto_speak: boolean
+  /** (T20) Thiếu khi server chưa chạy migration khối 9. */
+  study_language?: string | null
   created_at: string
   updated_at: string
 }
@@ -155,6 +167,7 @@ export function toLesson(r: LessonRow): Lesson {
     notes: r.notes ?? '',
     questions: r.questions ?? '',
     mistakes: r.mistakes ?? '',
+    language: asLanguage(r.language),
     created_at: toIso(r.created_at),
     updated_at: toIso(r.updated_at),
   }
@@ -213,6 +226,7 @@ export function toSettings(r: SettingsRow): Settings {
     new_cards_per_day: r.new_cards_per_day,
     voice_name: r.voice_name ?? null,
     auto_speak: r.auto_speak,
+    study_language: asStudyLanguage(r.study_language),
   }
 }
 
@@ -236,6 +250,30 @@ export function studyTimeRpcArgs(day: string, delta: StudyTimeDelta) {
     p_reviews: delta.reviews ?? 0,
     p_shadowing: delta.shadowing ?? 0,
   }
+}
+
+// -----------------------------------------------------------------------------
+// (T20) Server chưa chạy migration khối 9 (SPEC 3.2)
+// -----------------------------------------------------------------------------
+/** Cột thêm ở T20; server cũ không có → PostgREST trả PGRST204. */
+const NEW_COLUMNS = ['language', 'study_language'] as const
+
+const NEW_COLUMN_RE = /\b(?:study_)?language\b/
+
+/**
+ * PostgREST không tìm thấy **cột mới T20** trong schema cache ("Could not find the 'language' column…").
+ * PGRST204 vì cột khác (lỗi thật, không phải server chưa migrate) → false, để lỗi đi đường thường.
+ */
+export function isSchemaOutdatedError(e: PostgrestLikeError | null | undefined): boolean {
+  if (e?.code !== 'PGRST204') return false
+  return typeof e.message === 'string' && NEW_COLUMN_RE.test(e.message)
+}
+
+/** Bỏ `language`/`study_language` khỏi payload để gửi lại lên server chưa migrate. */
+export function stripNewColumns<T extends object>(payload: T): Omit<T, (typeof NEW_COLUMNS)[number]> {
+  const rest = { ...payload } as Record<string, unknown>
+  for (const c of NEW_COLUMNS) delete rest[c]
+  return rest as Omit<T, (typeof NEW_COLUMNS)[number]>
 }
 
 function toAuthUser(user: User | null | undefined): AuthUser | null {
@@ -320,6 +358,26 @@ export class SupabaseRepository implements Repository {
     if (res.error) throw toRepoError(res.error, WRITE_ERROR_MESSAGE, res.status)
   }
 
+  /**
+   * Ghi có cột mới T20. Server chưa migrate (PGRST204) → gửi lại **một lần** không có cột mới,
+   * đặt cờ `schemaOutdated` và báo toast 1 lần/phiên. PGRST204 không ném ra (không vào dead-letter).
+   * Luôn thử bản đủ cột trước, để chủ project chạy migration giữa phiên thì lần ghi sau đã lưu được ngôn ngữ.
+   */
+  private async writeWithNewColumns(
+    run: (stripped: boolean) => PromiseLike<QueryResult>,
+    message: string = WRITE_ERROR_MESSAGE,
+  ): Promise<QueryResult> {
+    const res = await run(false)
+    if (!isSchemaOutdatedError(res.error)) {
+      if (res.error) throw toRepoError(res.error, message, res.status)
+      return res
+    }
+    markSchemaOutdated()
+    const retry = await run(true)
+    if (retry.error) throw toRepoError(retry.error, message, retry.status)
+    return retry
+  }
+
   async loadSnapshot(): Promise<Snapshot> {
     try {
       const sinceDay = addDays(localDay(this.now()), -STUDY_DAYS_WINDOW)
@@ -351,11 +409,14 @@ export class SupabaseRepository implements Repository {
   private async createDefaultSettings(): Promise<Settings> {
     const user = await this.currentUser()
     const defaults = defaultSettings(user.id, user.email)
-    const ins = await this.client
-      .from('settings')
-      .upsert(defaults, { onConflict: 'user_id', ignoreDuplicates: true })
-      .select('*')
-    if (ins.error) throw toRepoError(ins.error, LOAD_ERROR_MESSAGE, ins.status)
+    const ins = await this.writeWithNewColumns(
+      (stripped) =>
+        this.client
+          .from('settings')
+          .upsert(stripped ? stripNewColumns(defaults) : defaults, { onConflict: 'user_id', ignoreDuplicates: true })
+          .select('*'),
+      LOAD_ERROR_MESSAGE,
+    )
     const inserted = (ins.data as SettingsRow[] | null)?.[0]
     if (inserted) return toSettings(inserted)
     // Trùng (trigger đã tạo) → đọc lại.
@@ -365,13 +426,19 @@ export class SupabaseRepository implements Repository {
     return row ? toSettings(row) : defaults
   }
 
-  upsertLesson(l: Lesson): Promise<void> {
-    return this.write(() => this.client.from('lessons').upsert(stripUserId(l), { onConflict: 'id' }))
+  async upsertLesson(l: Lesson): Promise<void> {
+    const row = stripUserId(l)
+    await this.writeWithNewColumns((stripped) =>
+      this.client.from('lessons').upsert(stripped ? stripNewColumns(row) : row, { onConflict: 'id' }),
+    )
   }
 
   async upsertLessons(lessons: Lesson[]): Promise<void> {
     if (lessons.length === 0) return
-    return this.write(() => this.client.from('lessons').upsert(lessons.map(stripUserId), { onConflict: 'id' }))
+    const rows = lessons.map(stripUserId)
+    await this.writeWithNewColumns((stripped) =>
+      this.client.from('lessons').upsert(stripped ? rows.map(stripNewColumns) : rows, { onConflict: 'id' }),
+    )
   }
 
   deleteLesson(id: string): Promise<void> {
@@ -408,8 +475,9 @@ export class SupabaseRepository implements Repository {
 
   async saveSettings(s: Settings): Promise<void> {
     const user = await this.currentUser()
-    return this.write(() =>
-      this.client.from('settings').upsert({ ...s, user_id: user.id }, { onConflict: 'user_id' }),
+    const row = { ...s, user_id: user.id }
+    await this.writeWithNewColumns((stripped) =>
+      this.client.from('settings').upsert(stripped ? stripNewColumns(row) : row, { onConflict: 'user_id' }),
     )
   }
 

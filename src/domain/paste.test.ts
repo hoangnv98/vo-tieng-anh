@@ -85,3 +85,59 @@ describe('inferKind', () => {
     expect(inferKind('thank you')).toBe('phrase')
   })
 })
+
+describe('(T20) parsePastedList / inferKind theo ngôn ngữ', () => {
+  const row = (t: string, lang: 'en' | 'zh' | 'ja' | 'ko') => parsePastedList(t, lang).rows[0]
+
+  it('zh: câu – nghĩa – phiên âm', () => {
+    expect(row('你好 - xin chào - nǐ hǎo', 'zh')).toMatchObject({ en: '你好', vi: 'xin chào', ipa: 'nǐ hǎo', note: '', kind: 'word' })
+  })
+
+  it('zh: 4 phần với |, kind phrase', () => {
+    expect(row('请给我菜单。 | Cho tôi xem thực đơn. | qǐng gěi wǒ càidān | lịch sự', 'zh')).toMatchObject({
+      en: '请给我菜单。',
+      vi: 'Cho tôi xem thực đơn.',
+      ipa: 'qǐng gěi wǒ càidān',
+      note: 'lịch sự',
+      kind: 'phrase',
+    })
+  })
+
+  it('ja: tab, 5 ký tự → phrase', () => {
+    expect(row('こんにちは\tXin chào\tkonnichiwa', 'ja')).toMatchObject({
+      en: 'こんにちは',
+      vi: 'Xin chào',
+      ipa: 'konnichiwa',
+      kind: 'phrase',
+    })
+  })
+
+  it('ko: 1 token → word', () => {
+    expect(row('안녕하세요 - Xin chào - annyeonghaseyo', 'ko')).toMatchObject({
+      en: '안녕하세요',
+      vi: 'Xin chào',
+      ipa: 'annyeonghaseyo',
+      kind: 'word',
+    })
+  })
+
+  it('en giữ T18a; cùng chuỗi với ja không cắt IPA liền', () => {
+    expect(row('hello /həˈloʊ/ – xin chào', 'en')).toMatchObject({ en: 'hello', ipa: '/həˈloʊ/', vi: 'xin chào' })
+    expect(row('hello /həˈloʊ/ – xin chào', 'ja')).toMatchObject({ en: 'hello /həˈloʊ/', ipa: '', vi: 'xin chào' })
+  })
+
+  it('phần dư sau phần 4 nối vào ghi chú; mặc định language = en', () => {
+    expect(row('你好 | xin chào | nǐ hǎo | ghi chú | thêm', 'zh')).toMatchObject({ note: 'ghi chú | thêm' })
+    expect(parsePastedList('a - b - c - d').rows[0]).toEqual(parsePastedList('a - b - c - d', 'en').rows[0])
+  })
+
+  it('inferKind zh/ja đếm ký tự, bỏ dấu câu', () => {
+    expect(inferKind('谢谢！', 'zh')).toBe('word')
+    expect(inferKind('多少钱？', 'zh')).toBe('word')
+    expect(inferKind('这个多少钱？', 'zh')).toBe('phrase')
+    expect(inferKind('はい', 'ja')).toBe('word')
+    expect(inferKind('감사합니다', 'ko')).toBe('word')
+    expect(inferKind('얼마예요 이거', 'ko')).toBe('phrase')
+    expect(inferKind('hello')).toBe('word')
+  })
+})

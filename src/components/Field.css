@@ -23,6 +23,11 @@ textarea.field-control {
   resize: vertical;
   line-height: 1.5;
 }
+.field-control:disabled {
+  background: var(--paper);
+  color: var(--mute);
+  cursor: not-allowed;
+}
 .field-control:focus {
   border-color: var(--purple);
 }

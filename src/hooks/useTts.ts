@@ -1,12 +1,28 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useData } from '../state/useData'
 import { getEnglishVoices, isTtsSupported } from '../lib/speech'
+import { LANGUAGES, type Language } from '../domain/types'
 import { canSpeak, cancel as cancelTts, speak as speakTts, subscribe as subscribeTts, usingEnServer, type TtsLang } from '../lib/tts'
 
 /** Chờ server quá ngưỡng này mới coi là "đang tải" (đổi icon). */
 export const LOADING_DELAY_MS = 300
 
 const getViAvailable = () => canSpeak('vi')
+
+/** Snapshot ổn định cho useSyncExternalStore: cùng chuỗi "1010" → cùng object (không re-render thừa). */
+let speakableKey = ''
+let speakableSnap: Record<Language, boolean> = { en: false, zh: false, ja: false, ko: false }
+function getSpeakable(): Record<Language, boolean> {
+  const flags = LANGUAGES.map((l) => canSpeak(l))
+  const key = flags.map((f) => (f ? '1' : '0')).join('')
+  if (key !== speakableKey) {
+    speakableKey = key
+    speakableSnap = Object.fromEntries(LANGUAGES.map((l, i) => [l, flags[i]])) as Record<Language, boolean>
+  }
+  return speakableSnap
+}
+const SPEAKABLE_NONE: Record<Language, boolean> = { en: false, zh: false, ja: false, ko: false }
+const getSpeakableServer = () => SPEAKABLE_NONE
 const getEnServer = () => usingEnServer()
 const getFalse = () => false
 
@@ -17,6 +33,9 @@ export function useTts() {
   const supported = isTtsSupported()
   const viAvailable = useSyncExternalStore(subscribeTts, getViAvailable, getFalse)
   const enServer = useSyncExternalStore(subscribeTts, getEnServer, getFalse)
+  /** (T20) Thiết bị đọc được ngôn ngữ học nào (cập nhật khi Chrome nạp giọng trễ). */
+  const speakable = useSyncExternalStore(subscribeTts, getSpeakable, getSpeakableServer)
+  const canSpeakLang = useCallback((l: Language) => speakable[l], [speakable])
   const [speaking, setSpeaking] = useState(false)
   const [loading, setLoading] = useState(false)
   const mounted = useRef(true)
@@ -79,7 +98,7 @@ export function useTts() {
     setLoading(false)
   }, [])
 
-  return { supported, viAvailable, enServer, speaking, loading, speak, cancel }
+  return { supported, viAvailable, enServer, speakable, canSpeakLang, speaking, loading, speak, cancel }
 }
 
 /** Danh sách giọng tiếng Anh (chỉ Settings dùng). `loaded` false cho tới khi tải xong. */

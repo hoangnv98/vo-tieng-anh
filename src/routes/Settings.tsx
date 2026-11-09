@@ -8,7 +8,7 @@ import { PageTitle } from '../components/PageTitle'
 import { Spinner } from '../components/Spinner'
 import { TtsUnsupportedNote } from '../components/SpeakButton'
 import { usePageTitle } from '../hooks/usePageTitle'
-import { useVoices } from '../hooks/useTts'
+import { useTts, useVoices } from '../hooks/useTts'
 import { SIGN_OUT_ERROR_MESSAGE } from '../repo/errors'
 import { localDay } from '../lib/dates'
 import { shouldSyncField } from '../lib/settingsSync'
@@ -17,7 +17,9 @@ import { cancel as cancelTts, subscribe as subscribeTts, webSpeech } from '../li
 import { readTtsConfig, writeTtsConfig, type TtsConfig } from '../lib/ttsConfig'
 import { useAuth } from '../state/useAuth'
 import { useData } from '../state/useData'
-import type { Settings as SettingsData } from '../domain/types'
+import { STUDY_LANGUAGES, type Settings as SettingsData, type StudyLanguageFilter } from '../domain/types'
+import { asStudyLanguage, STUDY_LANGUAGE_LABELS } from '../domain/language'
+import { voiceStatusLine } from '../domain/languageUi'
 import { GOAL, NAME_MAX, NEW_CARDS } from '../domain/settingsLimits'
 import {
   IMPORT_ERROR_MESSAGES,
@@ -152,6 +154,7 @@ export default function Settings() {
   const { mode, user, signOut } = useAuth()
   const { snapshot, pending, online, saveSettings, importSnapshot, notify } = useData()
   const { supported, voices, loaded } = useVoices()
+  const { speakable } = useTts()
   const [ttsCfg, setTtsCfg] = useState<TtsConfig>(readTtsConfig)
   const viDevice = useSyncExternalStore(subscribeTts, getViDevice, () => false)
   const saveTts = useCallback((fn: (c: TtsConfig) => TtsConfig) => {
@@ -283,7 +286,7 @@ export default function Settings() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `vo-tieng-anh-${localDay(new Date())}.json`
+    a.download = `vo-ngoai-ngu-${localDay(new Date())}.json`
     document.body.appendChild(a)
     a.click()
     a.remove()
@@ -404,6 +407,26 @@ export default function Settings() {
             </Button>
           </div>
         )}
+      </section>
+
+      <section className="settings-group" aria-labelledby="st-language">
+        <h2 id="st-language">Ngôn ngữ</h2>
+        <Field
+          as="select"
+          label="Ngôn ngữ đang học"
+          name="study_language"
+          className="settings-language"
+          description="Lọc thẻ ôn, shadowing, kho mẫu câu và thống kê thẻ theo một ngôn ngữ. Nhật ký buổi học, chuỗi ngày và phút học luôn tính chung."
+          value={asStudyLanguage(settings.study_language)}
+          onChange={(e) => persist({ study_language: asStudyLanguage(e.target.value as StudyLanguageFilter) })}
+        >
+          {STUDY_LANGUAGES.map((l) => (
+            <option key={l} value={l}>
+              {STUDY_LANGUAGE_LABELS[l]}
+            </option>
+          ))}
+        </Field>
+        <p className="settings-mute">{voiceStatusLine(speakable, supported)}</p>
       </section>
 
       <section className="settings-group" aria-labelledby="st-goal">
@@ -668,7 +691,7 @@ uv run python -m apps.openai_speech`}</code>
                 <span className="import-check-text">
                   <span className="import-check-label">Nhập cả cài đặt</span>
                   <span id="import-settings-desc" className="settings-mute">
-                    Tên hiển thị, mục tiêu mỗi ngày, thẻ mới mỗi ngày, giọng đọc, tự phát âm.
+                    Tên hiển thị, mục tiêu mỗi ngày, thẻ mới mỗi ngày, giọng đọc, tự phát âm, ngôn ngữ đang học.
                   </span>
                 </span>
               </label>

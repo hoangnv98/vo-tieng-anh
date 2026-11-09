@@ -25,7 +25,7 @@ function snapEntries(body: HTMLElement): void {
 /**
  * Trang vở ô ly (5.5). Mỗi con trực tiếp của thân trang phải là một dòng mục `.entry`
  * (được làm tròn chiều cao lên bội số 48px để giữ lưới):
- * `<div className="entry"><span className="en" lang="en">…</span><span className="vi">…</span></div>`.
+ * `<div className="entry"><span className="en" lang={LANG_TAG[L]}>…</span><span className="vi">…</span></div>`.
  * Khối khác (nút, ghi chú, EmptyState…) đặt ngoài trang, hoặc bọc trong một `.entry` — nếu không,
  * các dòng phía sau sẽ lệch lưới.
  */

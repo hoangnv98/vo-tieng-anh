@@ -7,12 +7,14 @@ import { FakeAudio, stubAudio } from './fakeAudio'
 import { OpenAiCompatibleProvider } from './openaiCompat'
 import { TOAST_BUSY, TOAST_DOWN, TtsRouter } from './router'
 import { fakeSink, hanging, status, wav } from './testUtils'
-import { HEALTH_DOWN_TTL_MS, type SpeakHandle, type SpeakRequest, type TtsLang, type TtsProvider } from './types'
+import { HEALTH_DOWN_TTL_MS, TtsError, type ServerLang, type SpeakHandle, type SpeakRequest, type TtsLang, type TtsProvider } from './types'
 import { WebSpeechProvider } from './webSpeech'
 
 let config: TtsConfig
 let protocol: string
 let webVi: boolean
+/** Ngôn ngữ CJK mà Web Speech giả có giọng. */
+let webCjk: Set<TtsLang>
 let fetchMock: ReturnType<typeof vi.fn>
 let notify: ReturnType<typeof vi.fn<(message: string) => void>>
 const owner = {}
@@ -20,7 +22,9 @@ const owner = {}
 function fakeProvider(id: TtsProvider['id']) {
   return {
     id,
-    supports: vi.fn((lang: TtsLang) => (id === 'web-speech' ? lang === 'en' || webVi : true)),
+    supports: vi.fn((lang: TtsLang) =>
+      id === 'web-speech' ? lang === 'en' || (lang === 'vi' && webVi) || webCjk.has(lang) : true,
+    ),
     speak: vi.fn((): SpeakHandle => ({ promise: Promise.resolve(), cancel: vi.fn() })),
     probe: vi.fn(),
     listVoices: vi.fn(),
@@ -35,6 +39,7 @@ beforeEach(() => {
   config = clone()
   protocol = 'http:'
   webVi = false
+  webCjk = new Set()
   notify = vi.fn<(message: string) => void>()
   fetchMock = vi.fn(() => Promise.resolve(wav()))
   vi.stubGlobal('fetch', fetchMock)
@@ -57,7 +62,7 @@ function realRouter() {
   const web = fakeProvider('web-speech')
   const sink = fakeSink()
   const cache = new AudioCache()
-  const mk = (lang: TtsLang) =>
+  const mk = (lang: ServerLang) =>
     new OpenAiCompatibleProvider(lang, () => config[lang], { cache, sink, pageProtocol: () => protocol })
   const router = new TtsRouter({ web, servers: { vi: mk('vi'), en: mk('en') }, getConfig: () => config, pageProtocol: () => protocol, notify })
   return { router, web, sink }
@@ -119,6 +124,67 @@ describe('resolve', () => {
     config.vi.enabled = true
     config.vi.baseUrl = 'https://laptop.tail1234.ts.net'
     expect(router.resolve('vi')?.id).toBe('server-vi')
+  })
+})
+
+describe('zh/ja/ko — luôn giọng trình duyệt (T20)', () => {
+  const CJK = ['zh', 'ja', 'ko'] as const
+  it('resolve → web khi supports(lang), null khi không; không hỏi server', () => {
+    const { router, servers } = fakeRouter()
+    for (const l of CJK) {
+      expect(router.resolve(l)).toBeNull()
+      expect(router.canSpeak(l)).toBe(false)
+      webCjk.add(l)
+      expect(router.resolve(l)?.id).toBe('web-speech')
+      expect(router.canSpeak(l)).toBe(true)
+    }
+    expect(servers.en.supports).not.toHaveBeenCalledWith('zh')
+    expect(servers.en.supports).not.toHaveBeenCalledWith('ja')
+    expect(servers.vi.supports).not.toHaveBeenCalledWith('ko')
+  })
+  it('server EN/VI bật (kể cả down) → zh vẫn web-speech', () => {
+    const { router } = fakeRouter()
+    webCjk.add('zh')
+    config.en.useServer = true
+    config.vi.enabled = true
+    config.vi.deviceFallback = true
+    expect(router.resolve('zh')?.id).toBe('web-speech')
+    router.markDown('en')
+    expect(router.resolve('zh')?.id).toBe('web-speech')
+    router._dispose()
+  })
+  it('speak lỗi mạng/timeout/http 500 → reject nguyên lỗi, không markDown, không toast, không gọi server', async () => {
+    config.en.useServer = true
+    config.vi.enabled = true
+    const { router, web, servers } = fakeRouter()
+    const errors = [new TtsError('network'), new TtsError('timeout'), new TtsError('http', 500), new TtsError('busy')]
+    for (const l of CJK) webCjk.add(l)
+    for (const [i, err] of errors.entries()) {
+      const l = CJK[i % CJK.length]
+      web.speak.mockReturnValueOnce({ promise: Promise.reject(err), cancel: vi.fn() })
+      await expect(router.speak(req(l, '你好')).promise).rejects.toBe(err)
+    }
+    expect(web.speak).toHaveBeenCalledTimes(errors.length)
+    expect(servers.en.speak).not.toHaveBeenCalled()
+    expect(servers.vi.speak).not.toHaveBeenCalled()
+    expect(notify).not.toHaveBeenCalled()
+    expect(router.getHealth('en')).toBe('unknown')
+    expect(router.getHealth('vi')).toBe('unknown')
+    expect(router.resolve('en')?.id).toBe('server-en')
+    router._dispose()
+  })
+  it('speak thành công → không đổi health server', async () => {
+    const { router } = fakeRouter()
+    webCjk.add('ja')
+    await expect(router.speak(req('ja', 'こんにちは')).promise).resolves.toEqual({ interrupted: false })
+    expect(router.getHealth('en')).toBe('unknown')
+    expect(router.getHealth('vi')).toBe('unknown')
+  })
+  it('không có giọng → reject unsupported, không toast', async () => {
+    const { router, web } = fakeRouter()
+    await expect(router.speak(req('ko', '안녕하세요')).promise).rejects.toMatchObject({ kind: 'unsupported' })
+    expect(web.speak).not.toHaveBeenCalled()
+    expect(notify).not.toHaveBeenCalled()
   })
 })
 
@@ -260,7 +326,7 @@ describe('huỷ chéo provider', () => {
   })
   function liveRouter() {
     const cache = new AudioCache()
-    const mk = (lang: TtsLang) => new OpenAiCompatibleProvider(lang, () => config[lang], { cache, sink: audioSink, pageProtocol: () => protocol })
+    const mk = (lang: ServerLang) => new OpenAiCompatibleProvider(lang, () => config[lang], { cache, sink: audioSink, pageProtocol: () => protocol })
     return new TtsRouter({ web: new WebSpeechProvider(), servers: { vi: mk('vi'), en: mk('en') }, getConfig: () => config, pageProtocol: () => protocol })
   }
   it('đang Web Speech → bấm VI → speechSynthesis.cancel()', () => {

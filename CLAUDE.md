@@ -1,6 +1,6 @@
-# Vở Tiếng Anh
+# Vở Ngoại Ngữ
 
-Web app cá nhân giúp người lớn mất gốc học lại tiếng Anh giao tiếp.
+Web app cá nhân giúp người lớn mất gốc học lại ngoại ngữ giao tiếp (Anh, Trung, Nhật, Hàn); giao diện tiếng Việt.
 
 ## Nguồn sự thật
 - Sản phẩm: PRODUCT.md
@@ -29,6 +29,6 @@ Chạy cả pipeline: `/feature <tên chức năng>` — quy tắc chọn model 
 - `npm run lint`
 
 ## Quy tắc
-- Giao diện tiếng Việt, nội dung học tiếng Anh.
+- Giao diện tiếng Việt, nội dung học là ngôn ngữ đích của từng buổi (en/zh/ja/ko).
 - Chỉ dùng công nghệ miễn phí.
 - Không commit `.env`.

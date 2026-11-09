@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Card, Lesson, Settings } from '../domain/types'
 import { createTimeoutFetch } from '../lib/supabase'
 import { defaultSettings } from './defaults'
@@ -8,15 +8,25 @@ import {
   NO_SESSION_MESSAGE,
   RATE_LIMIT_MESSAGE,
   RepoError,
+  SCHEMA_OUTDATED_MESSAGE,
   SupabaseAuth,
   SupabaseRepository,
   WRITE_ERROR_MESSAGE,
   isNonRetryableCode,
+  isSchemaOutdated,
+  isSchemaOutdatedError,
+  resetSchemaOutdatedForTest,
+  setSchemaOutdatedNotifier,
+  stripNewColumns,
   stripUserId,
   studyTimeRpcArgs,
   toCard,
   toIso,
+  toLesson,
+  toSettings,
   toSignInError,
+  type LessonRow,
+  type SettingsRow,
 } from './supabase'
 
 interface Call {
@@ -81,6 +91,7 @@ const lesson: Lesson = {
   notes: '',
   questions: '',
   mistakes: '',
+  language: 'en',
   created_at: '2026-11-09T05:00:00.000Z',
   updated_at: '2026-11-09T05:00:00.000Z',
 }
@@ -94,6 +105,7 @@ describe('SupabaseRepository.loadSnapshot', () => {
       new_cards_per_day: 15,
       voice_name: null,
       auto_speak: false,
+      study_language: 'all',
     }
     const { client, queries } = makeClient((table, calls) => {
       if (table === 'settings' && hasMethod(calls, 'upsert')) {
@@ -233,7 +245,7 @@ describe('SupabaseRepository ghi', () => {
   it('saveSettings gửi user_id của session, onConflict user_id', async () => {
     const { client, queries, auth } = makeClient(() => ({ data: null, error: null }))
     const repo = new SupabaseRepository(client, { now })
-    const s: Settings = { user_id: 'local', display_name: 'Lan', daily_goal_min: 20, new_cards_per_day: 10, voice_name: null, auto_speak: true }
+    const s: Settings = { user_id: 'local', display_name: 'Lan', daily_goal_min: 20, new_cards_per_day: 10, voice_name: null, auto_speak: true, study_language: 'all' }
     await repo.saveSettings(s)
     await repo.saveSettings(s)
     expect(auth.getUser).not.toHaveBeenCalled()
@@ -394,5 +406,151 @@ describe('createTimeoutFetch', () => {
     }) as unknown as typeof fetch
     await createTimeoutFetch(base, 1000)('https://x.test', { signal: new AbortController().signal })
     expect(base).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('(T20) cột ngôn ngữ', () => {
+  beforeEach(() => resetSchemaOutdatedForTest())
+
+  const oldLessonRow = (): LessonRow => {
+    const { language: _omit, ...row } = { ...lesson, user_id: 'u1', created_at: '2026-11-09T05:00:00+00:00', updated_at: '2026-11-09T05:00:00+00:00' }
+    void _omit
+    return row
+  }
+
+  it('row thiếu language → en; null → en; zh giữ; mã lạ → en', () => {
+    expect(toLesson(oldLessonRow()).language).toBe('en')
+    expect(toLesson({ ...oldLessonRow(), language: null }).language).toBe('en')
+    expect(toLesson({ ...oldLessonRow(), language: 'zh' }).language).toBe('zh')
+    expect(toLesson({ ...oldLessonRow(), language: 'fr' }).language).toBe('en')
+  })
+
+  it('settings thiếu study_language → all; hợp lệ giữ; defaultSettings có all', () => {
+    const row: SettingsRow = { ...defaultSettings('u1'), created_at: 'x', updated_at: 'x' }
+    const { study_language: _omit, ...old } = row
+    void _omit
+    expect(toSettings(old as SettingsRow).study_language).toBe('all')
+    expect(toSettings({ ...row, study_language: 'ja' }).study_language).toBe('ja')
+    expect(toSettings({ ...row, study_language: 'xx' }).study_language).toBe('all')
+    expect(defaultSettings('u1').study_language).toBe('all')
+  })
+
+  it('loadSnapshot từ server chưa migrate → language en, study_language all', async () => {
+    const { client } = makeClient((table) => {
+      if (table === 'settings') {
+        const { study_language: _omit, ...s } = { ...defaultSettings('u1'), created_at: 'x', updated_at: 'x' }
+        void _omit
+        return { data: s, error: null }
+      }
+      if (table === 'lessons') return { data: [oldLessonRow()], error: null }
+      return { data: [], error: null }
+    })
+    const snap = await new SupabaseRepository(client, { now }).loadSnapshot()
+    expect(snap.lessons[0].language).toBe('en')
+    expect(snap.settings.study_language).toBe('all')
+  })
+
+  it('isSchemaOutdatedError / stripNewColumns', () => {
+    expect(isSchemaOutdatedError({ code: 'PGRST204', message: "Could not find the 'language' column of 'lessons' in the schema cache" })).toBe(true)
+    expect(isSchemaOutdatedError({ code: 'PGRST204', message: "Could not find the 'study_language' column of 'settings' in the schema cache" })).toBe(true)
+    // PGRST204 vì cột khác / không có message → không phải "server chưa migrate T20".
+    expect(isSchemaOutdatedError({ code: 'PGRST204', message: "Could not find the 'topic' column of 'lessons' in the schema cache" })).toBe(false)
+    expect(isSchemaOutdatedError({ code: 'PGRST204', message: "Could not find the 'languages' column" })).toBe(false)
+    expect(isSchemaOutdatedError({ code: 'PGRST204' })).toBe(false)
+    expect(isSchemaOutdatedError({ code: '23505', message: 'language' })).toBe(false)
+    expect(isSchemaOutdatedError(null)).toBe(false)
+    expect(stripNewColumns({ a: 1, language: 'zh', study_language: 'all' })).toEqual({ a: 1 })
+  })
+
+  const PGRST204 = { code: 'PGRST204', message: "Could not find the 'language' column of 'lessons' in the schema cache" }
+  /** Server chưa migrate: payload có cột mới → PGRST204; không có → ok. */
+  const outdated = (calls: Call[]) => {
+    const [payload] = argsOf(calls, 'upsert') as [Record<string, unknown> | Record<string, unknown>[]]
+    const rows = Array.isArray(payload) ? payload : [payload]
+    return rows.some((r) => 'language' in r || 'study_language' in r)
+      ? { data: null, error: PGRST204, status: 400 }
+      : { data: null, error: null, status: 201 }
+  }
+
+  it('PGRST204 → gửi lại không cột mới; callback 1 lần dù lỗi 3 lần', async () => {
+    const notify = vi.fn()
+    setSchemaOutdatedNotifier(notify)
+    const { client, queries } = makeClient((_t, calls) => outdated(calls))
+    const repo = new SupabaseRepository(client, { now })
+
+    await repo.upsertLesson({ ...lesson, language: 'zh' })
+    await repo.upsertLessons([{ ...lesson, id: 'l2', language: 'ja' }])
+    await repo.saveSettings({ ...defaultSettings('u1'), study_language: 'zh' })
+
+    const upserts = queries.filter((q) => hasMethod(q.calls, 'upsert'))
+    expect(upserts.map((q) => q.table)).toEqual(['lessons', 'lessons', 'lessons', 'lessons', 'settings', 'settings'])
+    const payloadOf = (i: number) => argsOf(upserts[i].calls, 'upsert')![0]
+    expect(payloadOf(0)).toMatchObject({ language: 'zh' })
+    expect(payloadOf(1)).not.toHaveProperty('language')
+    expect(payloadOf(1)).toMatchObject({ id: 'l1', topic: 'Gọi món' })
+    expect((payloadOf(3) as Record<string, unknown>[])[0]).not.toHaveProperty('language')
+    expect(payloadOf(5)).not.toHaveProperty('study_language')
+    expect(payloadOf(5)).toMatchObject({ user_id: 'u1', daily_goal_min: 15 })
+
+    expect(notify).toHaveBeenCalledTimes(1)
+    expect(notify).toHaveBeenCalledWith(SCHEMA_OUTDATED_MESSAGE)
+    expect(isSchemaOutdated()).toBe(true)
+  })
+
+  it('lỗi khác PGRST204 không gửi lại, ném RepoError như cũ; server đã migrate gửi 1 lần có cột mới', async () => {
+    const notify = vi.fn()
+    setSchemaOutdatedNotifier(notify)
+    const bad = makeClient(() => ({ data: null, error: { code: '23514' }, status: 400 }))
+    await expect(new SupabaseRepository(bad.client, { now }).upsertLesson(lesson)).rejects.toMatchObject({ code: '23514' })
+    expect(bad.queries).toHaveLength(1)
+
+    const ok = makeClient(() => ({ data: null, error: null }))
+    await new SupabaseRepository(ok.client, { now }).upsertLesson({ ...lesson, language: 'ko' })
+    expect(ok.queries).toHaveLength(1)
+    expect(argsOf(ok.queries[0].calls, 'upsert')![0]).toMatchObject({ language: 'ko' })
+    expect(notify).not.toHaveBeenCalled()
+    expect(isSchemaOutdated()).toBe(false)
+  })
+
+  it('PGRST204 vì cột khác → không gửi lại, không toast, ném RepoError', async () => {
+    const notify = vi.fn()
+    setSchemaOutdatedNotifier(notify)
+    const other = { code: 'PGRST204', message: "Could not find the 'topic' column of 'lessons' in the schema cache" }
+    const { client, queries } = makeClient(() => ({ data: null, error: other, status: 400 }))
+    await expect(new SupabaseRepository(client, { now }).upsertLesson(lesson)).rejects.toMatchObject({ code: 'PGRST204' })
+    expect(queries).toHaveLength(1)
+    expect(notify).not.toHaveBeenCalled()
+    expect(isSchemaOutdated()).toBe(false)
+  })
+
+  it('PGRST204 cả lần gửi lại → ném lỗi (không nuốt)', async () => {
+    const { client, queries } = makeClient(() => ({ data: null, error: PGRST204, status: 400 }))
+    await expect(new SupabaseRepository(client, { now }).upsertLesson(lesson)).rejects.toMatchObject({ code: 'PGRST204' })
+    expect(queries).toHaveLength(2)
+  })
+
+  it('notifier đặt sau khi đã gặp PGRST204 → báo ngay 1 lần', async () => {
+    const { client } = makeClient((_t, calls) => outdated(calls))
+    await new SupabaseRepository(client, { now }).upsertLesson(lesson)
+    const notify = vi.fn()
+    setSchemaOutdatedNotifier(notify)
+    setSchemaOutdatedNotifier(notify)
+    expect(notify).toHaveBeenCalledTimes(1)
+  })
+
+  it('tạo settings mặc định trên server chưa migrate → gửi lại không study_language', async () => {
+    const { client, queries } = makeClient((table, calls) => {
+      if (table === 'settings' && hasMethod(calls, 'upsert')) {
+        const r = outdated(calls)
+        if (r.error) return r
+        const [payload] = argsOf(calls, 'upsert') as [Record<string, unknown>]
+        return { data: [{ ...payload, created_at: 'x', updated_at: 'x' }], error: null }
+      }
+      if (table === 'settings') return { data: null, error: null }
+      return { data: [], error: null }
+    })
+    const snap = await new SupabaseRepository(client, { now }).loadSnapshot()
+    expect(snap.settings).toEqual(defaultSettings('u1', 'lan@vidu.com'))
+    expect(queries.filter((q) => q.table === 'settings' && hasMethod(q.calls, 'upsert'))).toHaveLength(2)
   })
 })

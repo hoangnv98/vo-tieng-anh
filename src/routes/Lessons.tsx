@@ -5,6 +5,7 @@ import '../components/Button.css'
 import { buttonClass } from '../components/buttonClass'
 import { EmptyState } from '../components/EmptyState'
 import { PageTitle } from '../components/PageTitle'
+import { LANGUAGE_LABELS, languagesInUse, lessonLanguage } from '../domain/language'
 import { lessonCounts, sortLessons } from '../domain/lessons'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useTts } from '../hooks/useTts'
@@ -28,6 +29,8 @@ export default function Lessons() {
   }, [])
 
   const lessons = useMemo(() => sortLessons(snapshot?.lessons ?? []), [snapshot?.lessons])
+  // (T20) Nhật ký không lọc theo "Ngôn ngữ đang học"; chỉ gắn nhãn khi vở có hơn một ngôn ngữ.
+  const showLanguage = useMemo(() => languagesInUse(lessons).length > 1, [lessons])
   const counts = useMemo(
     () => lessonCounts(snapshot?.items ?? [], snapshot?.cards ?? [], today, { ttsSupported }),
     [snapshot?.items, snapshot?.cards, today, ttsSupported],
@@ -67,6 +70,12 @@ export default function Lessons() {
                   <span className="lesson-row-when">
                     <span className="lesson-row-number">Buổi {l.number}</span>{' '}
                     <span className="lesson-row-date">{formatDateVi(l.date)}</span>
+                    {showLanguage && (
+                      <>
+                        {' '}
+                        <span className="lesson-row-lang">{LANGUAGE_LABELS[lessonLanguage(l)]}</span>
+                      </>
+                    )}
                   </span>{' '}
                   <span className="lesson-row-topic">{l.topic}</span>{' '}
                   <span className="lesson-row-count">

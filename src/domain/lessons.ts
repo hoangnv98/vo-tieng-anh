@@ -1,6 +1,7 @@
 import { addDays, endOfLocalDay } from '../lib/dates'
 import { normalizeAnswer } from '../lib/text'
-import type { Card, Item, Kind, Lesson } from './types'
+import { LANGUAGE_LABELS, isLanguage, lessonLanguage, matchesFilter } from './languageCore'
+import type { Card, Item, Kind, Language, Lesson, StudyLanguageFilter } from './types'
 
 /** Giới hạn khớp check constraint trong `supabase/schema.sql`. */
 export const LIMITS = {
@@ -16,7 +17,7 @@ export const LIMITS = {
   note: 200,
 } as const
 
-export type LessonField = 'number' | 'date' | 'topic' | 'questions' | 'mistakes' | 'notes'
+export type LessonField = 'number' | 'date' | 'topic' | 'questions' | 'mistakes' | 'notes' | 'language'
 export type ItemField = 'en' | 'vi' | 'ipa' | 'note'
 
 export interface LessonInput {
@@ -27,6 +28,8 @@ export interface LessonInput {
   questions: string
   mistakes: string
   notes: string
+  /** (T20) Ngôn ngữ của buổi. */
+  language: Language
 }
 
 export interface ItemInput {
@@ -70,6 +73,8 @@ function parseNumber(raw: string | number): number | null {
 }
 
 const max = (n: number) => `Tối đa ${n} ký tự.`
+/** "Tiếng Trung" → "tiếng Trung" (giữa câu). */
+const lowerFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1)
 
 /** Lỗi theo trường (6.6). Rỗng = hợp lệ. */
 export function validateLesson(input: LessonInput, ctx: LessonValidationContext): Partial<Record<LessonField, string>> {
@@ -94,6 +99,9 @@ export function validateLesson(input: LessonInput, ctx: LessonValidationContext)
   if (input.mistakes.trim().length > LIMITS.mistakes) errors.mistakes = max(LIMITS.mistakes)
   if (input.notes.trim().length > LIMITS.notes) errors.notes = max(LIMITS.notes)
 
+  // Chỉ xảy ra khi state hỏng: select không cho giá trị ngoài LANGUAGES.
+  if (!isLanguage(input.language)) errors.language = 'Chọn ngôn ngữ.'
+
   return errors
 }
 
@@ -105,14 +113,18 @@ export function isBlankItem(input: Pick<ItemInput, ItemField>): boolean {
 /**
  * Lỗi của một hàng mục. Hàng trống hoàn toàn → không lỗi (bị bỏ qua khi lưu),
  * trừ khi `required` (hàng ứng với item đã lưu: muốn bỏ thì bấm X).
+ * `language` (mặc định 'en') quyết định câu lỗi thiếu ô đích: "Nhập tiếng Trung."…
  */
-export function validateItem(input: ItemInput, opts: { required?: boolean } = {}): Partial<Record<ItemField, string>> {
+export function validateItem(
+  input: ItemInput,
+  opts: { required?: boolean; language?: Language } = {},
+): Partial<Record<ItemField, string>> {
   const errors: Partial<Record<ItemField, string>> = {}
   if (!opts.required && isBlankItem(input)) return errors
 
   const en = input.en.trim()
   const vi = input.vi.trim()
-  if (!en) errors.en = 'Nhập tiếng Anh.'
+  if (!en) errors.en = `Nhập ${lowerFirst(LANGUAGE_LABELS[opts.language ?? 'en'])}.`
   else if (en.length > LIMITS.en) errors.en = max(LIMITS.en)
   if (!vi) errors.vi = 'Nhập nghĩa tiếng Việt.'
   else if (vi.length > LIMITS.vi) errors.vi = max(LIMITS.vi)
@@ -210,4 +222,16 @@ export function cardStatus(card: Card): CardStatus {
   }
   if (card.lapses > 0) return { variant: 'forgot', lapses: card.lapses }
   return { variant: 'learning', lapses: 0 }
+}
+
+/** (T20) Buổi mới nhất (`date desc, number desc`) trong ngôn ngữ lọc. */
+export function latestLessonOf(lessons: readonly Lesson[], filter: StudyLanguageFilter): Lesson | undefined {
+  return sortLessons(lessons).find((l) => matchesFilter(lessonLanguage(l), filter))
+}
+
+/** (T20) Ngôn ngữ mặc định của buổi mới (6.6 (9)): bộ lọc ≠ Tất cả → bộ lọc; ngược lại buổi gần nhất; không có buổi → 'en'. */
+export function defaultLessonLanguage(lessons: readonly Lesson[], filter: StudyLanguageFilter): Language {
+  if (filter !== 'all') return filter
+  const latest = latestLessonOf(lessons, 'all')
+  return latest ? lessonLanguage(latest) : 'en'
 }

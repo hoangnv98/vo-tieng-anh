@@ -7,6 +7,7 @@ import { localDay } from '../lib/dates'
 import { createCardRecord, gradeCard as fsrsGradeCard } from '../lib/fsrs'
 import { newId } from '../lib/ids'
 import { setNotifier as setTtsNotifier } from '../lib/tts'
+import { setSchemaOutdatedNotifier } from '../repo'
 import type { StudyTimeDelta } from '../repo/types'
 import { createPatternGate } from './patternGate'
 import {
@@ -49,6 +50,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setTtsNotifier(notify)
     return () => setTtsNotifier(undefined)
+  }, [notify])
+
+  // Toast info 1 lần/phiên khi Supabase chưa có cột ngôn ngữ (T20, 3.2) — repo tự bảo đảm "1 lần".
+  useEffect(() => {
+    setSchemaOutdatedNotifier((message) => notify(message, 'info'))
+    return () => setSchemaOutdatedNotifier(undefined)
   }, [notify])
 
   useEffect(() => {

@@ -18,6 +18,13 @@ describe('buildReadAloudSteps', () => {
   it('không có VI thì chỉ đọc tiếng Anh', () => {
     expect(buildReadAloudSteps(items, false).map((s) => s.lang)).toEqual(['en', 'en'])
   })
+  it('(T20) language ko → bước đích lang ko, bước VI lang vi', () => {
+    expect(buildReadAloudSteps([{ id: 'k', en: '안녕하세요', vi: 'Xin chào' }], true, 'ko')).toEqual([
+      { itemId: 'k', lang: 'ko', text: '안녕하세요' },
+      { itemId: 'k', lang: 'vi', text: 'Xin chào' },
+    ])
+    expect(buildReadAloudSteps(items, false, 'zh').map((s) => s.lang)).toEqual(['zh', 'zh'])
+  })
   it('plainSpeech gộp khoảng trắng, giữ xuống dòng', () => {
     expect(plainSpeech(' a *b*  x\n  c ')).toBe('a b x\nc')
   })

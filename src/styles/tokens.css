@@ -15,6 +15,12 @@
 
   --font-ui: 'Be Vietnam Pro', system-ui, sans-serif;
   --font-remark: 'Charm', cursive;
+  /* (T20) Font hệ thống cho chữ CJK — KHÔNG tải từ Google Fonts. Be Vietnam Pro đứng trước để
+     dấu câu/chữ Latin trong câu CJK giữ nét UI; glyph Hán/Kana/Hangul rơi xuống font hệ thống.
+     Tách theo ngôn ngữ để trình duyệt chọn đúng biến thể chữ Hán (zh ≠ ja). */
+  --font-zh: 'Be Vietnam Pro', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Noto Sans SC', system-ui, sans-serif;
+  --font-ja: 'Be Vietnam Pro', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'Noto Sans CJK JP', 'Noto Sans JP', system-ui, sans-serif;
+  --font-ko: 'Be Vietnam Pro', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans CJK KR', 'Noto Sans KR', system-ui, sans-serif;
 
   --line: 48px;          /* bước dòng kẻ chính của vở; baseline tiếng Anh */
   --topbar-h: 68px; --topbar-h-mobile: 56px; --bottombar-h: 64px;

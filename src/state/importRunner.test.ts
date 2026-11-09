@@ -12,7 +12,7 @@ const T = '2026-11-01T03:00:00.000Z'
 const FSRS = { dueAt: T, lastReviewAt: null, stability: 0, difficulty: 0, state: 0 }
 
 function lesson(id: string): Lesson {
-  return { id, user_id: 'u', number: 1, date: '2026-11-01', topic: 'Chào', notes: '', questions: '', mistakes: '', created_at: T, updated_at: T }
+  return { id, user_id: 'u', number: 1, date: '2026-11-01', topic: 'Chào', notes: '', questions: '', mistakes: '', language: 'en', created_at: T, updated_at: T }
 }
 function item(id: string, over: Partial<Item> = {}): Item {
   return { id, user_id: 'u', lesson_id: null, kind: 'word', en: 'hi', vi: 'chào', ipa: '', note: '', pattern_id: null, position: 0, created_at: T, updated_at: T, ...over }
@@ -26,7 +26,7 @@ function snap(over: Partial<Snapshot> = {}): Snapshot {
     items: [],
     cards: [],
     studyDays: [],
-    settings: { user_id: 'u', display_name: '', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false },
+    settings: { user_id: 'u', display_name: '', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false, study_language: 'all' },
     ...over,
   }
 }

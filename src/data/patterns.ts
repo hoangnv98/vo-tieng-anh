@@ -1,17 +1,22 @@
 /**
- * Dữ liệu seed: 9 tình huống giao tiếp, mỗi tình huống 9–10 mẫu câu A1–A2.
+ * Dữ liệu seed: 9 tình huống giao tiếp tiếng Anh (mỗi tình huống 9–10 mẫu câu A1–A2)
+ * và (T20d) bộ khởi đầu tiếng Trung/Nhật/Hàn: mỗi ngôn ngữ 4 tình huống × 5 mẫu câu A1, không ô trống.
  *
  * Quy ước:
  * - `en` / `vi` là mẫu câu có thể chứa ô trống dạng `{key}`. Mỗi `key` phải có
  *   một phần tử tương ứng trong `slots`.
  * - `ipa` là phiên âm (General American, giản lược) của câu đã điền ví dụ đầu tiên
- *   (`fillPattern(p, 0).en`).
+ *   (`fillPattern(p, 0).en`). Với zh/ja/ko, `en` là câu đích và `ipa` là phiên âm Latin:
+ *   pinyin có dấu thanh (zh), romaji Hepburn có macron (ja), Revised Romanization (ko);
+ *   không có dấu `/…/`, bỏ dấu chấm cuối câu.
  * - `note` là lưu ý phát âm cho người Việt (âm cuối, -s/-ed, trọng âm, nối âm).
  *   Trên giao diện, nhãn "Lưu ý phát âm" dùng chữ đỏ gạch chân mảnh — KHÔNG dùng
  *   viền trái màu dày.
  * - File này là TypeScript thuần, không import React. Không dùng `enum`
  *   (tsconfig bật `erasableSyntaxOnly`).
  */
+
+import type { Language, StudyLanguageFilter } from '../domain/types'
 
 export type Level = 'A1' | 'A2'
 
@@ -43,8 +48,12 @@ export interface Pattern {
 
 export interface Situation {
   id: string
+  /** (T20) Ngôn ngữ học của tình huống. */
+  language: Language
   nameVi: string
   nameEn: string
+  /** (T20) Tên tình huống bằng ngôn ngữ đích; bắt buộc với zh/ja/ko, hiển thị thay `nameEn`. */
+  nameTarget?: string
   /** Tên icon trong lucide-react, ví dụ "Utensils". */
   icon: string
   /** 1–2 câu giới thiệu tình huống (tiếng Việt). */
@@ -130,6 +139,7 @@ export const SITUATIONS: Situation[] = [
     id: 'greetings',
     nameVi: 'Chào hỏi',
     nameEn: 'Greetings',
+    language: 'en',
     icon: 'Hand',
     intro: 'Chào, hỏi thăm và tạm biệt. Đây là những câu bạn sẽ nói nhiều nhất, nên tập cho tự nhiên.',
     pronunciationFocus:
@@ -235,6 +245,7 @@ export const SITUATIONS: Situation[] = [
     id: 'self-intro',
     nameVi: 'Giới thiệu bản thân',
     nameEn: 'Introducing yourself',
+    language: 'en',
     icon: 'User',
     intro: 'Tên, tuổi, quê, công việc, gia đình, sở thích. Chuẩn bị sẵn 5–6 câu về mình để nói trôi chảy.',
     pronunciationFocus:
@@ -417,6 +428,7 @@ export const SITUATIONS: Situation[] = [
     id: 'ordering',
     nameVi: 'Gọi món',
     nameEn: 'Ordering food',
+    language: 'en',
     icon: 'Utensils',
     intro: 'Đặt bàn, xem thực đơn, gọi món và đồ uống, tính tiền.',
     pronunciationFocus:
@@ -553,6 +565,7 @@ export const SITUATIONS: Situation[] = [
     id: 'directions',
     nameVi: 'Hỏi đường',
     nameEn: 'Asking for directions',
+    language: 'en',
     icon: 'MapPin',
     intro: 'Hỏi chỗ, hỏi cách đi, hiểu câu chỉ đường cơ bản: thẳng, trái, phải, cạnh.',
     pronunciationFocus:
@@ -696,6 +709,7 @@ export const SITUATIONS: Situation[] = [
     id: 'shopping',
     nameVi: 'Mua sắm',
     nameEn: 'Shopping',
+    language: 'en',
     icon: 'ShoppingBag',
     intro: 'Hỏi giá, hỏi cỡ và màu, thử đồ, mặc cả, thanh toán.',
     pronunciationFocus:
@@ -821,6 +835,7 @@ export const SITUATIONS: Situation[] = [
     id: 'work',
     nameVi: 'Công việc',
     nameEn: 'At work',
+    language: 'en',
     icon: 'Briefcase',
     intro: 'Họp, gửi tài liệu, hẹn thời gian, xin nhắc lại, xin lỗi vì đến muộn.',
     pronunciationFocus:
@@ -945,6 +960,7 @@ export const SITUATIONS: Situation[] = [
     id: 'phone',
     nameVi: 'Điện thoại',
     nameEn: 'On the phone',
+    language: 'en',
     icon: 'Phone',
     intro: 'Nghe máy, xin gặp ai đó, xin nói chậm, hẹn gọi lại, để lại lời nhắn.',
     pronunciationFocus:
@@ -1071,6 +1087,7 @@ export const SITUATIONS: Situation[] = [
     id: 'airport',
     nameVi: 'Sân bay',
     nameEn: 'At the airport',
+    language: 'en',
     icon: 'Plane',
     intro: 'Làm thủ tục, chọn ghế, ký gửi hành lý, hỏi cổng và giờ lên máy bay, trả lời hải quan.',
     pronunciationFocus:
@@ -1204,6 +1221,7 @@ export const SITUATIONS: Situation[] = [
     id: 'hotel',
     nameVi: 'Khách sạn',
     nameEn: 'At the hotel',
+    language: 'en',
     icon: 'BedDouble',
     intro: 'Nhận phòng, hỏi giá và bữa sáng, xin Wi-Fi, báo hỏng, xin thêm đồ, trả phòng.',
     pronunciationFocus:
@@ -1331,6 +1349,667 @@ export const SITUATIONS: Situation[] = [
       },
     ],
   },
+
+  /* ================================================================ */
+  /* (T20d) Bộ khởi đầu tiếng Trung — Hanyu Pinyin có dấu thanh,        */
+  /* không ghi biến điệu (一 viết yī, thanh 3 giữ nguyên), chữ giản thể. */
+  /* ================================================================ */
+  {
+    id: 'zh-greetings',
+    language: 'zh',
+    nameVi: 'Chào hỏi & giới thiệu',
+    nameEn: 'Greetings & introductions',
+    nameTarget: '问候与介绍',
+    icon: 'Hand',
+    intro: 'Chào, nói tên mình, hỏi thăm và tạm biệt bằng tiếng Trung. Năm câu đầu tiên nên thuộc lòng.',
+    pronunciationFocus:
+      'Thanh điệu quyết định nghĩa: thanh 1 cao đều, thanh 2 đi lên, thanh 3 xuống thấp rồi lên, thanh 4 rơi dứt khoát. Hai thanh 3 liền nhau thì chữ đầu đọc như thanh 2.',
+    patterns: [
+      {
+        id: 'zh-greetings-01',
+        en: '你好！',
+        vi: 'Xin chào!',
+        ipa: 'nǐ hǎo',
+        level: 'A1',
+        note: 'Hai thanh 3 liền nhau: chữ đầu đọc thành thanh 2 (ní hǎo). Đừng đọc đều đều như tiếng Việt không dấu.',
+      },
+      {
+        id: 'zh-greetings-02',
+        en: '我叫李明。',
+        vi: 'Tôi tên là Lý Minh.',
+        ipa: 'wǒ jiào lǐ míng',
+        level: 'A1',
+        note: '叫 (jiào) thanh 4: rơi nhanh từ cao xuống, giống dấu nặng nhưng không bị tắc họng.',
+      },
+      {
+        id: 'zh-greetings-03',
+        en: '很高兴认识您。',
+        vi: 'Rất vui được gặp anh/chị.',
+        ipa: 'hěn gāoxìng rènshi nín',
+        level: 'A1',
+        note: '识 trong 认识 đọc thanh nhẹ, ngắn và không dấu. 您 là "bạn" lịch sự.',
+      },
+      {
+        id: 'zh-greetings-04',
+        en: '您最近好吗？',
+        vi: 'Dạo này anh/chị khoẻ không?',
+        ipa: 'nín zuìjìn hǎo ma?',
+        level: 'A1',
+        note: '吗 cuối câu hỏi là thanh nhẹ, đọc ngắn và nhẹ, không lên giọng như câu hỏi tiếng Việt.',
+      },
+      {
+        id: 'zh-greetings-05',
+        en: '再见，下次见！',
+        vi: 'Tạm biệt, hẹn gặp lại!',
+        ipa: 'zàijiàn, xiàcì jiàn',
+        level: 'A1',
+        note: 'Cả năm chữ đều thanh 4: mỗi chữ rơi dứt khoát. "x" đọc gần "x" tiếng Việt nhưng môi dẹt, lưỡi sát răng dưới.',
+      },
+    ],
+  },
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'zh-restaurant',
+    language: 'zh',
+    nameVi: 'Nhà hàng & gọi món',
+    nameEn: 'Restaurant & ordering',
+    nameTarget: '餐厅点菜',
+    icon: 'Utensils',
+    intro: 'Gọi phục vụ, xin thực đơn, gọi món, xin nước và tính tiền ở quán ăn.',
+    pronunciationFocus:
+      'Chuỗi thanh 3 như 请给我 (qǐng gěi wǒ): khi nói nhanh chỉ chữ cuối giữ thanh 3 (đọc thấp). Âm "c" trong 菜 (cài) bật hơi như "tsh", không phải "c" tiếng Việt.',
+    patterns: [
+      {
+        id: 'zh-restaurant-01',
+        en: '服务员，请给我菜单。',
+        vi: 'Phục vụ ơi, cho tôi xem thực đơn.',
+        ipa: 'fúwùyuán, qǐng gěi wǒ càidān',
+        level: 'A1',
+        note: 'Ba thanh 3 liền nhau (qǐng gěi wǒ): nói nhanh thì hai chữ đầu thường đọc như thanh 2.',
+      },
+      {
+        id: 'zh-restaurant-02',
+        en: '我要点这个。',
+        vi: 'Tôi muốn gọi món này.',
+        ipa: 'wǒ yào diǎn zhège',
+        level: 'A1',
+        note: '个 trong 这个 là thanh nhẹ. "zh" uốn lưỡi, đọc gần "tr" tiếng Việt.',
+      },
+      {
+        id: 'zh-restaurant-03',
+        en: '请给我一杯水。',
+        vi: 'Cho tôi một ly nước.',
+        ipa: 'qǐng gěi wǒ yī bēi shuǐ',
+        level: 'A1',
+        note: '一 đứng trước thanh 1 (杯) đọc thành thanh 4: yì bēi. "sh" cong đầu lưỡi lên, như "s" uốn lưỡi.',
+      },
+      {
+        id: 'zh-restaurant-04',
+        en: '请帮我结账。',
+        vi: 'Tính tiền giúp tôi.',
+        ipa: 'qǐng bāng wǒ jiézhàng',
+        level: 'A1',
+        note: '帮 (bāng) thanh 1 giữ cao và đều; 结 (jié) đi lên rồi 账 (zhàng) rơi xuống.',
+      },
+      {
+        id: 'zh-restaurant-05',
+        en: '很好吃，谢谢！',
+        vi: 'Ngon lắm, cảm ơn!',
+        ipa: 'hěn hǎochī, xièxie',
+        level: 'A1',
+        note: '很好 là hai thanh 3: đọc hén hǎo. Chữ 谢 thứ hai là thanh nhẹ, không đọc "xiè xiè" nặng cả hai.',
+      },
+    ],
+  },
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'zh-shopping',
+    language: 'zh',
+    nameVi: 'Mua sắm & hỏi giá',
+    nameEn: 'Shopping & prices',
+    nameTarget: '购物问价',
+    icon: 'ShoppingBag',
+    intro: 'Hỏi giá, chê đắt, mặc cả nhẹ, chốt mua và hỏi cỡ khác ở chợ hoặc cửa hàng.',
+    pronunciationFocus:
+      'Phân biệt "q" (bật hơi, gần "ch" mạnh) trong 钱 (qián) với "j" (không bật hơi) và "x". Chữ đọc thanh nhẹ như 少 trong 多少, 宜 trong 便宜 phải ngắn.',
+    patterns: [
+      {
+        id: 'zh-shopping-01',
+        en: '这个多少钱？',
+        vi: 'Cái này bao nhiêu tiền?',
+        ipa: 'zhège duōshao qián?',
+        level: 'A1',
+        note: '钱 (qián) thanh 2 đi lên, "q" bật hơi mạnh. 少 trong 多少 đọc nhẹ.',
+      },
+      {
+        id: 'zh-shopping-02',
+        en: '太贵了。',
+        vi: 'Đắt quá.',
+        ipa: 'tài guì le',
+        level: 'A1',
+        note: 'Hai thanh 4 liền nhau rồi 了 thanh nhẹ. "t" trong 太 bật hơi.',
+      },
+      {
+        id: 'zh-shopping-03',
+        en: '能便宜一点吗？',
+        vi: 'Bớt chút được không?',
+        ipa: 'néng piányi yīdiǎn ma?',
+        level: 'A1',
+        note: '一 trước thanh 3 (点) đọc thành thanh 4: yìdiǎn. 宜 trong 便宜 là thanh nhẹ.',
+      },
+      {
+        id: 'zh-shopping-04',
+        en: '我买这个。',
+        vi: 'Tôi lấy cái này.',
+        ipa: 'wǒ mǎi zhège',
+        level: 'A1',
+        note: '我买 là hai thanh 3: đọc wó mǎi. Phân biệt 买 (mǎi, mua) với 卖 (mài, bán) chỉ bằng thanh điệu.',
+      },
+      {
+        id: 'zh-shopping-05',
+        en: '有别的尺码吗？',
+        vi: 'Có cỡ khác không?',
+        ipa: 'yǒu biéde chǐmǎ ma?',
+        level: 'A1',
+        note: '尺码 là hai thanh 3: đọc chímǎ. "ch" uốn lưỡi và bật hơi.',
+      },
+    ],
+  },
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'zh-directions',
+    language: 'zh',
+    nameVi: 'Hỏi đường & đi lại',
+    nameEn: 'Directions & getting around',
+    nameTarget: '问路出行',
+    icon: 'MapPin',
+    intro: 'Hỏi nhà ga ở đâu, hiểu chỉ đường đơn giản, hỏi xa gần và hỏi xe buýt có đi đến nơi mình cần không.',
+    pronunciationFocus:
+      'Âm cuối "-n" và "-ng" phải tách bạch: 站 (zhàn) khác 账 (zhàng). Âm "ü" (viết "yu") trong 远 (yuǎn) tròn môi như "uy" nhưng giữ yên lưỡi.',
+    patterns: [
+      {
+        id: 'zh-directions-01',
+        en: '请问，火车站在哪儿？',
+        vi: 'Xin lỗi, nhà ga ở đâu?',
+        ipa: 'qǐngwèn, huǒchēzhàn zài nǎr?',
+        level: 'A1',
+        note: '请问 là câu mở lời lịch sự khi hỏi người lạ. 哪儿 (nǎr) cuộn lưỡi ở cuối, thanh 3.',
+      },
+      {
+        id: 'zh-directions-02',
+        en: '一直走，然后左拐。',
+        vi: 'Đi thẳng rồi rẽ trái.',
+        ipa: 'yīzhí zǒu, ránhòu zuǒ guǎi',
+        level: 'A1',
+        note: '一 trước thanh 2 (直) đọc thành thanh 4: yìzhí. 左拐 hai thanh 3: đọc zuó guǎi.',
+      },
+      {
+        id: 'zh-directions-03',
+        en: '离这儿远吗？',
+        vi: 'Có xa đây không?',
+        ipa: 'lí zhèr yuǎn ma?',
+        level: 'A1',
+        note: '远 (yuǎn) có "ü" (viết "yu"): tròn môi ngay từ đầu, không đọc "doan".',
+      },
+      {
+        id: 'zh-directions-04',
+        en: '这辆公交车到机场吗？',
+        vi: 'Xe buýt này có đến sân bay không?',
+        ipa: 'zhè liàng gōngjiāochē dào jīchǎng ma?',
+        level: 'A1',
+        note: '公交车 ba chữ thanh 1: giữ giọng cao và đều suốt cả từ.',
+      },
+      {
+        id: 'zh-directions-05',
+        en: '非常感谢！',
+        vi: 'Cảm ơn nhiều!',
+        ipa: 'fēicháng gǎnxiè',
+        level: 'A1',
+        note: '"f" chạm răng trên vào môi dưới như "ph". 感 (gǎn) xuống thấp rồi mới lên.',
+      },
+    ],
+  },
+
+  /* ================================================================ */
+  /* (T20d) Bộ khởi đầu tiếng Nhật — romaji Hepburn có macron (ō, ū),   */
+  /* trợ từ は/へ/を viết wa/e/o, "n" không dùng dấu ' (konnichiwa).     */
+  /* ================================================================ */
+  {
+    id: 'ja-greetings',
+    language: 'ja',
+    nameVi: 'Chào hỏi & giới thiệu',
+    nameEn: 'Greetings & introductions',
+    nameTarget: 'あいさつと自己紹介',
+    icon: 'Hand',
+    intro: 'Chào, giới thiệu tên, chào lần đầu gặp, hỏi thăm và tạm biệt bằng thể lịch sự です/ます.',
+    pronunciationFocus:
+      'Mỗi âm tiết (mora) dài bằng nhau; nguyên âm có gạch ngang (ō, ū) kéo dài gấp đôi. Âm "u" cuối です, ます gần như câm: đọc "des", "mas".',
+    patterns: [
+      {
+        id: 'ja-greetings-01',
+        en: 'こんにちは。',
+        vi: 'Xin chào (ban ngày).',
+        ipa: 'konnichiwa',
+        level: 'A1',
+        note: 'は cuối câu chào đọc là "wa". Mỗi âm tiết dài bằng nhau, không nhấn mạnh như tiếng Việt.',
+      },
+      {
+        id: 'ja-greetings-02',
+        en: '私は田中です。',
+        vi: 'Tôi là Tanaka.',
+        ipa: 'watashi wa tanaka desu',
+        level: 'A1',
+        note: 'Trợ từ は đọc "wa". です đọc gần như "des", âm "u" rất nhẹ.',
+      },
+      {
+        id: 'ja-greetings-03',
+        en: 'はじめまして。よろしくお願いします。',
+        vi: 'Rất vui được gặp bạn (lần đầu). Mong được giúp đỡ.',
+        ipa: 'hajimemashite. yoroshiku onegaishimasu',
+        level: 'A1',
+        note: '"r" tiếng Nhật là một cái chạm lưỡi nhẹ, nằm giữa "r" và "l". します đọc gần "shimas".',
+      },
+      {
+        id: 'ja-greetings-04',
+        en: 'お元気ですか。',
+        vi: 'Bạn khoẻ không?',
+        ipa: 'ogenki desu ka?',
+        level: 'A1',
+        note: 'か cuối câu đánh dấu câu hỏi; lên giọng nhẹ ở "ka". "ge" đọc như "ghê".',
+      },
+      {
+        id: 'ja-greetings-05',
+        en: 'さようなら。また会いましょう。',
+        vi: 'Tạm biệt. Hẹn gặp lại.',
+        ipa: 'sayōnara. mata aimashō',
+        level: 'A1',
+        note: 'Hai chữ "ō" đều kéo dài gấp đôi: sa-yo-o-na-ra, ma-sho-o. Đọc ngắn nghe sai, người Nhật khó nhận ra.',
+      },
+    ],
+  },
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'ja-restaurant',
+    language: 'ja',
+    nameVi: 'Nhà hàng & gọi món',
+    nameEn: 'Restaurant & ordering',
+    nameTarget: 'レストランで注文',
+    icon: 'Utensils',
+    intro: 'Xin thực đơn, gọi món, xin nước, tính tiền và cảm ơn sau bữa ăn ở quán Nhật.',
+    pronunciationFocus:
+      'Trợ từ を đọc "o", không phải "wo". Câu nhờ vả kết thúc bằng ください hoặc お願いします; đọc đều, hạ giọng nhẹ ở cuối.',
+    patterns: [
+      {
+        id: 'ja-restaurant-01',
+        en: 'メニューをください。',
+        vi: 'Cho tôi xem thực đơn.',
+        ipa: 'menyū o kudasai',
+        level: 'A1',
+        note: 'メニュー có trường âm ở cuối: me-nyu-u. を đọc "o".',
+      },
+      {
+        id: 'ja-restaurant-02',
+        en: 'これをお願いします。',
+        vi: 'Tôi muốn gọi món này.',
+        ipa: 'kore o onegaishimasu',
+        level: 'A1',
+        note: 'Vừa nói vừa chỉ vào món trong thực đơn. "ko-re" chạm lưỡi nhẹ ở "r".',
+      },
+      {
+        id: 'ja-restaurant-03',
+        en: 'お水をください。',
+        vi: 'Cho tôi một ly nước.',
+        ipa: 'omizu o kudasai',
+        level: 'A1',
+        note: '"zu" đọc gần "dzư" với môi không tròn. ください đọc gần "k\'dasai", âm "u" sau "k" gần như câm.',
+      },
+      {
+        id: 'ja-restaurant-04',
+        en: 'すみません、お会計をお願いします。',
+        vi: 'Xin lỗi, tính tiền giúp tôi.',
+        ipa: 'sumimasen, okaikei o onegaishimasu',
+        level: 'A1',
+        note: 'すみません dùng để gọi nhân viên. "kei" trong 会計 đọc gần "kê" kéo dài.',
+      },
+      {
+        id: 'ja-restaurant-05',
+        en: 'とてもおいしかったです。ごちそうさまでした。',
+        vi: 'Ngon lắm, cảm ơn (sau bữa ăn).',
+        ipa: 'totemo oishikatta desu. gochisōsama deshita',
+        level: 'A1',
+        note: '"tt" trong oishikatta là một nhịp ngắt ngắn trước "ta". ごちそうさま có "sō" kéo dài.',
+      },
+    ],
+  },
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'ja-shopping',
+    language: 'ja',
+    nameVi: 'Mua sắm & hỏi giá',
+    nameEn: 'Shopping & prices',
+    nameTarget: '買い物と値段',
+    icon: 'ShoppingBag',
+    intro: 'Hỏi giá, nói đắt, hỏi bớt, chốt mua và hỏi cỡ khác ở cửa hàng.',
+    pronunciationFocus:
+      'Trợ từ は đọc "wa". Từ mượn viết katakana như サイズ có nhịp tiếng Nhật: sa-i-zu, không đọc "size" kiểu tiếng Anh.',
+    patterns: [
+      {
+        id: 'ja-shopping-01',
+        en: 'これはいくらですか。',
+        vi: 'Cái này bao nhiêu tiền?',
+        ipa: 'kore wa ikura desu ka?',
+        level: 'A1',
+        note: 'は đọc "wa". いくら ba âm tiết dài bằng nhau: i-ku-ra.',
+      },
+      {
+        id: 'ja-shopping-02',
+        en: '高いですね。',
+        vi: 'Đắt quá nhỉ.',
+        ipa: 'takai desu ne',
+        level: 'A1',
+        note: 'ね cuối câu làm câu nói mềm hơn, như "nhỉ". "ta-ka-i" ba nhịp đều.',
+      },
+      {
+        id: 'ja-shopping-03',
+        en: '少し安くなりませんか。',
+        vi: 'Bớt chút được không?',
+        ipa: 'sukoshi yasuku narimasen ka?',
+        level: 'A1',
+        note: '"su" trong sukoshi gần như câm: đọc "skoshi". ん cuối đọc như "n" nhẹ.',
+      },
+      {
+        id: 'ja-shopping-04',
+        en: 'これにします。',
+        vi: 'Tôi lấy cái này.',
+        ipa: 'kore ni shimasu',
+        level: 'A1',
+        note: 'します đọc gần "shimas". "shi" đọc như "xi" uốn nhẹ.',
+      },
+      {
+        id: 'ja-shopping-05',
+        en: 'ほかのサイズはありますか。',
+        vi: 'Có cỡ khác không?',
+        ipa: 'hoka no saizu wa arimasu ka?',
+        level: 'A1',
+        note: 'サイズ đọc sa-i-zu. は đọc "wa".',
+      },
+    ],
+  },
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'ja-directions',
+    language: 'ja',
+    nameVi: 'Hỏi đường & đi lại',
+    nameEn: 'Directions & getting around',
+    nameTarget: '道案内と交通',
+    icon: 'MapPin',
+    intro: 'Hỏi nhà ga ở đâu, hiểu chỉ đường đơn giản, hỏi xa gần, hỏi xe buýt và cảm ơn.',
+    pronunciationFocus:
+      'Trường âm (ō, ū) và âm ngắt っ (viết hai phụ âm như "ss", "tt") đều chiếm một nhịp riêng. Trợ từ へ đọc "e".',
+    patterns: [
+      {
+        id: 'ja-directions-01',
+        en: 'すみません、駅はどこですか。',
+        vi: 'Xin lỗi, nhà ga ở đâu?',
+        ipa: 'sumimasen, eki wa doko desu ka?',
+        level: 'A1',
+        note: 'すみません dùng để bắt chuyện với người lạ. は đọc "wa".',
+      },
+      {
+        id: 'ja-directions-02',
+        en: 'まっすぐ行って、左に曲がってください。',
+        vi: 'Đi thẳng rồi rẽ trái.',
+        ipa: 'massugu itte, hidari ni magatte kudasai',
+        level: 'A1',
+        note: '"ss" và "tt" là một nhịp ngắt ngắn: mas-su-gu, it-te. Đừng đọc lướt qua.',
+      },
+      {
+        id: 'ja-directions-03',
+        en: '遠いですか。',
+        vi: 'Có xa không?',
+        ipa: 'tōi desu ka?',
+        level: 'A1',
+        note: '遠い có "ō" kéo dài: to-o-i. Đọc ngắn "toi" người nghe khó hiểu.',
+      },
+      {
+        id: 'ja-directions-04',
+        en: 'このバスは空港へ行きますか。',
+        vi: 'Xe buýt này có đến sân bay không?',
+        ipa: 'kono basu wa kūkō e ikimasu ka?',
+        level: 'A1',
+        note: '空港 có hai trường âm: ku-u-ko-o. Trợ từ へ đọc "e", は đọc "wa".',
+      },
+      {
+        id: 'ja-directions-05',
+        en: 'どうもありがとうございました。',
+        vi: 'Cảm ơn nhiều.',
+        ipa: 'dōmo arigatō gozaimashita',
+        level: 'A1',
+        note: 'Hai chữ "ō" (dōmo, arigatō) đều kéo dài. "shita" cuối đọc gần "shta", âm "i" rất nhẹ.',
+      },
+    ],
+  },
+
+  /* ================================================================ */
+  /* (T20d) Bộ khởi đầu tiếng Hàn — Revised Romanization (2000), 해요체. */
+  /* RR ghi theo cách đọc nối âm nhưng không ghi âm căng (vd 할게요 →    */
+  /* halgeyo).                                                          */
+  /* ================================================================ */
+  {
+    id: 'ko-greetings',
+    language: 'ko',
+    nameVi: 'Chào hỏi & giới thiệu',
+    nameEn: 'Greetings & introductions',
+    nameTarget: '인사와 소개',
+    icon: 'Hand',
+    intro: 'Chào, giới thiệu tên, nói rất vui được gặp, hỏi thăm và tạm biệt bằng đuôi lịch sự -요.',
+    pronunciationFocus:
+      'Patchim (phụ âm cuối) nối sang nguyên âm sau: 이름은 đọc "i-reu-meun". Phân biệt phụ âm thường, bật hơi và căng: ㄱ/ㅋ/ㄲ, ㄷ/ㅌ/ㄸ.',
+    patterns: [
+      {
+        id: 'ko-greetings-01',
+        en: '안녕하세요.',
+        vi: 'Xin chào.',
+        ipa: 'annyeonghaseyo',
+        level: 'A1',
+        note: 'Âm cuối "ng" trong 안녕 rõ; 세요 đọc liền, lên giọng nhẹ ở cuối khi hỏi thăm.',
+      },
+      {
+        id: 'ko-greetings-02',
+        en: '제 이름은 민수예요.',
+        vi: 'Tôi tên là Minsu.',
+        ipa: 'je ireumeun minsuyeyo',
+        level: 'A1',
+        note: 'Patchim ㅁ của 이름 nối sang 은: đọc "i-reu-meun". "eu" (ㅡ) môi dẹt, gần "ư".',
+      },
+      {
+        id: 'ko-greetings-03',
+        en: '만나서 반가워요.',
+        vi: 'Rất vui được gặp bạn.',
+        ipa: 'mannaseo bangawoyo',
+        level: 'A1',
+        note: '"eo" (ㅓ) đọc gần "ơ" mở miệng rộng; "wo" (워) gần "uơ".',
+      },
+      {
+        id: 'ko-greetings-04',
+        en: '잘 지내세요?',
+        vi: 'Bạn khoẻ không?',
+        ipa: 'jal jinaeseyo?',
+        level: 'A1',
+        note: 'Patchim ㄹ trong 잘 cong nhẹ lưỡi như "l". Lên giọng ở cuối vì là câu hỏi.',
+      },
+      {
+        id: 'ko-greetings-05',
+        en: '안녕히 가세요. 또 만나요.',
+        vi: 'Tạm biệt (người ra về). Hẹn gặp lại.',
+        ipa: 'annyeonghi gaseyo. tto mannayo',
+        level: 'A1',
+        note: '안녕히 가세요 nói với người đi; nếu chính bạn đi thì nói 안녕히 계세요. ㄸ (tt) là phụ âm căng: siết họng, không bật hơi.',
+      },
+    ],
+  },
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'ko-restaurant',
+    language: 'ko',
+    nameVi: 'Nhà hàng & gọi món',
+    nameEn: 'Restaurant & ordering',
+    nameTarget: '식당에서 주문',
+    icon: 'Utensils',
+    intro: 'Xin thực đơn, gọi món, xin nước, tính tiền và khen món ăn ở quán Hàn.',
+    pronunciationFocus:
+      'Đuôi nhờ vả 주세요 (juseyo) dùng rất nhiều; "j" (ㅈ) không bật hơi, nhẹ hơn "ch". Patchim ㅅ nối sang nguyên âm sau đọc "s": 맛있어요 → "ma-si-sseo-yo".',
+    patterns: [
+      {
+        id: 'ko-restaurant-01',
+        en: '메뉴판 좀 주세요.',
+        vi: 'Cho tôi xem thực đơn.',
+        ipa: 'menyupan jom juseyo',
+        level: 'A1',
+        note: '좀 làm lời nhờ mềm hơn. "p" trong 판 bật hơi mạnh.',
+      },
+      {
+        id: 'ko-restaurant-02',
+        en: '이걸로 할게요.',
+        vi: 'Tôi muốn gọi món này.',
+        ipa: 'igeollo halgeyo',
+        level: 'A1',
+        note: '이걸로 có hai ㄹ liền nhau đọc thành "ll" rõ. 할게요 khi nói đọc gần "hal-kke-yo" (âm căng), dù phiên âm vẫn viết "g".',
+      },
+      {
+        id: 'ko-restaurant-03',
+        en: '물 한 잔 주세요.',
+        vi: 'Cho tôi một ly nước.',
+        ipa: 'mul han jan juseyo',
+        level: 'A1',
+        note: 'Patchim ㄹ trong 물 giữ lưỡi chạm nhẹ sau răng, như "l" cuối, không đọc "mun".',
+      },
+      {
+        id: 'ko-restaurant-04',
+        en: '계산해 주세요.',
+        vi: 'Tính tiền giúp tôi.',
+        ipa: 'gyesanhae juseyo',
+        level: 'A1',
+        note: 'ㅎ giữa từ (해) nói nhanh thường rất nhẹ: gần "gyê-sa-nae".',
+      },
+      {
+        id: 'ko-restaurant-05',
+        en: '아주 맛있어요. 감사해요.',
+        vi: 'Ngon lắm, cảm ơn.',
+        ipa: 'aju masisseoyo. gamsahaeyo',
+        level: 'A1',
+        note: '맛있어요: patchim ㅆ nối sang 어 nên đọc "ma-si-sseo-yo", không đọc "mát-ít".',
+      },
+    ],
+  },
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'ko-shopping',
+    language: 'ko',
+    nameVi: 'Mua sắm & hỏi giá',
+    nameEn: 'Shopping & prices',
+    nameTarget: '쇼핑과 가격',
+    icon: 'ShoppingBag',
+    intro: 'Hỏi giá, nói đắt, xin bớt, chốt mua và hỏi cỡ khác ở chợ hoặc cửa hàng.',
+    pronunciationFocus:
+      'Phụ âm căng ㄲ, ㅆ (kk, ss) siết họng và đọc mạnh, không bật hơi: 깎아 (kkakka), 비싸요 (bissayo). Đọc nhầm thành phụ âm thường sẽ khó hiểu.',
+    patterns: [
+      {
+        id: 'ko-shopping-01',
+        en: '이거 얼마예요?',
+        vi: 'Cái này bao nhiêu tiền?',
+        ipa: 'igeo eolmayeyo?',
+        level: 'A1',
+        note: '"eo" (ㅓ) trong 이거, 얼마 đọc gần "ơ" mở miệng, không đọc "ô".',
+      },
+      {
+        id: 'ko-shopping-02',
+        en: '너무 비싸요.',
+        vi: 'Đắt quá.',
+        ipa: 'neomu bissayo',
+        level: 'A1',
+        note: 'ㅆ (ss) là phụ âm căng: "bi-ssa-yo" với "s" mạnh và gắt.',
+      },
+      {
+        id: 'ko-shopping-03',
+        en: '좀 깎아 주실 수 있어요?',
+        vi: 'Bớt chút được không?',
+        ipa: 'jom kkakka jusil su isseoyo?',
+        level: 'A1',
+        note: '깎아: ㄲ căng ở đầu, patchim ㄲ nối sang 아 nên đọc "kka-kka".',
+      },
+      {
+        id: 'ko-shopping-04',
+        en: '이거 살게요.',
+        vi: 'Tôi lấy cái này.',
+        ipa: 'igeo salgeyo',
+        level: 'A1',
+        note: '살게요 khi nói đọc gần "sal-kke-yo" (âm căng), phiên âm vẫn viết "g".',
+      },
+      {
+        id: 'ko-shopping-05',
+        en: '다른 사이즈 있어요?',
+        vi: 'Có cỡ khác không?',
+        ipa: 'dareun saijeu isseoyo?',
+        level: 'A1',
+        note: 'Từ mượn 사이즈 đọc "sa-i-jeu". 있어요 đọc "i-sseo-yo", lên giọng cuối câu.',
+      },
+    ],
+  },
+  /* ---------------------------------------------------------------- */
+  {
+    id: 'ko-directions',
+    language: 'ko',
+    nameVi: 'Hỏi đường & đi lại',
+    nameEn: 'Directions & getting around',
+    nameTarget: '길 묻기와 교통',
+    icon: 'MapPin',
+    intro: 'Hỏi nhà ga ở đâu, hiểu chỉ đường đơn giản, hỏi xa gần, hỏi xe buýt và cảm ơn.',
+    pronunciationFocus:
+      'Patchim nối sang nguyên âm sau: 역이 → "yeo-gi", 왼쪽으로 → "oen-jjo-geu-ro". Phụ âm căng ㅉ (jj) trong 쭉, 왼쪽 đọc mạnh, không bật hơi.',
+    patterns: [
+      {
+        id: 'ko-directions-01',
+        en: '실례지만, 역이 어디예요?',
+        vi: 'Xin lỗi, nhà ga ở đâu?',
+        ipa: 'sillyejiman, yeogi eodiyeyo?',
+        level: 'A1',
+        note: '역이 nối âm thành "yeo-gi". 실례 có "ll" giữ lưỡi lâu hơn một chút.',
+      },
+      {
+        id: 'ko-directions-02',
+        en: '쭉 가다가 왼쪽으로 도세요.',
+        vi: 'Đi thẳng rồi rẽ trái.',
+        ipa: 'jjuk gadaga oenjjogeuro doseyo',
+        level: 'A1',
+        note: 'Patchim ㄱ trong 쭉 dừng lại, không bật hơi (như "c" cuối tiếng Việt). 왼쪽으로 nối thành "oen-jjo-geu-ro".',
+      },
+      {
+        id: 'ko-directions-03',
+        en: '여기서 멀어요?',
+        vi: 'Có xa đây không?',
+        ipa: 'yeogiseo meoreoyo?',
+        level: 'A1',
+        note: 'Patchim ㄹ của 멀 nối sang 어 nên đọc "meo-reo-yo" với "r" chạm nhẹ.',
+      },
+      {
+        id: 'ko-directions-04',
+        en: '이 버스 공항에 가요?',
+        vi: 'Xe buýt này có đến sân bay không?',
+        ipa: 'i beoseu gonghange gayo?',
+        level: 'A1',
+        note: '공항에 đọc "gong-hang-e", giữ âm "ng" rồi mới sang "e". 버스 đọc "beo-seu".',
+      },
+      {
+        id: 'ko-directions-05',
+        en: '정말 고마워요.',
+        vi: 'Cảm ơn nhiều.',
+        ipa: 'jeongmal gomawoyo',
+        level: 'A1',
+        note: '"eo" trong 정 mở miệng như "ơ"; "ng" cuối âm tiết rõ trước "m".',
+      },
+    ],
+  },
 ]
 
 /** Tổng số mẫu câu trong seed (dùng cho màn Mẫu câu và test). */
@@ -1339,4 +2018,19 @@ export const PATTERN_COUNT = SITUATIONS.reduce((n, s) => n + s.patterns.length, 
 /** Id tình huống của một pattern id dạng `<situationId>-<NN>`; `undefined` nếu không tìm thấy. */
 export function situationOfPattern(patternId: string): string | undefined {
   return SITUATIONS.find((s) => s.patterns.some((p) => p.id === patternId))?.id
+}
+
+/** (T20) Tình huống theo bộ lọc ngôn ngữ; 'all' → toàn bộ, giữ thứ tự seed. */
+export function situationsOf(filter: StudyLanguageFilter): Situation[] {
+  return filter === 'all' ? SITUATIONS : SITUATIONS.filter((s) => s.language === filter)
+}
+
+/** (T20) Id tình huống đầu tiên của ngôn ngữ; không có (không xảy ra với seed hiện tại) → 'greetings'. */
+export function firstSituationId(lang: Language): string {
+  return SITUATIONS.find((s) => s.language === lang)?.id ?? 'greetings'
+}
+
+/** (T20) Ngôn ngữ của một mẫu câu trong kho; `undefined` nếu id không tồn tại. */
+export function languageOfPattern(patternId: string): Language | undefined {
+  return SITUATIONS.find((s) => s.patterns.some((p) => p.id === patternId))?.language
 }

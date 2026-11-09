@@ -14,6 +14,7 @@
 }
 .progress-fill { height: 3px; background: var(--purple); border-radius: 1.5px; }
 .progress-mute { margin: 0; font-size: 15px; color: var(--mute); }
+.progress-note { margin: 12px 0 0; font-size: 14px; color: var(--mute); }
 .progress-goal { margin-top: 8px; }
 
 /* Lịch 8 tuần = ô ly thật: đường kẻ 1px liền nhau (khe 1px để lộ nền kẻ), không ô rời, không bo góc. */

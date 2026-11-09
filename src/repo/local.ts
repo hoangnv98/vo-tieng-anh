@@ -1,4 +1,5 @@
 import type { Card, Item, Lesson, ReviewLogEntry, Settings, Snapshot, StudyDay } from '../domain/types'
+import { asLanguage, asStudyLanguage } from '../domain/languageCore'
 import { addDays, localDay } from '../lib/dates'
 import { STUDY_DAYS_WINDOW, defaultSettings } from './defaults'
 import type { AuthService, AuthUser, Repository, StudyTimeDelta } from './types'
@@ -146,12 +147,18 @@ export class LocalRepository implements Repository {
   async loadSnapshot(): Promise<Snapshot> {
     const from = addDays(localDay(this.now()), -STUDY_DAYS_WINDOW)
     const stored = readJson<Settings | null>(this.ctx, LOCAL_KEYS.settings, null)
+    // (T20) Dữ liệu trước T20 thiếu `study_language`/`language` → 'all'/'en' (khoá vta:v1:* giữ nguyên).
     const settings: Settings =
       stored && typeof stored === 'object'
-        ? { ...defaultSettings(LOCAL_USER_ID), ...stored, user_id: LOCAL_USER_ID }
+        ? {
+            ...defaultSettings(LOCAL_USER_ID),
+            ...stored,
+            user_id: LOCAL_USER_ID,
+            study_language: asStudyLanguage((stored as Partial<Settings>).study_language),
+          }
         : defaultSettings(LOCAL_USER_ID)
     return {
-      lessons: this.lessons(),
+      lessons: this.lessons().map((l) => ({ ...l, language: asLanguage(l.language) })),
       items: this.items(),
       cards: this.cards(),
       studyDays: this.studyDays().filter((d) => d.day >= from),

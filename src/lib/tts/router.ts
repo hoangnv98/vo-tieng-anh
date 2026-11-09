@@ -1,10 +1,11 @@
-import { isMixedContentBlocked, normalizeBaseUrl, type TtsConfig } from '../ttsConfig'
+import { isMixedContentBlocked, isServerLang, normalizeBaseUrl, type TtsConfig } from '../ttsConfig'
 import {
   HEALTH_DOWN_TTL_MS,
   TtsError,
   type ProbeResult,
   type SpeakHandle,
   type SpeakRequest,
+  type ServerLang,
   type TtsLang,
   type TtsProvider,
   type TtsVoice,
@@ -12,7 +13,7 @@ import {
 
 export type Health = 'unknown' | 'ok' | 'down'
 
-export const TOAST_DOWN: Record<TtsLang, string> = {
+export const TOAST_DOWN: Record<ServerLang, string> = {
   en: 'Không kết nối được server giọng đọc, đang dùng giọng trình duyệt.',
   vi: 'Không kết nối được server giọng đọc tiếng Việt. Nút nghe tiếng Việt tạm ẩn.',
 }
@@ -20,7 +21,8 @@ export const TOAST_BUSY = 'Server giọng đọc đang bận. Thử lại sau v�
 
 export interface RouterDeps {
   web: TtsProvider & { stopAll?: () => void }
-  servers: Record<TtsLang, TtsProvider>
+  /** Chỉ `en`/`vi` có server local; `zh/ja/ko` luôn giọng trình duyệt (6.14 (5).6). */
+  servers: Record<ServerLang, TtsProvider>
   getConfig: () => TtsConfig
   pageProtocol?: () => string
   notify?: (message: string) => void
@@ -50,8 +52,8 @@ export interface RouterSpeakHandle {
 
 export class TtsRouter {
   private readonly deps: RouterDeps
-  private readonly health: Record<TtsLang, Health> = { en: 'unknown', vi: 'unknown' }
-  private readonly timers: Partial<Record<TtsLang, ReturnType<typeof setTimeout>>> = {}
+  private readonly health: Record<ServerLang, Health> = { en: 'unknown', vi: 'unknown' }
+  private readonly timers: Partial<Record<ServerLang, ReturnType<typeof setTimeout>>> = {}
   private readonly listeners = new Set<() => void>()
   private readonly notified = new Set<string>()
   private current: Current | null = null
@@ -81,11 +83,11 @@ export class TtsRouter {
     return this.deps.pageProtocol?.() ?? (typeof location === 'undefined' ? 'http:' : location.protocol)
   }
 
-  getHealth(lang: TtsLang): Health {
+  getHealth(lang: ServerLang): Health {
     return this.health[lang]
   }
 
-  setHealth(lang: TtsLang, h: Health): void {
+  setHealth(lang: ServerLang, h: Health): void {
     clearTimeout(this.timers[lang])
     delete this.timers[lang]
     if (h === 'down') {
@@ -100,12 +102,12 @@ export class TtsRouter {
     this.emit()
   }
 
-  markDown(lang: TtsLang): void {
+  markDown(lang: ServerLang): void {
     this.setHealth(lang, 'down')
   }
 
   /** Server ngôn ngữ `lang` đang được bật và gọi được (chưa xét health). */
-  private serverEnabled(lang: TtsLang): boolean {
+  private serverEnabled(lang: ServerLang): boolean {
     const c = this.deps.getConfig()
     const s = lang === 'vi' ? { on: c.vi.enabled, url: c.vi.baseUrl } : { on: c.en.useServer, url: c.en.baseUrl }
     if (!s.on) return false
@@ -113,11 +115,16 @@ export class TtsRouter {
     return n.ok && !isMixedContentBlocked(n.value, this.protocol()) && this.deps.servers[lang].supports(lang)
   }
 
+  /**
+   * 4 nhánh (6.14 (3)-D): server `en|vi` khi bật và chưa down; `en` → giọng trình duyệt;
+   * `vi` → giọng thiết bị chỉ khi bật `deviceFallback`; `zh|ja|ko` → luôn giọng trình duyệt (nếu có giọng).
+   */
   resolve(lang: TtsLang): TtsProvider | null {
     const { web, servers, getConfig } = this.deps
-    if (this.serverEnabled(lang) && this.health[lang] !== 'down') return servers[lang]
+    if (isServerLang(lang) && this.serverEnabled(lang) && this.health[lang] !== 'down') return servers[lang]
     if (lang === 'en') return web.supports('en') ? web : null
-    return getConfig().vi.deviceFallback && web.supports('vi') ? web : null
+    if (lang === 'vi') return getConfig().vi.deviceFallback && web.supports('vi') ? web : null
+    return web.supports(lang) ? web : null
   }
 
   canSpeak(lang: TtsLang): boolean {
@@ -159,24 +166,26 @@ export class TtsRouter {
     const entry: Current = { owner: req.owner, handle: provider.speak(req), interrupted: false }
     this.current = entry
     const isServer = provider !== web
+    // Chỉ provider server mới có health/toast; khi đó `lang` chắc chắn là `en|vi`.
+    const serverLang: ServerLang | null = isServer && isServerLang(req.lang) ? req.lang : null
 
     const promise: Promise<SpeakResult> = entry.handle.promise
       .then(
         () => {
-          if (isServer && this.current === entry) this.setHealth(req.lang, 'ok')
+          if (serverLang && this.current === entry) this.setHealth(serverLang, 'ok')
         },
         (e: unknown) => {
           if (this.current !== entry) return // đã bị huỷ/thay thế
-          if (!(e instanceof TtsError) || !isServer) throw e
+          if (!(e instanceof TtsError) || !serverLang) throw e
           if (e.kind === 'busy') {
             this.notifyOnce('busy', TOAST_BUSY)
             throw e
           }
           if (!isDownError(e)) throw e
-          this.markDown(req.lang)
-          this.notifyOnce(`down:${req.lang}`, TOAST_DOWN[req.lang])
+          this.markDown(serverLang)
+          this.notifyOnce(`down:${serverLang}`, TOAST_DOWN[serverLang])
           const canFallback =
-            req.lang === 'en' ? web.supports('en') : this.deps.getConfig().vi.deviceFallback && web.supports('vi')
+            serverLang === 'en' ? web.supports('en') : this.deps.getConfig().vi.deviceFallback && web.supports('vi')
           if (!canFallback) throw e
           // Fallback cho chính lượt này (có thể đã rời gesture; iOS từ chối thì reject).
           entry.handle = web.speak(req)
@@ -207,14 +216,14 @@ export class TtsRouter {
   }
 
   /** "Kiểm tra kết nối": thành công → ok; lỗi mất kết nối → down; 4xx/bận giữ unknown. */
-  async probe(lang: TtsLang, signal?: AbortSignal): Promise<ProbeResult> {
+  async probe(lang: ServerLang, signal?: AbortSignal): Promise<ProbeResult> {
     const r = await this.deps.servers[lang].probe(signal)
     if (r.ok) this.setHealth(lang, 'ok')
     else if (isDownError(r.error)) this.markDown(lang)
     return r
   }
 
-  listVoices(lang: TtsLang, signal?: AbortSignal): Promise<TtsVoice[]> {
+  listVoices(lang: ServerLang, signal?: AbortSignal): Promise<TtsVoice[]> {
     return this.deps.servers[lang].listVoices(signal)
   }
 

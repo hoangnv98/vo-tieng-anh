@@ -1,5 +1,7 @@
 # Product
 
+Name: Vở Ngoại Ngữ. Learning languages since T20: English, Chinese (Simplified), Japanese, Korean; UI stays Vietnamese.
+
 <!-- impeccable:product-schema 1 -->
 
 ## Platform

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import '../components/Button.css'
 import { buttonClass } from '../components/buttonClass'
 import { PageTitle } from '../components/PageTitle'
+import { asStudyLanguage, itemLanguageResolver, LANGUAGE_LABELS } from '../domain/language'
+import type { Card } from '../domain/types'
 import { calendarWeeks, cardStats, streak, todaySeconds, weekMinutes, type CalendarCell } from '../domain/stats'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { formatDateVi, localDay, weekdayShortVi } from '../lib/dates'
@@ -42,20 +44,30 @@ export default function Progress() {
   const view = useMemo(() => {
     if (!snapshot) return null
     const secs = todaySeconds(snapshot.studyDays, today)
+    // (T20) Chỉ khối "Thẻ ôn" lọc theo ngôn ngữ đang học; chuỗi/phút/lịch luôn tính chung (4.5).
+    const filter = asStudyLanguage(snapshot.settings.study_language)
+    const language = filter === 'all' ? undefined : filter
+    const itemLang = itemLanguageResolver(snapshot.lessons)
+    const itemById = new Map(snapshot.items.map((i) => [i.id, i]))
+    const langOf = (c: Card) => {
+      const item = itemById.get(c.item_id)
+      return item ? itemLang(item) : 'en'
+    }
     return {
+      language,
       minutes: Math.floor(secs / 60),
       goal: snapshot.settings.daily_goal_min,
       streak: streak(snapshot.studyDays, today),
       week: weekMinutes(snapshot.studyDays, today),
       weeks: calendarWeeks(snapshot.studyDays, today),
-      stats: cardStats(snapshot.cards, snapshot.lessons),
+      stats: cardStats(snapshot.cards, snapshot.lessons, { language, langOf }),
       hasAny: snapshot.studyDays.some((d) => d.seconds > 0),
     }
   }, [snapshot, today])
 
   if (!view) return null
 
-  const { minutes, goal, stats } = view
+  const { minutes, goal, stats, language } = view
   const now = Math.min(minutes, goal)
   const rows: [string, number][] = [
     ['Tổng số thẻ', stats.total],
@@ -133,7 +145,7 @@ export default function Progress() {
 
         <section className="card progress-block progress-stats-block" aria-labelledby="progress-cards">
           <h2 id="progress-cards" className="progress-h2">
-            Thẻ ôn
+            {language ? `Thẻ ôn · ${LANGUAGE_LABELS[language]}` : 'Thẻ ôn'}
           </h2>
           <dl className="stat-list">
             {rows.map(([k, v]) => (
@@ -143,6 +155,7 @@ export default function Progress() {
               </div>
             ))}
           </dl>
+          {language && <p className="progress-note">Chuỗi ngày và phút học tính chung mọi ngôn ngữ.</p>}
         </section>
       </div>
     </section>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { addDays } from '../lib/dates'
-import { buildImportOps, isEmptyPlan, planImport, validateImportFile, type ImportFile } from './importSnapshot'
+import { IMPORT_ERROR_MESSAGES, buildImportOps, isEmptyPlan, planImport, validateImportFile, type ImportFile } from './importSnapshot'
 import type { Card, Item, Lesson, Settings, Snapshot, StudyDay } from './types'
 
 const TODAY = '2026-11-09'
@@ -9,7 +9,7 @@ const T = '2026-11-01T03:00:00.000Z'
 const FSRS = { dueAt: T, lastReviewAt: null, stability: 0, difficulty: 0, state: 0 }
 
 function lesson(id: string, over: Partial<Lesson> = {}): Lesson {
-  return { id, user_id: 'old', number: 1, date: '2026-11-01', topic: 'Chào hỏi', notes: '', questions: '', mistakes: '', created_at: T, updated_at: T, ...over }
+  return { id, user_id: 'old', number: 1, date: '2026-11-01', topic: 'Chào hỏi', notes: '', questions: '', mistakes: '', language: 'en', created_at: T, updated_at: T, ...over }
 }
 function item(id: string, lessonId: string | null, over: Partial<Item> = {}): Item {
   return { id, user_id: 'old', lesson_id: lessonId, kind: 'phrase', en: 'hello', vi: 'xin chào', ipa: '', note: '', pattern_id: null, position: 0, created_at: T, updated_at: T, ...over }
@@ -20,7 +20,7 @@ function card(id: string, itemId: string, over: Partial<Card> = {}): Card {
 function day(d: string, seconds: number, reviews = 0, shadowing = 0): StudyDay {
   return { user_id: 'old', day: d, seconds, reviews, shadowing_count: shadowing }
 }
-const SETTINGS: Settings = { user_id: 'me', display_name: 'An', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false }
+const SETTINGS: Settings = { user_id: 'me', display_name: 'An', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false, study_language: 'all' }
 
 function current(over: Partial<Snapshot> = {}): Snapshot {
   return {
@@ -227,6 +227,7 @@ describe('planImport', () => {
       new_cards_per_day: 20,
       voice_name: 'Samantha',
       auto_speak: false,
+      study_language: 'all',
     })
     expect(plan(fileOf()).settings).toBeNull()
   })
@@ -339,3 +340,55 @@ describe('buildImportOps', () => {
   })
 })
 
+
+describe('(T20) planImport — ngôn ngữ', () => {
+  it('lesson thiếu language → en; language hợp lệ giữ; null → en', () => {
+    const old: Record<string, unknown> = { ...lesson('L5') }
+    delete old.language
+    const p = plan(fileOf({ lessons: [old, lesson('L6', { language: 'zh' }), { ...lesson('L7'), language: null }] }))
+    expect(p.lessons.map((l) => [l.id, l.language])).toEqual([
+      ['L5', 'en'],
+      ['L6', 'zh'],
+      ['L7', 'en'],
+    ])
+  })
+
+  it("language 'fr' → buổi bị bỏ, item của buổi bị bỏ theo", () => {
+    const p = plan(fileOf({ lessons: [{ ...lesson('L9'), language: 'fr' }], items: [item('I9', 'L9')] }))
+    expect(p.lessons).toEqual([])
+    expect(p.items).toEqual([])
+    expect(p.counts.skipped).toBe(2)
+    expect(p.skippedReasons).toMatchObject({ 'lesson-invalid': 1, 'item-unknown-lesson': 1 })
+  })
+
+  it("settings.study_language 'zh' → nhận; 'xx' → giữ hiện tại; tệp cũ không có → giữ 'all'", () => {
+    const base = { display_name: 'An', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false }
+    expect(plan(fileOf({ settings: { ...base, study_language: 'zh' } })).settings?.study_language).toBe('zh')
+    expect(plan(fileOf({ settings: { ...base, study_language: 'xx' } })).settings?.study_language).toBe('all')
+    expect(plan(fileOf({ settings: base })).settings?.study_language).toBe('all')
+    const cur = current({ settings: { ...SETTINGS, study_language: 'ja' } })
+    expect(plan(fileOf({ settings: { ...base, study_language: 'xx' } }), cur).settings?.study_language).toBe('ja')
+  })
+
+  it('chỉ study_language hợp lệ vẫn nhập settings', () => {
+    const p = plan(fileOf({ settings: { study_language: 'ko' } }))
+    expect(p.settings).toEqual({ ...SETTINGS, study_language: 'ko' })
+  })
+
+  it('xuất JSON (snapshot) có study_language và lesson.language, nhập lại giữ nguyên', () => {
+    const snap = current({ lessons: [lesson('L1', { language: 'ko' })], settings: { ...SETTINGS, study_language: 'ko' } })
+    const json = JSON.parse(JSON.stringify(snap)) as Record<string, unknown>
+    expect((json.settings as Settings).study_language).toBe('ko')
+    const r = validateImportFile(json)
+    if (!r.ok) throw new Error('bad')
+    const p = plan(r.file, current())
+    expect(p.lessons[0].language).toBe('ko')
+    expect(p.settings?.study_language).toBe('ko')
+  })
+
+  it('câu bad-shape dùng tên Vở Ngoại Ngữ', () => {
+    expect(IMPORT_ERROR_MESSAGES['bad-shape']).toBe(
+      'Tệp không đúng định dạng của Vở Ngoại Ngữ. Hãy chọn tệp đã xuất từ mục Cài đặt.',
+    )
+  })
+})

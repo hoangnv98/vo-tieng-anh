@@ -1,6 +1,12 @@
 /** Cấu hình giọng đọc lưu trên thiết bị (localStorage `vta:v1:tts`), không đồng bộ Supabase. */
 
-export type TtsLang = 'en' | 'vi'
+/** (T20) Ngôn ngữ đọc được: tiếng Việt + 4 ngôn ngữ học. `zh/ja/ko` luôn đi giọng trình duyệt. */
+export type TtsLang = 'en' | 'vi' | 'zh' | 'ja' | 'ko'
+/** Ngôn ngữ có server local (T19). `TtsConfig` chỉ có hai khối này. */
+export type ServerLang = 'en' | 'vi'
+export function isServerLang(x: unknown): x is ServerLang {
+  return x === 'en' || x === 'vi'
+}
 export interface TtsServerConfig {
   baseUrl: string
   voice: string

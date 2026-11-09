@@ -23,6 +23,7 @@ const lessonInput = (over: Partial<LessonInput> = {}): LessonInput => ({
   questions: '',
   mistakes: '',
   notes: '',
+  language: 'en',
   ...over,
 })
 
@@ -208,5 +209,25 @@ describe('cardStatus', () => {
     expect(cardStatus(card({ state: 2, lapses: 2, fsrs: { stability: 5 } }))).toEqual({ variant: 'forgot', lapses: 2 })
     expect(cardStatus(card({ state: 2, fsrs: { stability: 21 } })).variant).toBe('mastered')
     expect(cardStatus(card({ state: 3, lapses: 1, fsrs: { stability: 30 } })).variant).toBe('forgot')
+  })
+})
+
+describe('(T20) validate theo ngôn ngữ', () => {
+  it('validateItem: thiếu ô đích theo tên ngôn ngữ; không truyền → tiếng Anh', () => {
+    expect(validateItem(itemInput({ vi: 'Xin chào' }), { language: 'zh' })).toEqual({ en: 'Nhập tiếng Trung.' })
+    expect(validateItem(itemInput({ vi: 'Xin chào' }), { language: 'ja' })).toEqual({ en: 'Nhập tiếng Nhật.' })
+    expect(validateItem(itemInput({ vi: 'Xin chào' }), { language: 'ko' })).toEqual({ en: 'Nhập tiếng Hàn.' })
+    expect(validateItem(itemInput({ vi: 'Xin chào' }))).toEqual({ en: 'Nhập tiếng Anh.' })
+  })
+
+  it('giới hạn 200 ký tự không đổi cho CJK', () => {
+    expect(validateItem(itemInput({ en: '你'.repeat(200), vi: 'x' }), { language: 'zh' })).toEqual({})
+    expect(validateItem(itemInput({ en: '你'.repeat(201), vi: 'x' }), { language: 'zh' })).toEqual({ en: 'Tối đa 200 ký tự.' })
+  })
+
+  it('validateLesson: ngôn ngữ lạ → "Chọn ngôn ngữ."', () => {
+    const ctx = { lessons: [], today: TODAY }
+    expect(validateLesson(lessonInput({ language: 'zh' }), ctx)).toEqual({})
+    expect(validateLesson(lessonInput({ language: 'fr' as never }), ctx)).toEqual({ language: 'Chọn ngôn ngữ.' })
   })
 })

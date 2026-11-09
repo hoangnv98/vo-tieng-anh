@@ -154,6 +154,10 @@
   font-weight: 600;
   color: var(--purple);
 }
+/* (T20) Glyph CJK cao hơn chữ Latin trong em-box → nới dòng để hai dòng không chạm nhau (5.2). */
+.sh-en:is([lang^="zh"], [lang^="ja"], [lang^="ko"]) {
+  line-height: 1.4;
+}
 .sh-vi {
   margin: 0;
   font-size: 17px;

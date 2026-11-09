@@ -30,4 +30,16 @@ describe('prepareText', () => {
       expect(c.split(' ').every((w) => w === 'abcdefghi')).toBe(true)
     }
   })
+  it('CJK: 。！？ là ranh giới câu, mỗi câu một đoạn (T20)', () => {
+    expect(prepareText('你好。再见！', 'zh')).toEqual(['你好。', '再见！'])
+    expect(prepareText('すみません。駅はどこですか？', 'ja')).toEqual(['すみません。', '駅はどこですか？'])
+    expect(prepareText('감사합니다. 안녕히 가세요.', 'ko')).toEqual(['감사합니다.', '안녕히 가세요.'])
+  })
+  it('{slot} → … với mọi ngôn ngữ khác en', () => {
+    expect(prepareText('{名前}です。', 'ja')).toEqual(['…です。'])
+    expect(prepareText('我叫{名字}。', 'zh')).toEqual(['我叫…。'])
+  })
+  it('EN/VI không đổi khi có 。 (vẫn gộp đoạn)', () => {
+    expect(prepareText('Hi. Bye.', 'en')).toEqual(['Hi. Bye.'])
+  })
 })

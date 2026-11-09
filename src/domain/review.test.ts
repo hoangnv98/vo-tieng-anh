@@ -63,6 +63,7 @@ function settings(new_cards_per_day: number = 15): Settings {
     new_cards_per_day,
     voice_name: null,
     auto_speak: false,
+    study_language: 'all',
   }
 }
 
@@ -419,5 +420,93 @@ describe('planUnlock (gradeCard trả `unlocked`)', () => {
       card('n3', { direction: 'listen', item_id: 'i2' }),
     ]
     expect(ids(planUnlock('i1', created, [card('a')]))).toEqual(['n1'])
+  })
+})
+
+describe('(T20) lọc theo ngôn ngữ — buildQueue / hiddenListenCount / hardestCards', () => {
+  const H = 60 * MIN
+  // Item L1 = en, item Lzh = zh (langOf giả, như itemLanguageResolver(lessons)).
+  const langOf = (it: Item) => (it.lesson_id === 'Lzh' ? 'zh' : 'en') as 'en' | 'zh'
+  const its = [item('e1'), item('e2'), item('z1', { lesson_id: 'Lzh' }), item('z2', { lesson_id: 'Lzh' })]
+  const dueAt = (h: number) => new Date(NOW.getTime() - h * H).toISOString()
+  const mixed = [
+    card('d-e1', { item_id: 'e1', state: 2, due: dueAt(5) }),
+    card('d-z1', { item_id: 'z1', state: 2, due: dueAt(4) }),
+    card('l-e2', { item_id: 'e2', state: 1, due: dueAt(3) }),
+    card('l-z2', { item_id: 'z2', state: 3, due: dueAt(2) }),
+    card('d-z2', { item_id: 'z2', state: 2, due: dueAt(1), direction: 'vi_en' }),
+    card('n-z1', { item_id: 'z1', state: 0, direction: 'vi_en' }),
+    card('n-e1', { item_id: 'e1', state: 0, direction: 'vi_en' }),
+    card('ls-z1', { item_id: 'z1', state: 2, due: dueAt(1), direction: 'listen' }),
+    card('ls-e1', { item_id: 'e1', state: 2, due: dueAt(1), direction: 'listen' }),
+  ]
+
+  it('language zh chỉ trả thẻ zh; thứ tự = thứ tự tương đối khi không lọc', () => {
+    const all = buildQueue(mixed, its, settings(), NOW, { ttsSupported: true, langOf })
+    const zh = buildQueue(mixed, its, settings(), NOW, { ttsSupported: true, langOf, language: 'zh' })
+    const zhIds = new Set(['d-z1', 'l-z2', 'd-z2', 'n-z1', 'ls-z1'])
+    expect(ids(zh)).toEqual(ids(all).filter((id) => zhIds.has(id)))
+    expect(ids(zh)).toEqual(['l-z2', 'd-z1', 'd-z2', 'ls-z1', 'n-z1'])
+  })
+
+  it('không truyền langOf → mọi thẻ coi là en', () => {
+    const plain = buildQueue(mixed, its, settings(), NOW, { ttsSupported: true })
+    expect(ids(buildQueue(mixed, its, settings(), NOW, { ttsSupported: true, language: 'en' }))).toEqual(ids(plain))
+    expect(buildQueue(mixed, its, settings(), NOW, { ttsSupported: true, language: 'zh' })).toEqual([])
+  })
+
+  it('newLeft đếm trên toàn bộ cards: 15 thẻ en đã ôn hôm nay + 5 thẻ zh mới → lọc zh 0 thẻ mới', () => {
+    const enItems = Array.from({ length: 15 }, (_, i) => item(`e${i}`))
+    const zhItems = Array.from({ length: 5 }, (_, i) => item(`z${i}`, { lesson_id: 'Lzh' }))
+    const cs = [
+      ...enItems.map((it) =>
+        card(`c-${it.id}`, { item_id: it.id, state: 1, first_reviewed_at: NOW.toISOString(), due: new Date(NOW.getTime() + 2 * 86_400_000).toISOString() }),
+      ),
+      ...zhItems.map((it) => card(`c-${it.id}`, { item_id: it.id, state: 0 })),
+    ]
+    const q = buildQueue(cs, [...enItems, ...zhItems], settings(15), NOW, { ttsSupported: true, langOf, language: 'zh' })
+    expect(q).toEqual([])
+    // Không lọc cũng 0 thẻ mới (một hạn mức chung).
+    expect(buildQueue(cs, [...enItems, ...zhItems], settings(15), NOW, { ttsSupported: true, langOf }).filter((c) => c.state === 0)).toEqual([])
+  })
+
+  it('speakable thiếu zh → listen zh bị loại, listen en giữ', () => {
+    const q = buildQueue(mixed, its, settings(), NOW, { ttsSupported: true, langOf, speakable: (l) => l !== 'zh' })
+    expect(ids(q)).toContain('ls-e1')
+    expect(ids(q)).not.toContain('ls-z1')
+    expect(ids(q)).toContain('d-z1')
+  })
+
+  it('speakable thiếu → dùng ttsSupported cho mọi ngôn ngữ', () => {
+    const q = buildQueue(mixed, its, settings(), NOW, { ttsSupported: false, langOf })
+    expect(q.some((c) => c.direction === 'listen')).toBe(false)
+  })
+
+  it('chế độ ?lesson vẫn áp lọc giọng nhưng không cần language', () => {
+    const q = buildQueue(mixed, its, settings(), NOW, { lessonId: 'Lzh', ttsSupported: true, langOf, speakable: (l) => l !== 'zh' })
+    expect(ids(q).sort()).toEqual(['d-z1', 'd-z2', 'l-z2', 'n-z1'])
+  })
+
+  it('hiddenListenCount: speakable thiếu zh đếm đúng; gọi kiểu cũ không đổi', () => {
+    expect(hiddenListenCount(mixed, its, settings(), NOW, { ttsSupported: true, langOf, speakable: (l) => l !== 'zh' })).toBe(1)
+    expect(hiddenListenCount(mixed, its, settings(), NOW, { ttsSupported: true, langOf, speakable: () => true })).toBe(0)
+    expect(hiddenListenCount(mixed, its, settings(), NOW, { ttsSupported: false, langOf })).toBe(2)
+    expect(hiddenListenCount(mixed, its, settings(), NOW)).toBe(2)
+    expect(hiddenListenCount(mixed, its, settings(), NOW, { ttsSupported: false, langOf, language: 'en' })).toBe(1)
+  })
+
+  it('hardestCards lọc theo ngôn ngữ trước khi xếp hạng', () => {
+    const cs = [
+      card('h-e1', { item_id: 'e1', state: 2, lapses: 5 }),
+      card('h-z1', { item_id: 'z1', state: 2, lapses: 1 }),
+      card('h-z2', { item_id: 'z2', state: 2, lapses: 0, difficulty: 8 }),
+      card('h-zl', { item_id: 'z2', state: 2, lapses: 9, direction: 'listen' }),
+    ]
+    const zh = hardestCards(cs, its, 3, { ttsSupported: true, langOf, language: 'zh' })
+    expect(zh.map((h) => h.card.id)).toEqual(['h-zl', 'h-z1'])
+    const zhMute = hardestCards(cs, its, 3, { ttsSupported: true, langOf, language: 'zh', speakable: (l) => l !== 'zh' })
+    expect(zhMute.map((h) => h.card.id)).toEqual(['h-z1', 'h-z2'])
+    const en = hardestCards(cs, its, 3, { ttsSupported: true, langOf, language: 'en' })
+    expect(en.map((h) => h.card.id)).toEqual(['h-e1'])
   })
 })

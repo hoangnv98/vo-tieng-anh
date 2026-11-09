@@ -15,7 +15,7 @@ import {
 } from './pending'
 import type { PendingOp, Repository } from './types'
 
-const SETTINGS: Settings = { user_id: 'u1', display_name: '', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false }
+const SETTINGS: Settings = { user_id: 'u1', display_name: '', daily_goal_min: 15, new_cards_per_day: 15, voice_name: null, auto_speak: false, study_language: 'all' }
 
 function fakeRepo(calls: string[] = []) {
   const record = (name: string) =>
