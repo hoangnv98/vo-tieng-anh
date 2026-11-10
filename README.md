@@ -115,7 +115,7 @@ Mặc định app đọc tiếng Anh bằng giọng có sẵn của trình duy�
 
 **Dùng trên điện thoại.** Bản app chạy trên Vercel là https nên trình duyệt chặn gọi tới `http://192.168.x.x` (mixed content). Có hai cách miễn phí:
 
-- **Tailscale**: cài trên laptop và điện thoại, rồi `tailscale serve --bg 8000` → nhận URL `https://<máy>.<tailnet>.ts.net`, dán vào ô Địa chỉ server.
+- **Tailscale** (gói Personal miễn phí, URL cố định): cài trên laptop và điện thoại, đăng nhập cùng tài khoản. Một lần duy nhất: vào https://login.tailscale.com/admin/dns bật **MagicDNS** và **HTTPS Certificates** (thiếu bước này `tailscale serve` báo "does not support getting TLS certs"). Rồi `tailscale serve --bg 8000` → nhận URL `https://<máy>.<tailnet>.ts.net`, dán vào ô Địa chỉ server. Cấu hình serve được nhớ qua các lần khởi động, chỉ cần app Tailscale đang bật (Connected) và server VieNeu đang chạy. Không cần thêm URL này vào `VIENEU_CORS_ORIGINS`: origin vẫn là domain của app.
 - **Cloudflare Tunnel**: `cloudflared tunnel --url http://localhost:8000` → nhận URL `https://….trycloudflare.com` tạm thời.
 
 Nếu server chạy trên máy khác trong cùng Wi-Fi và app mở qua `npm run dev --host` (http), chạy script với `HOST=0.0.0.0` và thêm origin của app vào `VIENEU_CORS_ORIGINS`; VieNeu sẽ cảnh báo nên đặt `VIENEU_API_KEY` khi mở ra ngoài loopback (app chưa gửi API key, nên chỉ dùng trong mạng tin cậy).
