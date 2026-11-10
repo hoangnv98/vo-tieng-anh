@@ -95,13 +95,19 @@ Sửa `supabase/schema.sql` theo kiểu idempotent (`create table if not exists`
 
 Mặc định app đọc tiếng Anh bằng giọng có sẵn của trình duyệt (Chrome/Edge tốt nhất). Nếu muốn nghe **nghĩa tiếng Việt, lưu ý phát âm, lỗi hay gặp** bằng giọng Việt tự nhiên, bạn có thể chạy [VieNeu-TTS](https://github.com/pnnbao97/VieNeu-TTS) (Apache-2.0, chạy CPU, không cần GPU) trên máy tính rồi trỏ app vào đó.
 
-1. Cài và chạy server (macOS/Linux, cần [uv](https://docs.astral.sh/uv/)):
+1. Cài và chạy server (macOS/Linux, cần [uv](https://docs.astral.sh/uv/)). Server gốc của VieNeu **không bật CORS**, nên trình duyệt sẽ chặn app gọi tới dù server đã chạy ("Không kết nối được"); dùng script bọc `scripts/vieneu-server.py` của dự án này, nó nạp đúng server VieNeu và thêm CORS cho origin của app:
 
    ```bash
-   git clone https://github.com/pnnbao97/VieNeu-TTS.git && cd VieNeu-TTS
-   uv sync
-   uv run python -m apps.openai_speech   # server OpenAI-compatible tại http://localhost:8000
+   # clone VieNeu-TTS cạnh thư mục dự án (…/VieNeu-TTS và …/english-skills cùng cấp)
+   git clone https://github.com/pnnbao97/VieNeu-TTS.git ../VieNeu-TTS
+   (cd ../VieNeu-TTS && uv sync)            # bản CPU, không cần torch/GPU
+
+   # chạy từ thư mục dự án; lần đầu tải model (~1 GB) từ Hugging Face
+   uv run --project ../VieNeu-TTS python scripts/vieneu-server.py
+   # → "Uvicorn running on http://127.0.0.1:8000"
    ```
+
+   Repo VieNeu ở chỗ khác thì đặt `VIENEU_DIR=/đường/dẫn/VieNeu-TTS`. Origin khác (vd domain Vercel riêng) thì đặt `VIENEU_CORS_ORIGINS=https://a.app,https://b.app`. Lần đầu bấm **Kiểm tra kết nối** trên bản https, Chrome có thể hỏi quyền "truy cập thiết bị trong mạng nội bộ" — chọn Cho phép.
 
 2. Trong app: **Cài đặt → Giọng đọc → Tiếng Việt → bật "Đọc tiếng Việt bằng server local"**, dán `http://localhost:8000`, bấm **Kiểm tra kết nối** rồi chọn giọng.
 
@@ -112,7 +118,7 @@ Mặc định app đọc tiếng Anh bằng giọng có sẵn của trình duy�
 - **Tailscale**: cài trên laptop và điện thoại, rồi `tailscale serve --bg 8000` → nhận URL `https://<máy>.<tailnet>.ts.net`, dán vào ô Địa chỉ server.
 - **Cloudflare Tunnel**: `cloudflared tunnel --url http://localhost:8000` → nhận URL `https://….trycloudflare.com` tạm thời.
 
-Nếu server chạy trên máy khác trong cùng Wi-Fi và app mở qua `npm run dev --host` (http), hãy khởi động server với `--host 0.0.0.0` và cho phép CORS từ origin của app.
+Nếu server chạy trên máy khác trong cùng Wi-Fi và app mở qua `npm run dev --host` (http), chạy script với `HOST=0.0.0.0` và thêm origin của app vào `VIENEU_CORS_ORIGINS`; VieNeu sẽ cảnh báo nên đặt `VIENEU_API_KEY` khi mở ra ngoài loopback (app chưa gửi API key, nên chỉ dùng trong mạng tin cậy).
 
 **Tiếng Anh bằng server (tuỳ chọn).** Nếu muốn giọng Anh đẹp hơn giọng trình duyệt, bật "Dùng server local cho tiếng Anh" và trỏ vào một server OpenAI-compatible chuyên tiếng Anh như Kokoro. Không nên dùng VieNeu cho tiếng Anh: model tối ưu cho tiếng Việt, phát âm Anh có thể không chuẩn.
 
