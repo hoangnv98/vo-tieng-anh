@@ -1,10 +1,11 @@
 import { ChevronLeft, ChevronRight, CircleAlert, Info, Mic, Play, Repeat, RotateCcw, Square, Volume2 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Button } from '../components/Button'
 import { EmptyState } from '../components/EmptyState'
 import { Field } from '../components/Field'
 import { PageTitle } from '../components/PageTitle'
+import { Segmented } from '../components/Segmented'
 import { TtsUnsupportedNote } from '../components/SpeakButton'
 import { Spinner } from '../components/Spinner'
 import { asStudyLanguage, LANG_TAG, LANGUAGE_LABELS, missingVoiceText, ROMAN_TAG } from '../domain/languageCore'
@@ -530,59 +531,5 @@ function InfoLine({ children }: { children: ReactNode }) {
       <Info size={20} strokeWidth={1.75} aria-hidden="true" />
       <span>{children}</span>
     </p>
-  )
-}
-
-interface SegmentedProps<T extends string | number> {
-  label?: string
-  labelledBy?: string
-  value: T
-  options: { value: T; label: string }[]
-  onChange(v: T): void
-}
-
-/** Nhóm nút chọn một (`role="radiogroup"`), phím mũi tên di chuyển + chọn. */
-function Segmented<T extends string | number>({ label, labelledBy, value, options, onChange }: SegmentedProps<T>) {
-  const refs = useRef<(HTMLButtonElement | null)[]>([])
-  function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {
-    const cur = options.findIndex((o) => o.value === value)
-    let next = -1
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (cur + 1) % options.length
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (cur - 1 + options.length) % options.length
-    else if (e.key === 'Home') next = 0
-    else if (e.key === 'End') next = options.length - 1
-    if (next < 0) return
-    e.preventDefault()
-    onChange(options[next].value)
-    refs.current[next]?.focus()
-  }
-  return (
-    <div
-      className="seg"
-      role="radiogroup"
-      aria-label={labelledBy ? undefined : label}
-      aria-labelledby={labelledBy}
-      onKeyDown={onKeyDown}
-    >
-      {options.map((o, i) => {
-        const checked = o.value === value
-        return (
-          <button
-            key={String(o.value)}
-            ref={(el) => {
-              refs.current[i] = el
-            }}
-            type="button"
-            role="radio"
-            aria-checked={checked}
-            tabIndex={checked ? 0 : -1}
-            className="seg-btn"
-            onClick={() => onChange(o.value)}
-          >
-            {o.label}
-          </button>
-        )
-      })}
-    </div>
   )
 }

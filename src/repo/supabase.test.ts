@@ -1,13 +1,20 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Card, Lesson, Settings } from '../domain/types'
 import { createTimeoutFetch } from '../lib/supabase'
 import { defaultSettings } from './defaults'
 import {
   LOAD_ERROR_MESSAGE,
   NO_SESSION_MESSAGE,
+  PASSWORD_INVALID_MESSAGE,
+  PASSWORD_REAUTH_MESSAGE,
+  PASSWORD_SAME_MESSAGE,
+  PASSWORD_SAVE_ERROR_MESSAGE,
+  PASSWORD_SIGN_IN_ERROR_MESSAGE,
+  PASSWORD_WEAK_MESSAGE,
   RATE_LIMIT_MESSAGE,
   RepoError,
+  TOO_MANY_ATTEMPTS_MESSAGE,
   SCHEMA_OUTDATED_MESSAGE,
   SupabaseAuth,
   SupabaseRepository,
@@ -24,6 +31,8 @@ import {
   toIso,
   toLesson,
   toSettings,
+  toPasswordSignInError,
+  toSetPasswordError,
   toSignInError,
   type LessonRow,
   type SettingsRow,
@@ -70,6 +79,8 @@ function makeClient(responder: Responder, rpcResult: Result = { data: null, erro
       error: null,
     })),
     signInWithOtp: vi.fn(async () => ({ data: {}, error: null as unknown })),
+    signInWithPassword: vi.fn(async (_c: { email: string; password: string }) => ({ data: {}, error: null as unknown })),
+    updateUser: vi.fn(async (_a: { password?: string; data?: object }) => ({ data: {}, error: null as unknown })),
     signOut: vi.fn(async () => ({ error: null })),
     onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
   }
@@ -363,7 +374,178 @@ describe('SupabaseAuth', () => {
     auth.signInWithOtp.mockResolvedValueOnce({ data: {}, error: { status: 429, message: 'too many', code: 'over_email_send_rate_limit' } })
     const err = await a.signInWithEmail('lan@vidu.com', 'x').catch((e: unknown) => e)
     expect((err as RepoError).message).toBe(RATE_LIMIT_MESSAGE)
-    expect(await a.getSession()).toEqual({ id: 'u1', email: 'lan@vidu.com' })
+    expect(await a.getSession()).toEqual({ id: 'u1', email: 'lan@vidu.com', hasPassword: false })
+  })
+})
+
+describe('(T21) SupabaseAuth — mật khẩu', () => {
+  const EMAIL = 'lan@vidu.com'
+  const SECRET = 'S3cret!'
+
+  async function failSignIn(error: unknown, reject = false) {
+    const { client, auth } = makeClient(() => ({ data: null, error: null }))
+    if (reject) auth.signInWithPassword.mockRejectedValueOnce(error)
+    else auth.signInWithPassword.mockResolvedValueOnce({ data: {}, error })
+    const err = await new SupabaseAuth(client).signInWithPassword(EMAIL, SECRET).catch((e: unknown) => e)
+    expect(err).toBeInstanceOf(RepoError)
+    const r = err as RepoError
+    // không rò lỗi gốc, mật khẩu hay email
+    expect(r.cause).toBeUndefined()
+    expect(r.message).not.toContain(SECRET)
+    expect(r.message).not.toContain(EMAIL)
+    return r
+  }
+
+  async function failSet(error: unknown, reject = false) {
+    const { client, auth } = makeClient(() => ({ data: null, error: null }))
+    if (reject) auth.updateUser.mockRejectedValueOnce(error)
+    else auth.updateUser.mockResolvedValueOnce({ data: {}, error })
+    const err = await new SupabaseAuth(client).setPassword('S3cret!xyz').catch((e: unknown) => e)
+    expect(err).toBeInstanceOf(RepoError)
+    const r = err as RepoError
+    expect(r.cause).toBeUndefined()
+    expect(r.message).not.toContain('S3cret!xyz')
+    return r
+  }
+
+  let warnSpy: ReturnType<typeof vi.spyOn>
+  beforeEach(() => {
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+  })
+  afterEach(() => {
+    warnSpy.mockRestore()
+  })
+
+  it('signInWithPassword gọi đúng một lần với email + mật khẩu; thành công thì resolve', async () => {
+    const { client, auth } = makeClient(() => ({ data: null, error: null }))
+    await new SupabaseAuth(client).signInWithPassword(EMAIL, 'p')
+    expect(auth.signInWithPassword).toHaveBeenCalledTimes(1)
+    expect(auth.signInWithPassword).toHaveBeenCalledWith({ email: EMAIL, password: 'p' })
+  })
+
+  it('signInWithPassword bỏ qua data.weakPassword (không phải lỗi)', async () => {
+    const { client, auth } = makeClient(() => ({ data: null, error: null }))
+    auth.signInWithPassword.mockResolvedValueOnce({
+      data: { weakPassword: { reasons: ['length'], message: 'weak' } },
+      error: null,
+    })
+    await expect(new SupabaseAuth(client).signInWithPassword(EMAIL, SECRET)).resolves.toBeUndefined()
+  })
+
+  it('invalid_credentials (có code hoặc server cũ chỉ có message) → câu chung', async () => {
+    for (const error of [
+      { status: 400, code: 'invalid_credentials', message: `Invalid login credentials for ${EMAIL}` },
+      { status: 400, message: 'Invalid login credentials' },
+      { status: 400, code: 'email_not_confirmed' },
+      { status: 400, code: 'user_not_found' },
+    ]) {
+      const r = await failSignIn(error)
+      expect(r.message).toBe(PASSWORD_INVALID_MESSAGE)
+      expect(r.code).toBe('invalid_credentials')
+    }
+  })
+
+  it('rate limit → TOO_MANY_ATTEMPTS_MESSAGE', async () => {
+    const r = await failSignIn({ status: 429, code: 'over_request_rate_limit' })
+    expect(r.message).toBe(TOO_MANY_ATTEMPTS_MESSAGE)
+    expect(r.code).toBe('rate_limit')
+  })
+
+  it('mạng / timeout → code network', async () => {
+    for (const error of [
+      { name: 'AuthRetryableFetchError', status: 0 },
+      { name: 'TimeoutError', message: 'signal timed out' },
+      { name: 'AbortError', message: 'The operation was aborted' },
+    ]) {
+      const r = await failSignIn(error)
+      expect(r.code).toBe('network')
+      expect(r.message).toBe(PASSWORD_SIGN_IN_ERROR_MESSAGE)
+    }
+  })
+
+  it('client ném (reject) → vẫn ra RepoError, không giữ lỗi gốc', async () => {
+    const thrown = new TypeError(`Failed to fetch ${SECRET} ${EMAIL}`)
+    const r = await failSignIn(thrown, true)
+    expect(r.code).toBe('network')
+    const odd = await failSignIn('boom', true)
+    expect(odd.message).toBe(PASSWORD_SIGN_IN_ERROR_MESSAGE)
+    expect(odd.code).toBe('unknown')
+  })
+
+  it('lỗi khác → PASSWORD_SIGN_IN_ERROR_MESSAGE giữ code server', async () => {
+    const r = await failSignIn({ status: 500, code: 'unexpected_failure', message: SECRET })
+    expect(r.message).toBe(PASSWORD_SIGN_IN_ERROR_MESSAGE)
+    expect(r.code).toBe('unexpected_failure')
+  })
+
+  it('console.warn chỉ nhận code/status', async () => {
+    await failSignIn({ status: 400, code: 'invalid_credentials', message: `bad ${SECRET} ${EMAIL}` })
+    expect(warnSpy).toHaveBeenCalled()
+    const logged = JSON.stringify(warnSpy.mock.calls)
+    expect(logged).not.toContain(SECRET)
+    expect(logged).not.toContain(EMAIL)
+  })
+
+  it('setPassword gửi mật khẩu + cờ has_password trong cùng một updateUser', async () => {
+    const { client, auth } = makeClient(() => ({ data: null, error: null }))
+    await new SupabaseAuth(client).setPassword('S3cret!xyz')
+    expect(auth.updateUser).toHaveBeenCalledTimes(1)
+    expect(auth.updateUser).toHaveBeenCalledWith({ password: 'S3cret!xyz', data: { has_password: true } })
+    expect(auth.getSession).not.toHaveBeenCalled()
+  })
+
+  it('setPassword map lỗi theo bảng 6.15 (3)-C', async () => {
+    const cases: [unknown, string, string][] = [
+      [{ code: 'weak_password', name: 'AuthWeakPasswordError', status: 422 }, PASSWORD_WEAK_MESSAGE, 'weak_password'],
+      [{ name: 'AuthWeakPasswordError' }, PASSWORD_WEAK_MESSAGE, 'weak_password'],
+      [{ code: 'same_password', status: 422 }, PASSWORD_SAME_MESSAGE, 'same_password'],
+      [{ code: 'reauthentication_needed', status: 400 }, PASSWORD_REAUTH_MESSAGE, 'reauthentication_needed'],
+      [{ code: 'reauth_nonce_missing' }, PASSWORD_REAUTH_MESSAGE, 'reauthentication_needed'],
+      [{ name: 'AuthSessionMissingError', status: 400 }, NO_SESSION_MESSAGE, 'no_session'],
+      [{ code: 'session_not_found', status: 403 }, NO_SESSION_MESSAGE, 'no_session'],
+      [{ status: 401 }, NO_SESSION_MESSAGE, 'no_session'],
+      [{ status: 429, code: 'over_request_rate_limit' }, TOO_MANY_ATTEMPTS_MESSAGE, 'rate_limit'],
+      [{ status: 0 }, PASSWORD_SAVE_ERROR_MESSAGE, 'network'],
+      [{ name: 'TimeoutError' }, PASSWORD_SAVE_ERROR_MESSAGE, 'network'],
+      [{ status: 500 }, PASSWORD_SAVE_ERROR_MESSAGE, 'unknown'],
+    ]
+    for (const [error, message, code] of cases) {
+      const r = await failSet(error)
+      expect(r.message, JSON.stringify(error)).toBe(message)
+      expect(r.code, JSON.stringify(error)).toBe(code)
+    }
+  })
+
+  it('setPassword: client ném → RepoError không cause', async () => {
+    const r = await failSet(new TypeError('fetch failed S3cret!xyz'), true)
+    expect(r.code).toBe('network')
+  })
+
+  it('hàm map thuần không giữ message gốc', () => {
+    expect(toPasswordSignInError({ status: 400, code: 'invalid_credentials', message: SECRET }).message).toBe(PASSWORD_INVALID_MESSAGE)
+    expect(toSetPasswordError({ code: 'same_password', message: SECRET }).message).toBe(PASSWORD_SAME_MESSAGE)
+  })
+
+  it('getSession đọc hasPassword từ user_metadata.has_password (chỉ true đúng kiểu)', async () => {
+    const { client, auth } = makeClient(() => ({ data: null, error: null }))
+    const a = new SupabaseAuth(client)
+    const withMeta = (user_metadata: unknown) =>
+      auth.getSession.mockResolvedValueOnce({ data: { session: { user: { id: 'u1', email: EMAIL, user_metadata } } }, error: null })
+    withMeta({ has_password: true })
+    expect(await a.getSession()).toEqual({ id: 'u1', email: EMAIL, hasPassword: true })
+    withMeta(undefined)
+    expect((await a.getSession())?.hasPassword).toBe(false)
+    withMeta({ has_password: 'yes' })
+    expect((await a.getSession())?.hasPassword).toBe(false)
+  })
+
+  it('onChange (USER_UPDATED) truyền hasPassword mới', () => {
+    const { client, auth } = makeClient(() => ({ data: null, error: null }))
+    const seen: unknown[] = []
+    new SupabaseAuth(client).onChange((u) => seen.push(u))
+    const handler = (auth.onAuthStateChange.mock.calls[0] as unknown[])[0] as (e: string, s: unknown) => void
+    handler('USER_UPDATED', { user: { id: 'u1', email: EMAIL, user_metadata: { has_password: true } } })
+    expect(seen).toEqual([{ id: 'u1', email: EMAIL, hasPassword: true }])
   })
 })
 

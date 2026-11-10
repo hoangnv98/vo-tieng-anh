@@ -1,0 +1,53 @@
+/* Segmented (Shadowing: nguồn câu, tốc độ; Đăng nhập: cách đăng nhập) */
+.seg {
+  display: inline-flex;
+  border: var(--rule-strong);
+  border-radius: var(--radius-btn);
+  background: var(--white);
+  overflow: hidden;
+}
+.seg-btn {
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 16px;
+  border: 0;
+  background: transparent;
+  color: var(--purple);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.seg-btn + .seg-btn {
+  border-left: var(--rule-strong);
+}
+.seg-btn:hover {
+  background: var(--lilac);
+}
+.seg-btn[aria-checked='true'] {
+  background: var(--purple);
+  color: var(--white);
+}
+.seg-btn:focus-visible {
+  outline-offset: -4px;
+  outline-color: currentColor;
+}
+/* (T21) */
+.seg--fill {
+  display: flex;
+  width: 100%;
+}
+.seg--fill .seg-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 12px;
+}
+.seg-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.seg-btn:disabled:hover {
+  background: transparent;
+}
+.seg-btn[aria-checked='true']:disabled:hover {
+  background: var(--purple);
+}

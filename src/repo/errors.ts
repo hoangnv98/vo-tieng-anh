@@ -10,6 +10,18 @@ export const SEND_LINK_ERROR_MESSAGE = 'Không gửi được. Kiểm tra mạng
 export const NO_SESSION_MESSAGE = 'Phiên đăng nhập đã hết. Hãy đăng nhập lại.'
 export const SIGN_OUT_ERROR_MESSAGE = 'Không đăng xuất được. Kiểm tra mạng rồi thử lại.'
 
+// (T21) Đăng nhập / đặt mật khẩu (6.15 (3)-C). Không bao giờ chứa mật khẩu, email hay message gốc của server.
+export const PASSWORD_INVALID_MESSAGE =
+  'Email hoặc mật khẩu chưa đúng. Nếu chưa đặt mật khẩu, hãy đăng nhập bằng liên kết email rồi đặt trong Cài đặt.'
+export const TOO_MANY_ATTEMPTS_MESSAGE = 'Bạn thử quá nhiều lần. Đợi khoảng một phút rồi thử lại.'
+export const PASSWORD_SIGN_IN_ERROR_MESSAGE = 'Không đăng nhập được. Kiểm tra mạng rồi thử lại.'
+export const PASSWORD_WEAK_MESSAGE =
+  'Mật khẩu chưa đủ mạnh theo yêu cầu của máy chủ. Hãy dùng mật khẩu dài hơn hoặc thêm chữ số và ký hiệu.'
+export const PASSWORD_SAME_MESSAGE = 'Mật khẩu mới trùng mật khẩu hiện tại. Hãy chọn mật khẩu khác.'
+export const PASSWORD_REAUTH_MESSAGE =
+  'Vì lý do bảo mật, hãy đăng xuất, đăng nhập lại bằng liên kết email rồi quay lại đây đặt mật khẩu ngay.'
+export const PASSWORD_SAVE_ERROR_MESSAGE = 'Chưa lưu được mật khẩu. Kiểm tra mạng rồi thử lại.'
+
 // -----------------------------------------------------------------------------
 // Lỗi
 // -----------------------------------------------------------------------------

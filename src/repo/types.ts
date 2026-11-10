@@ -3,6 +3,8 @@ import type { Card, Item, Lesson, ReviewLogEntry, Settings, Snapshot, StudyDay }
 export interface AuthUser {
   id: string
   email: string | null
+  /** (T21) `user.user_metadata.has_password === true` (app ghi cùng request đặt mật khẩu); local: false. */
+  hasPassword: boolean
 }
 
 export interface StudyTimeDelta {
@@ -32,9 +34,21 @@ export interface Repository {
 
 export interface AuthService {
   mode: 'local' | 'supabase'
-  /** local: luôn trả { id: 'local', email: null }. */
+  /** local: luôn trả { id: 'local', email: null, hasPassword: false }. */
   getSession(): Promise<AuthUser | null>
   signInWithEmail(email: string, redirectTo: string): Promise<void>
+  /**
+   * (T21) Đăng nhập email + mật khẩu. Ném `RepoError` đã map (6.15 (3)-C), `code` ∈
+   * `rate_limit` | `invalid_credentials` | `network` | mã Auth khác / `unknown`. Không có `cause`.
+   * local: no-op.
+   */
+  signInWithPassword(email: string, password: string): Promise<void>
+  /**
+   * (T21) Đặt / đổi mật khẩu cho phiên hiện tại: `updateUser({ password, data: { has_password: true } })`.
+   * Ném `RepoError`, `code` ∈ `weak_password` | `same_password` | `reauthentication_needed` | `no_session`
+   * | `rate_limit` | `network` | mã Auth khác / `unknown`. Không có `cause`. local: no-op.
+   */
+  setPassword(password: string): Promise<void>
   signOut(): Promise<void>
   onChange(cb: (user: AuthUser | null) => void): () => void
 }

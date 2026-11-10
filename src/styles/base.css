@@ -85,6 +85,29 @@ input, textarea, select {
   display: none !important;
 }
 
+/* Khối lỗi (icon + chữ đỏ) dùng chung: lỗi đăng nhập, lỗi đặt mật khẩu */
+.error-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--red);
+}
+.error-block svg {
+  flex: none;
+  margin-top: 2px;
+}
+.error-block:focus {
+  outline: none;
+}
+.error-block:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

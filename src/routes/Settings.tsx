@@ -1,15 +1,18 @@
-import { Download, Info, LogOut, Minus, Plus, Trash2, Upload, Volume2 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { CircleAlert, Download, Info, KeyRound, LogOut, Minus, Plus, Trash2, Upload, Volume2 } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/Button'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { Field } from '../components/Field'
 import { PageTitle } from '../components/PageTitle'
+import { PasswordField } from '../components/PasswordField'
 import { Spinner } from '../components/Spinner'
 import { TtsUnsupportedNote } from '../components/SpeakButton'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { useTts, useVoices } from '../hooks/useTts'
-import { SIGN_OUT_ERROR_MESSAGE } from '../repo/errors'
+import { NO_SESSION_MESSAGE, PASSWORD_SAVE_ERROR_MESSAGE, RepoError, SIGN_OUT_ERROR_MESSAGE } from '../repo/errors'
+import { PASSWORD_ERROR_TEXT, validateNewPassword, type NewPasswordError } from '../domain/password'
+import { writeLoginMode } from '../lib/loginMode'
 import { localDay } from '../lib/dates'
 import { shouldSyncField } from '../lib/settingsSync'
 import { speak as speakDevice } from '../lib/speech'
@@ -32,6 +35,7 @@ import {
 } from '../domain/importSnapshot'
 import { IMPORT_BLOCKED_MESSAGE } from '../state/dataContext'
 import { TtsServerFields } from './settings/TtsServerFields'
+import { leaveLostSession } from './settings/sessionLost'
 import './Settings.css'
 
 const DEBOUNCE_MS = 600
@@ -148,10 +152,175 @@ function SwitchRow({
   )
 }
 
+/**
+ * (T21) Mục "Mật khẩu" trong khối Tài khoản (6.15 (2)-A, (4)-B) — chỉ render ở mode supabase.
+ * Mật khẩu chỉ sống trong state khi form mở; xoá khi lưu xong / huỷ.
+ */
+function PasswordSection({
+  email,
+  hasPassword,
+  setPassword,
+  notify,
+  onSessionLost,
+}: {
+  email: string
+  hasPassword: boolean
+  setPassword(password: string): Promise<void>
+  notify(message: string, tone?: 'error'): void
+  onSessionLost(): Promise<void>
+}) {
+  const [open, setOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [pw, setPw] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<{ password?: NewPasswordError; confirm?: NewPasswordError } | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const toggleRef = useRef<HTMLButtonElement>(null)
+  const newRef = useRef<HTMLInputElement>(null)
+  const confirmRef = useRef<HTMLInputElement>(null)
+  const errorRef = useRef<HTMLParagraphElement>(null)
+
+  useEffect(() => {
+    if (open) newRef.current?.focus()
+  }, [open])
+  useEffect(() => {
+    if (error) errorRef.current?.focus()
+  }, [error])
+
+  const close = () => {
+    setOpen(false)
+    setPw('')
+    setConfirm('')
+    setFieldErrors(null)
+    setError(null)
+    toggleRef.current?.focus()
+  }
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    if (saving) return
+    setError(null)
+    const errs = validateNewPassword(pw, confirm)
+    setFieldErrors(errs)
+    if (errs) {
+      if (errs.password) newRef.current?.focus()
+      else confirmRef.current?.focus()
+      return
+    }
+    const first = !hasPassword
+    setSaving(true)
+    try {
+      await setPassword(pw)
+      writeLoginMode('password')
+      close()
+      notify(first ? 'Đã đặt mật khẩu. Lần sau bạn có thể đăng nhập bằng email và mật khẩu.' : 'Đã đổi mật khẩu.')
+    } catch (err) {
+      if (err instanceof RepoError && err.code === 'no_session') {
+        setError(NO_SESSION_MESSAGE)
+        notify(NO_SESSION_MESSAGE, 'error')
+        void onSessionLost()
+      } else {
+        setError(err instanceof RepoError ? err.message : PASSWORD_SAVE_ERROR_MESSAGE)
+      }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const onKeyDown = (e: KeyboardEvent<HTMLFormElement>) => {
+    if (e.key !== 'Escape' || saving) return
+    e.preventDefault()
+    close()
+  }
+
+  return (
+    <div className="settings-password">
+      <h3>Mật khẩu</h3>
+      <p className="settings-mute">
+        {hasPassword
+          ? 'Đã đặt mật khẩu. Bạn có thể vào bằng email và mật khẩu trên mọi thiết bị.'
+          : 'Chưa đặt mật khẩu. Bạn đang vào bằng liên kết email.'}
+      </p>
+      <Button
+        ref={toggleRef}
+        variant="secondary"
+        className="settings-password-toggle"
+        aria-expanded={open}
+        aria-controls="st-password-form"
+        onClick={() => (open ? close() : setOpen(true))}
+      >
+        <KeyRound size={20} strokeWidth={1.75} aria-hidden="true" />
+        {hasPassword ? 'Đổi mật khẩu' : 'Đặt mật khẩu'}
+      </Button>
+      {open && (
+        <form
+          id="st-password-form"
+          className="settings-password-form"
+          onSubmit={(e) => void onSubmit(e)}
+          onKeyDown={onKeyDown}
+          noValidate
+        >
+          {/* tên đăng nhập ẩn để trình quản lý mật khẩu biết lưu cho tài khoản nào (khuyến nghị Chrome/Safari) */}
+          <input
+            type="text"
+            name="username"
+            autoComplete="username"
+            value={email}
+            readOnly
+            className="visually-hidden"
+            aria-hidden="true"
+            tabIndex={-1}
+          />
+          <PasswordField
+            ref={newRef}
+            id="st-password-new"
+            name="new-password"
+            label="Mật khẩu mới"
+            autoComplete="new-password"
+            description="Ít nhất 8 ký tự. Nên dùng một cụm từ bạn dễ nhớ nhưng người khác khó đoán."
+            value={pw}
+            onChange={setPw}
+            error={fieldErrors?.password ? PASSWORD_ERROR_TEXT[fieldErrors.password] : null}
+            disabled={saving}
+          />
+          <PasswordField
+            ref={confirmRef}
+            id="st-password-confirm"
+            name="confirm-password"
+            label="Nhập lại mật khẩu mới"
+            autoComplete="new-password"
+            value={confirm}
+            onChange={setConfirm}
+            error={fieldErrors?.confirm ? PASSWORD_ERROR_TEXT[fieldErrors.confirm] : null}
+            disabled={saving}
+          />
+          {error && (
+            <p ref={errorRef} className="error-block" role="alert" tabIndex={-1}>
+              <CircleAlert size={20} strokeWidth={1.75} aria-hidden="true" />
+              <span>{error}</span>
+            </p>
+          )}
+          <div className="settings-password-actions">
+            <Button type="submit" disabled={saving}>
+              {saving ? <Spinner label="Đang lưu…" /> : 'Lưu mật khẩu'}
+            </Button>
+            <Button variant="ghost" disabled={saving} onClick={close}>
+              Huỷ
+            </Button>
+          </div>
+          <p className="visually-hidden" role="status" aria-live="polite">
+            {saving ? 'Đang lưu…' : ''}
+          </p>
+        </form>
+      )}
+    </div>
+  )
+}
+
 export default function Settings() {
   usePageTitle('Cài đặt')
   const navigate = useNavigate()
-  const { mode, user, signOut } = useAuth()
+  const { mode, user, signOut, setPassword } = useAuth()
   const { snapshot, pending, online, saveSettings, importSnapshot, notify } = useData()
   const { supported, voices, loaded } = useVoices()
   const { speakable } = useTts()
@@ -373,7 +542,9 @@ export default function Settings() {
   const importBlocked = mode === 'supabase' && (!online || pendingCount > 0)
   const preview = importStatus.kind === 'preview' ? importStatus.plan : null
   const signOutDesc =
-    'Bạn sẽ cần liên kết email mới để vào lại.' +
+    (user?.hasPassword
+      ? 'Bạn có thể vào lại bằng email và mật khẩu, hoặc bằng liên kết email.'
+      : 'Bạn sẽ cần liên kết email mới để vào lại.') +
     (pendingCount > 0
       ? ` Có ${pendingCount} thay đổi chưa đồng bộ. Đăng xuất bây giờ, chúng sẽ được gửi khi bạn đăng nhập lại trên trình duyệt này.`
       : '')
@@ -399,6 +570,15 @@ export default function Settings() {
           onChange={(e) => onName(e.target.value)}
           onBlur={() => flush('name')}
         />
+        {mode === 'supabase' && user && (
+          <PasswordSection
+            email={user.email ?? ''}
+            hasPassword={user.hasPassword}
+            setPassword={setPassword}
+            notify={notify}
+            onSessionLost={() => leaveLostSession(signOut, () => navigate('/login', { replace: true }))}
+          />
+        )}
         {mode === 'supabase' && (
           <div className="settings-after-rule">
             <Button variant="secondary" onClick={() => setSignOutOpen(true)}>

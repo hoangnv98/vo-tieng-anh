@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import { createBrowserRouter, redirect, type LoaderFunctionArgs } from 'react-router-dom'
 import { RouteError } from './components/RouteError'
 import { Shell } from './components/Shell'
+import { writeLoginMode } from './lib/loginMode'
 import { config, initServices } from './state/services'
 
 type RouteModule = { default: ComponentType }
@@ -64,7 +65,10 @@ async function loginLoader({ request }: LoaderFunctionArgs) {
   if (config.mode !== 'supabase') return null
   const { auth } = await initServices()
   if (!(await auth.getSession())) return null
-  return redirect(consumeLoginNext() ?? safeNext(new URL(request.url).searchParams.get('next')))
+  const url = new URL(request.url)
+  // (T21, 12.2.23) vừa hoàn tất PKCE từ liên kết email → lần sau mở tab "Liên kết email"
+  if (url.searchParams.has('code')) writeLoginMode('link')
+  return redirect(consumeLoginNext() ?? safeNext(url.searchParams.get('next')))
 }
 
 export function createAppRouter() {

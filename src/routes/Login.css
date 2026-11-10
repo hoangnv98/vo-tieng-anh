@@ -62,19 +62,6 @@
   font-size: 14px;
   color: var(--mute);
 }
-.login-error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.5;
-  color: var(--red);
-}
-.login-error svg {
-  flex: none;
-  margin-top: 2px;
-}
 .login-actions {
   display: flex;
   flex-wrap: wrap;
@@ -105,4 +92,17 @@
 .login-sent-title:focus-visible {
   outline: 2px solid var(--purple);
   outline-offset: 2px;
+}
+/* (T21) phần đổi theo chế độ (liên kết / mật khẩu) — cùng nhịp với .login-block */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: stretch;
+}
+.login-forgot.btn {
+  align-self: flex-start;
+  margin-inline-start: -12px;
+  text-align: start;
+  white-space: normal;
 }

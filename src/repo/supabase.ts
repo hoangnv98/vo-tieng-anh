@@ -6,10 +6,17 @@ import { STUDY_DAYS_WINDOW, defaultSettings } from './defaults'
 import {
   LOAD_ERROR_MESSAGE,
   NO_SESSION_MESSAGE,
+  PASSWORD_INVALID_MESSAGE,
+  PASSWORD_REAUTH_MESSAGE,
+  PASSWORD_SAME_MESSAGE,
+  PASSWORD_SAVE_ERROR_MESSAGE,
+  PASSWORD_SIGN_IN_ERROR_MESSAGE,
+  PASSWORD_WEAK_MESSAGE,
   RATE_LIMIT_MESSAGE,
   RepoError,
   SEND_LINK_ERROR_MESSAGE,
   SIGN_OUT_ERROR_MESSAGE,
+  TOO_MANY_ATTEMPTS_MESSAGE,
   WRITE_ERROR_MESSAGE,
   isNetworkError,
   toRepoError,
@@ -21,10 +28,17 @@ import type { AuthService, AuthUser, Repository, StudyTimeDelta } from './types'
 export {
   LOAD_ERROR_MESSAGE,
   NO_SESSION_MESSAGE,
+  PASSWORD_INVALID_MESSAGE,
+  PASSWORD_REAUTH_MESSAGE,
+  PASSWORD_SAME_MESSAGE,
+  PASSWORD_SAVE_ERROR_MESSAGE,
+  PASSWORD_SIGN_IN_ERROR_MESSAGE,
+  PASSWORD_WEAK_MESSAGE,
   RATE_LIMIT_MESSAGE,
   RepoError,
   SEND_LINK_ERROR_MESSAGE,
   SIGN_OUT_ERROR_MESSAGE,
+  TOO_MANY_ATTEMPTS_MESSAGE,
   WRITE_ERROR_MESSAGE,
   isNetworkError,
   isNonRetryableCode,
@@ -276,8 +290,11 @@ export function stripNewColumns<T extends object>(payload: T): Omit<T, (typeof N
   return rest as Omit<T, (typeof NEW_COLUMNS)[number]>
 }
 
+/** (T21) `hasPassword` chỉ true khi `user_metadata.has_password === true` (đúng kiểu boolean). */
 function toAuthUser(user: User | null | undefined): AuthUser | null {
-  return user ? { id: user.id, email: user.email ?? null } : null
+  if (!user) return null
+  const meta = user.user_metadata as Record<string, unknown> | null | undefined
+  return { id: user.id, email: user.email ?? null, hasPassword: meta?.has_password === true }
 }
 
 // -----------------------------------------------------------------------------
@@ -511,6 +528,54 @@ export function toSignInError(e: AuthLikeError): RepoError {
   return new RepoError(SEND_LINK_ERROR_MESSAGE, { code: e.code ?? 'network', status: e.status })
 }
 
+const INVALID_CREDENTIAL_CODES: ReadonlySet<string> = new Set(['invalid_credentials', 'email_not_confirmed', 'user_not_found'])
+const REAUTH_CODES: ReadonlySet<string> = new Set(['reauthentication_needed', 'reauth_nonce_missing', 'reauthentication_not_valid'])
+const NO_SESSION_CODES: ReadonlySet<string> = new Set(['session_not_found', 'session_expired', 'bad_jwt'])
+
+/** Chỉ ghi `code`/`status` — không bao giờ ghi message gốc, email hay mật khẩu. */
+function warnAuth(where: string, e: AuthLikeError): void {
+  console.warn(`[auth] ${where}`, { code: e.code, status: e.status })
+}
+
+/**
+ * (T21) Lỗi đăng nhập mật khẩu → RepoError (6.15 (3)-C). Sai thông tin / chưa xác thực / không có user
+ * gộp chung một câu để không lộ email có tồn tại. Không có `cause`, không giữ message gốc.
+ */
+export function toPasswordSignInError(e: AuthLikeError): RepoError {
+  const status = e.status
+  if (isRateLimitError(e)) return new RepoError(TOO_MANY_ATTEMPTS_MESSAGE, { code: 'rate_limit', status })
+  if ((e.code && INVALID_CREDENTIAL_CODES.has(e.code)) || (status === 400 && /invalid login credentials/i.test(e.message ?? ''))) {
+    return new RepoError(PASSWORD_INVALID_MESSAGE, { code: 'invalid_credentials', status })
+  }
+  if (isNetworkError(e)) return new RepoError(PASSWORD_SIGN_IN_ERROR_MESSAGE, { code: 'network', status })
+  return new RepoError(PASSWORD_SIGN_IN_ERROR_MESSAGE, { code: e.code ?? 'unknown', status })
+}
+
+/** (T21) Lỗi đặt / đổi mật khẩu → RepoError (6.15 (3)-C). Không có `cause`, không giữ message gốc. */
+export function toSetPasswordError(e: AuthLikeError): RepoError {
+  const status = e.status
+  if (e.code === 'weak_password' || e.name === 'AuthWeakPasswordError') {
+    return new RepoError(PASSWORD_WEAK_MESSAGE, { code: 'weak_password', status })
+  }
+  if (e.code === 'same_password') return new RepoError(PASSWORD_SAME_MESSAGE, { code: 'same_password', status })
+  if (e.code && REAUTH_CODES.has(e.code)) {
+    return new RepoError(PASSWORD_REAUTH_MESSAGE, { code: 'reauthentication_needed', status })
+  }
+  if (e.name === 'AuthSessionMissingError' || (e.code && NO_SESSION_CODES.has(e.code)) || status === 401) {
+    return new RepoError(NO_SESSION_MESSAGE, { code: 'no_session', status })
+  }
+  if (isRateLimitError(e)) return new RepoError(TOO_MANY_ATTEMPTS_MESSAGE, { code: 'rate_limit', status })
+  if (isNetworkError(e)) return new RepoError(PASSWORD_SAVE_ERROR_MESSAGE, { code: 'network', status })
+  return new RepoError(PASSWORD_SAVE_ERROR_MESSAGE, { code: e.code ?? 'unknown', status })
+}
+
+/** Lỗi bị ném (không phải `res.error`) → chỉ giữ name/code/status/message để map, bỏ mọi thứ khác. */
+function asAuthLikeError(e: unknown): AuthLikeError {
+  if (typeof e !== 'object' || e === null) return {}
+  const x = e as AuthLikeError
+  return { name: x.name, code: x.code, status: x.status, message: x.message }
+}
+
 export class SupabaseAuth implements AuthService {
   readonly mode = 'supabase' as const
   private readonly client: SupabaseClient
@@ -537,6 +602,36 @@ export class SupabaseAuth implements AuthService {
       error = (typeof e === 'object' && e !== null ? e : {}) as AuthLikeError
     }
     if (error) throw toSignInError(error)
+  }
+
+  /** (T21) `data.weakPassword` (mật khẩu cũ không còn đạt chính sách) bị bỏ qua — không phải lỗi (12.1.42). */
+  async signInWithPassword(email: string, password: string): Promise<void> {
+    let error: AuthLikeError | null
+    try {
+      const res = await this.client.auth.signInWithPassword({ email, password })
+      error = res.error
+    } catch (e) {
+      error = asAuthLikeError(e)
+    }
+    if (!error) return
+    const err = toPasswordSignInError(error)
+    warnAuth('signInWithPassword', error)
+    throw err
+  }
+
+  /** (T21) Mật khẩu và cờ `has_password` đi cùng một `PUT /user` → có mật khẩu thì có cờ. */
+  async setPassword(password: string): Promise<void> {
+    let error: AuthLikeError | null
+    try {
+      const res = await this.client.auth.updateUser({ password, data: { has_password: true } })
+      error = res.error
+    } catch (e) {
+      error = asAuthLikeError(e)
+    }
+    if (!error) return
+    const err = toSetPasswordError(error)
+    warnAuth('setPassword', error)
+    throw err
   }
 
   async signOut(): Promise<void> {

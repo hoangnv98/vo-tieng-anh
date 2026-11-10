@@ -1,7 +1,8 @@
 # Đặc tả hệ thống — Vở Ngoại Ngữ (tên cũ: Vở Tiếng Anh)
 
-Phiên bản: 1.1 (MVP / Giai đoạn 1 + T18–T20) · Ngày: 2026-11-09
+Phiên bản: 1.2 (MVP / Giai đoạn 1 + T18–T21) · Ngày: 2026-11-10
 Từ T20 (mục 6.14) app đổi tên thành **"Vở Ngoại Ngữ"** và hỗ trợ bốn ngôn ngữ học: Anh, Trung, Nhật, Hàn. Các mục viết trước T20 vẫn dùng chữ "tiếng Anh"/"EN" cho ví dụ; đọc là "ngôn ngữ đích" trừ khi mục đó nói rõ chỉ áp dụng cho `en`.
+Từ T21 (mục 6.15) người dùng đã vào bằng liên kết email có thể **đặt mật khẩu** trong Cài đặt và đăng nhập bằng email + mật khẩu ở những lần sau; liên kết email vẫn là cách xác thực đầu tiên và là đường "quên mật khẩu".
 Nguồn sự thật sản phẩm: `PRODUCT.md`. Hướng thiết kế: `.impeccable/surfaces/src-routes-today-tsx.md` ("Vở ô ly mực tím"). Quy ước dự án: `CLAUDE.md`.
 
 Tài liệu này viết cho developer (subagent `coder`) code thẳng MVP mà không phải hỏi lại. Mỗi màn hình có đủ: mục đích, user story, luồng, dữ liệu, trạng thái, quy tắc, microcopy, tiêu chí chấp nhận. Mục 9 là danh sách task theo thứ tự.
@@ -21,7 +22,7 @@ Quy ước trong tài liệu:
 4. Thuật toán và quy tắc chung (ngày giờ, FSRS, phiên ôn, thời gian học, chuỗi ngày)
 5. Hệ thống giao diện (design tokens, typography, component, quy tắc)
 6. Màn hình
-   - 6.1 Đăng nhập · 6.2 Shell/điều hướng · 6.3 Hôm nay · 6.4 Nhật ký buổi học (danh sách) · 6.5 Trang buổi học (xem) · 6.6 Tạo/sửa buổi học · 6.7 Ôn thẻ · 6.8 Mẫu câu tình huống · 6.9 Shadowing · 6.10 Tiến độ · 6.11 Cài đặt · 6.12 Giọng đọc & nhà cung cấp TTS (T19) · 6.13 Dán danh sách, Nhập JSON, PWA (T18) · 6.14 Đa ngôn ngữ học Anh/Trung/Nhật/Hàn và đổi tên "Vở Ngoại Ngữ" (T20)
+   - 6.1 Đăng nhập · 6.2 Shell/điều hướng · 6.3 Hôm nay · 6.4 Nhật ký buổi học (danh sách) · 6.5 Trang buổi học (xem) · 6.6 Tạo/sửa buổi học · 6.7 Ôn thẻ · 6.8 Mẫu câu tình huống · 6.9 Shadowing · 6.10 Tiến độ · 6.11 Cài đặt · 6.12 Giọng đọc & nhà cung cấp TTS (T19) · 6.13 Dán danh sách, Nhập JSON, PWA (T18) · 6.14 Đa ngôn ngữ học Anh/Trung/Nhật/Hàn và đổi tên "Vở Ngoại Ngữ" (T20) · 6.15 Đăng nhập bằng mật khẩu sau khi đã xác thực bằng liên kết email (T21)
 7. Dữ liệu seed
 8. Yêu cầu phi chức năng
 9. Kế hoạch triển khai (task có thứ tự)
@@ -44,7 +45,7 @@ Web app cá nhân đi kèm lớp học tiếng Anh giao tiếp thật. Sau mỗi
 
 | # | Chức năng | Route |
 |---|---|---|
-| 1 | Đăng nhập magic link (hoặc chế độ cục bộ) | `/login` |
+| 1 | Đăng nhập magic link (hoặc chế độ cục bộ); **(T21)** thêm chế độ email + mật khẩu sau khi đã xác thực email bằng liên kết (6.15) | `/login` |
 | 2 | Shell: thanh trên + điều hướng + chuỗi ngày + trạng thái đồng bộ | mọi route |
 | 3 | Hôm nay | `/` |
 | 4 | Nhật ký buổi học: danh sách, xem trang vở, tạo/sửa, xoá | `/lessons`, `/lessons/:id`, `/lessons/new`, `/lessons/:id/edit` |
@@ -67,7 +68,7 @@ Kiểm tra đầu vào, ghi chú ngữ pháp tối giản tiếng Việt, nhật
 
 ### 1.5 Ngoài phạm vi (mọi giai đoạn)
 
-Bảng xếp hạng, chia sẻ công khai, chấm điểm giữa người dùng, quảng cáo, mua trong app, upload bản ghi âm, đăng nhập mật khẩu/Google (chỉ magic link), đa ngôn ngữ **giao diện** (giao diện luôn tiếng Việt; đa ngôn ngữ *học* xem 6.14), chế độ tối (dark mode) — direction contract là giấy sáng; không làm dark mode ở MVP. Cũng ngoài phạm vi T20: ngôn ngữ học khác bốn ngôn ngữ trên, phiên âm tự động (pinyin/romaji sinh từ máy), nhận dạng giọng nói, tải font CJK từ mạng.
+Bảng xếp hạng, chia sẻ công khai, chấm điểm giữa người dùng, quảng cáo, mua trong app, upload bản ghi âm, đăng nhập Google/OAuth, **đăng ký** bằng mật khẩu trực tiếp (từ T21 mật khẩu chỉ được đặt *sau* khi đã vào bằng liên kết email — 6.15; trước T21 mật khẩu hoàn toàn ngoài phạm vi), luồng "quên mật khẩu" riêng (`resetPasswordForEmail`; dùng liên kết đăng nhập thay thế), đa ngôn ngữ **giao diện** (giao diện luôn tiếng Việt; đa ngôn ngữ *học* xem 6.14), chế độ tối (dark mode) — direction contract là giấy sáng; không làm dark mode ở MVP. Cũng ngoài phạm vi T20: ngôn ngữ học khác bốn ngôn ngữ trên, phiên âm tự động (pinyin/romaji sinh từ máy), nhận dạng giọng nói, tải font CJK từ mạng.
 
 ---
 
@@ -94,7 +95,7 @@ Bảng xếp hạng, chia sẻ công khai, chấm điểm giữa người dùng,
 └───────────────────────────────┬──────────────────────────────────────────┘
                                 │ HTTPS (chỉ khi có VITE_SUPABASE_*)
 ┌───────────────────────────────▼──────────────────────────────────────────┐
-│ Supabase free: Auth (magic link email) · Postgres + RLS (user_id=uid)    │
+│ Supabase free: Auth (magic link email; T21 + email/mật khẩu) · Postgres + RLS (user_id=uid) │
 └──────────────────────────────────────────────────────────────────────────┘
 Hosting tĩnh: Vercel free (SPA rewrite về index.html).
 ```
@@ -115,6 +116,7 @@ src/
     dates.ts                # localDay(), startOfLocalDay(), addDays(), formatDateVi(), weekdayShortVi()
     text.ts                 # normalizeAnswer(), compareAnswer()
     ids.ts                  # newId() = crypto.randomUUID()
+    loginMode.ts            # (T21) readLoginMode()/writeLoginMode() — tab mặc định của /login theo thiết bị
     speech.ts               # TTS: getEnglishVoices(), pickDefaultVoice(), speak(), cancel(), isTtsSupported()
     recorder.ts             # isRecorderSupported(), pickMimeType()
   data/
@@ -124,6 +126,7 @@ src/
     review.ts               # buildQueue(), shouldRequeue(), shouldUnlockSiblings(), hardestCards(), estimateMinutes()
     stats.ts                # streak(), todaySeconds(), calendarWeeks(), cardStats()
     lessons.ts              # nextLessonNumber(), validateLesson(), validateItem()
+    password.ts             # (T21) validateNewPassword(), validatePasswordLogin() — thuần, không React
   repo/
     types.ts                # interface Repository, AuthService, PendingOp
     local.ts                # LocalRepository + LocalAuth
@@ -152,6 +155,8 @@ src/
     SpeakButton.tsx         # nút loa (lucide Volume2), aria-label "Nghe phát âm"
     Spinner.tsx             # loading nhỏ, có text thay thế
     PageTitle.tsx           # h1 thống nhất
+    Segmented.tsx           # (T21) nhóm nút chọn một (role="radiogroup") — tách từ Shadowing.tsx, dùng ở Shadowing + Login
+    PasswordField.tsx       # (T21) ô mật khẩu + nút hiện/ẩn (aria-pressed), cùng kiểu với Field
   routes/
     Login.tsx  Today.tsx  Lessons.tsx  LessonView.tsx  LessonEdit.tsx
     Review.tsx  Patterns.tsx  PatternSituation.tsx  Shadowing.tsx  Progress.tsx  Settings.tsx
@@ -179,10 +184,18 @@ export interface Repository {
   exportAll(): Promise<Snapshot>               // = loadSnapshot, dùng cho "Xuất dữ liệu"
 }
 
+export interface AuthUser {
+  id: string
+  email: string | null
+  hasPassword: boolean                         // (T21) từ user.user_metadata.has_password === true; local: false
+}
+
 export interface AuthService {
   mode: 'local' | 'supabase'
-  getSession(): Promise<AuthUser | null>       // local: luôn trả { id: 'local', email: null }
+  getSession(): Promise<AuthUser | null>       // local: luôn trả { id: 'local', email: null, hasPassword: false }
   signInWithEmail(email: string, redirectTo: string): Promise<void>
+  signInWithPassword(email: string, password: string): Promise<void>   // (T21) ném RepoError đã map (6.15 (3)-C); local: no-op
+  setPassword(password: string): Promise<void>                         // (T21) updateUser({ password, data: { has_password: true } }); local: no-op
   signOut(): Promise<void>
   onChange(cb: (user: AuthUser | null) => void): () => void
 }
@@ -537,6 +550,8 @@ Mỗi màn hình có 8 mục: (1) Mục đích & user story, (2) Luồng chính 
 **(8) Task:** T07.
 
 **(9) T20 — đổi tên:** H1 "Vở Ngoại Ngữ"; phụ đề "Học lại ngoại ngữ giao tiếp, mỗi ngày một ít." Mọi thứ khác giữ nguyên.
+
+**(10) T21 — hai chế độ đăng nhập (chi tiết 6.15):** trong khối trắng, ngay dưới header và trên form, thêm điều khiển `Segmented` (component dùng chung, tách từ Shadowing) với hai lựa chọn **"Liên kết email"** · **"Mật khẩu"**, nhãn ẩn "Cách đăng nhập", chiếm hết chiều ngang (`seg--fill`). Chế độ mặc định = `readLoginMode()` (`localStorage` `vta:v1:login-mode`, lần đầu `'link'`). Chế độ "Liên kết email" là toàn bộ 6.1 hiện tại, chỉ đổi ghi chú dưới form thành "Mỗi tài khoản chỉ thấy dữ liệu của mình. Sau khi vào, bạn có thể đặt mật khẩu trong Cài đặt để lần sau đăng nhập nhanh hơn." Chế độ "Mật khẩu": ô Email (dùng chung state `email` với chế độ kia) + `PasswordField` + nút "Đăng nhập" + nút chữ "Quên mật khẩu? Dùng liên kết email". Mode local: không có Segmented, không có gì về mật khẩu (giữ y nguyên khối "Chưa cấu hình tài khoản."). Khối lỗi liên kết từ URL (`blockError`) hiện ở cả hai chế độ. Trạng thái `verifying`/`loading`/đã có `user` vẫn thay toàn bộ khối bằng Spinner "Đang đăng nhập…" như cũ.
 
 ---
 
@@ -969,6 +984,8 @@ Hàng "trống hoàn toàn" = cả en, vi, ipa, note đều rỗng → bỏ qua,
 **(8) Task:** T16. Khối "Giọng đọc" được mở rộng ở 6.12 (T19b). Khối "Dữ liệu" thêm "Nhập dữ liệu (JSON)" ở 6.13-B (T18b).
 
 **(9) T20 — khối "Ngôn ngữ" (chi tiết 6.14 (2)-B, (4)):** card mới, H2 "Ngôn ngữ", đặt **giữa** "Tài khoản" và "Mục tiêu". Field select "Ngôn ngữ đang học" (option "Tất cả" · "Tiếng Anh" · "Tiếng Trung" · "Tiếng Nhật" · "Tiếng Hàn"), mô tả "Lọc thẻ ôn, shadowing, kho mẫu câu và thống kê thẻ theo một ngôn ngữ. Nhật ký buổi học, chuỗi ngày và phút học luôn tính chung." Lưu ngay `saveSettings({ ...settings, study_language })` → toast "Đã lưu." (đồng bộ qua Supabase như các trường khác). Dưới select, dòng 14px mute "Giọng đọc trên thiết bị này: Anh — có · Trung — có · Nhật — chưa có · Hàn — có" tính từ `canSpeakLang` (reactive theo `voiceschanged`); không có Web Speech → "Trình duyệt này không có giọng đọc." Khối "Giọng đọc" **không đổi** (select "Giọng trình duyệt" vẫn chỉ giọng tiếng Anh; giọng zh/ja/ko tự chọn — 12.2 T20). Tên tệp xuất đổi thành `vo-ngoai-ngu-{YYYY-MM-DD}.json`.
+
+**(10) T21 — mục "Mật khẩu" trong khối "Tài khoản" (chi tiết 6.15 (2)-A, (4)-B):** chỉ ở `mode === 'supabase'`. Đặt **sau** Field "Tên hiển thị" và **trước** `settings-after-rule` chứa "Đăng xuất": `<h3>` "Mật khẩu" (16px/600 ink, cùng kiểu `.voice-part h3`), dòng `settings-mute` trạng thái ("Chưa đặt mật khẩu. Bạn đang vào bằng liên kết email." / "Đã đặt mật khẩu. Bạn có thể vào bằng email và mật khẩu trên mọi thiết bị."), nút secondary **"Đặt mật khẩu"** (khi `user.hasPassword === false`) hoặc **"Đổi mật khẩu"** (true) với icon `KeyRound`, `aria-expanded`, `aria-controls="st-password-form"`. Bấm → form inline hai `PasswordField` ("Mật khẩu mới", "Nhập lại mật khẩu mới"), nút primary "Lưu mật khẩu" + ghost "Huỷ". Thành công → toast, form đóng, `user.hasPassword` tự cập nhật qua `USER_UPDATED`. Dialog đăng xuất: mô tả đổi theo `hasPassword` (6.15 (6)). Mode local: không render gì của mục này.
 
 ---
 
@@ -1726,6 +1743,181 @@ T20d — bộ mẫu câu khởi đầu zh/ja/ko
 
 ---
 
+### 6.15 Đăng nhập bằng mật khẩu sau khi đã xác thực bằng liên kết email (T21) — `routes/Login.tsx`, `routes/Settings.tsx`, `repo/types.ts`, `repo/errors.ts`, `repo/supabase.ts`, `repo/local.ts`, `state/authContext.ts`, `state/AuthProvider.tsx`, `lib/loginMode.ts`, `domain/password.ts`, `components/Segmented.tsx`, `components/PasswordField.tsx`
+
+**(1) Mục đích & user story.**
+
+- Là người học đã vào app bằng liên kết email ít nhất một lần, tôi muốn **đặt một mật khẩu trong Cài đặt** để những lần sau chỉ cần gõ email + mật khẩu là vào — không phải mở hộp thư, không gặp lỗi "mở liên kết ở trình duyệt khác" (PKCE) trên điện thoại, không bị kẹt giới hạn 2 email/giờ của SMTP mặc định.
+- Là người học quên mật khẩu, tôi muốn **vẫn vào được bằng liên kết email** như trước, rồi đặt mật khẩu mới trong Cài đặt.
+- Là chủ dự án, tôi muốn **email luôn được xác thực bằng liên kết trước** (không có đăng ký bằng mật khẩu) và **mật khẩu không bao giờ được app lưu, log hay đưa vào URL**; việc "ghi nhớ" giao cho trình quản lý mật khẩu của trình duyệt.
+
+Không thuộc 6.15: đăng nhập Google/OAuth; luồng `resetPasswordForEmail`/`PASSWORD_RECOVERY`; xoá mật khẩu (Supabase không có API xoá mật khẩu từ client); đăng xuất các thiết bị khác khi đổi mật khẩu; captcha.
+
+**(2) Luồng.**
+
+**A. Đặt / đổi mật khẩu — Cài đặt → Tài khoản → "Mật khẩu" (mode supabase).**
+1. Người dùng đã đăng nhập (bằng liên kết hoặc mật khẩu). Mục "Mật khẩu" hiện dòng trạng thái + nút "Đặt mật khẩu" (`user.hasPassword === false`) hoặc "Đổi mật khẩu" (`true`).
+2. Bấm nút → form inline mở ngay dưới (không dialog), focus vào ô "Mật khẩu mới". Nút chuyển `aria-expanded="true"`.
+3. Nhập "Mật khẩu mới" và "Nhập lại mật khẩu mới" (mỗi ô có nút hiện/ẩn riêng). Bấm "Lưu mật khẩu" (Enter trong ô cũng gửi — form `onSubmit`).
+4. Validation phía client (`domain/password.ts: validateNewPassword`): lỗi → hiện tại trường, focus ô lỗi đầu tiên, **không gọi API**.
+5. Hợp lệ → trạng thái `saving` (nút disabled + Spinner "Đang lưu…", hai ô disabled) → `auth.setPassword(password)` = `supabase.auth.updateUser({ password, data: { has_password: true } })` (một request, mật khẩu và cờ đi cùng nhau).
+6. Thành công → supabase-js lưu session mới và phát `USER_UPDATED` → `AuthProvider.onChange` nhận `user.user_metadata.has_password === true` → `user.hasPassword` đổi → nhãn nút đổi thành "Đổi mật khẩu", dòng trạng thái đổi. App gọi `writeLoginMode('password')`, đóng form, xoá hai ô, trả focus về nút, toast "Đã đặt mật khẩu. Lần sau bạn có thể đăng nhập bằng email và mật khẩu." (lần đầu) hoặc "Đã đổi mật khẩu." (đã có).
+7. Lỗi → khối lỗi `role="alert"` ngay trên hai nút, form vẫn mở, giữ giá trị hai ô, focus vào khối lỗi (xem bảng (3)-C). Lỗi `no_session` → thêm toast chung và `navigate('/login')` như Shell làm khi mất phiên.
+8. "Huỷ" (hoặc Esc khi focus trong form) → đóng form, xoá hai ô, xoá lỗi, trả focus về nút. Không hỏi xác nhận (chưa gửi gì).
+
+**B. Đăng nhập bằng mật khẩu — `/login`, chế độ "Mật khẩu" (mode supabase).**
+1. Mở `/login` → `Segmented` chọn sẵn `readLoginMode()`; lần đầu trên thiết bị = "Liên kết email".
+2. Chọn "Mật khẩu" (bấm hoặc phím mũi tên) → form đổi thành Email + Mật khẩu + "Đăng nhập". `email` đã gõ ở chế độ kia được giữ; ô mật khẩu rỗng; mọi lỗi của chế độ kia bị xoá (lỗi liên kết từ URL `blockError` vẫn hiện vì không thuộc chế độ nào).
+3. Nhập, bấm "Đăng nhập" (Enter gửi). Validation client (`validatePasswordLogin`): email sai → lỗi tại ô email; mật khẩu rỗng → lỗi tại ô mật khẩu; focus ô lỗi đầu tiên; không gọi API.
+4. Hợp lệ → `saveLoginNext(null)` (bỏ `next` cũ còn sót từ lần gửi liên kết trước), trạng thái `signing-in` (nút disabled + Spinner "Đang đăng nhập…", hai ô disabled, nút chuyển chế độ disabled) → `auth.signInWithPassword(email, password)`.
+5. Thành công → supabase-js đã `_saveSession` và phát `SIGNED_IN` **trước khi** promise resolve (Phụ lục B) → `AuthProvider` có `user` → effect sẵn có của Login điều hướng `consumeLoginNext() ?? safeNext(next)` (= `next` từ URL vì bước 4 đã xoá bản lưu). App gọi `writeLoginMode('password')`. Vì có điều hướng thật sau khi submit, Chrome/Safari đề nghị lưu mật khẩu.
+6. Lỗi → khối lỗi `role="alert"` phía trên form (như lỗi gửi liên kết), ô mật khẩu được **xoá** (không giữ mật khẩu sai trên màn), focus về ô mật khẩu; email giữ nguyên.
+
+**C. Quên mật khẩu / chưa đặt mật khẩu.** Trong chế độ "Mật khẩu", nút chữ "Quên mật khẩu? Dùng liên kết email" → chuyển `Segmented` sang "Liên kết email", giữ `email`, focus vào ô Email. Người dùng gửi liên kết, vào app, rồi đặt lại mật khẩu theo A. Không có luồng reset riêng (12.2 T21).
+
+**D. Chế độ mặc định theo thiết bị (`lib/loginMode.ts`).** `writeLoginMode('link')` khi gửi liên kết **thành công** (phase `sent`, cả lần gửi lại); `writeLoginMode('password')` khi đăng nhập mật khẩu thành công (B.5) và khi đặt/đổi mật khẩu thành công (A.6). Lý do ghi `'link'` lúc gửi chứ không lúc quay về từ email: với PKCE, `loginLoader` đã redirect trước khi `Login` render nên component không nhìn thấy "khoảnh khắc thành công"; lúc gửi là điểm xác định duy nhất trong cùng tab (12.1.37).
+
+**E. Phụ.**
+- Đang `sent` ở chế độ liên kết mà chuyển sang "Mật khẩu" rồi quay lại → khối `sent` (đếm ngược) vẫn còn: `phase` thuộc luồng liên kết, `pwPhase` thuộc luồng mật khẩu, `loginMode` là state riêng; đổi chế độ chỉ đổi phần render.
+- Đang `sending` hoặc `signing-in` → `Segmented` disabled (không đổi chế độ giữa chừng).
+- Đã có session mà vào `/login` → `loginLoader` redirect như cũ, không liên quan chế độ.
+- Mode local: `Segmented` và mọi thứ về mật khẩu **không render**; `LocalAuth.signInWithPassword`/`setPassword` là no-op; `AuthUser.hasPassword = false`.
+- `localStorage` không dùng được (Safari private cũ, quota) → `readLoginMode()` trả `'link'`, `writeLoginMode` nuốt lỗi; không báo gì.
+
+**(3) Dữ liệu & validation.**
+
+**A. Trường.**
+
+| Màn | Trường | `id` / `name` | `autoComplete` | Quy tắc | Lỗi (tại trường) |
+|---|---|---|---|---|---|
+| Login (cả 2 chế độ) | Email | `login-email` / `email` | chế độ liên kết: `email`; chế độ mật khẩu: `username` | trim, lowercase, regex 6.1, ≤ 254 | "Email chưa đúng. Kiểm tra lại giúp mình nhé." |
+| Login (mật khẩu) | Mật khẩu | `login-password` / `password` | `current-password` | **không trim**, bắt buộc khác rỗng; không kiểm tra độ dài (không lộ chính sách, không chặn mật khẩu cũ) | "Nhập mật khẩu." |
+| Settings | Mật khẩu mới | `st-password-new` / `new-password` | `new-password` | không trim; `length ≥ 8`; `length ≤ 72` | "Mật khẩu cần ít nhất 8 ký tự." · "Mật khẩu tối đa 72 ký tự." |
+| Settings | Nhập lại mật khẩu mới | `st-password-confirm` / `confirm-password` | `new-password` | `=== password` (so sánh chuỗi nguyên) | "Hai mật khẩu chưa giống nhau." |
+
+Mọi ô mật khẩu: `type="password"` (đổi `text` khi "hiện"), `autoCapitalize="off"`, `autoCorrect="off"`, `spellCheck={false}`, không `placeholder`, không `maxLength` cứng (để lỗi 72 hiện rõ thay vì cắt lặng). Không có yêu cầu loại ký tự (khớp Supabase "No required characters"); độ dài đếm bằng `.length`.
+
+`domain/password.ts` (thuần, không React):
+```ts
+export const PASSWORD_MIN = 8
+export const PASSWORD_MAX = 72
+export type NewPasswordError = 'too_short' | 'too_long' | 'mismatch'
+export function validateNewPassword(password: string, confirm: string): { password?: NewPasswordError; confirm?: NewPasswordError } | null
+export type PasswordLoginError = { email?: 'invalid'; password?: 'required' }
+export function validatePasswordLogin(email: string, password: string): PasswordLoginError | null   // email đã trim+lowercase bên ngoài
+export const PASSWORD_ERROR_TEXT: Record<NewPasswordError | 'invalid' | 'required', string>          // microcopy (6)
+```
+
+**B. `AuthUser.hasPassword`.** `toAuthUser(user)` → `hasPassword: user.user_metadata?.has_password === true`. Cờ do app ghi trong cùng request `updateUser({ password, data: { has_password: true } })`; `data` merge theo khoá vào `raw_user_meta_data` nên không đụng metadata khác. Supabase **không** lộ việc user có mật khẩu hay không: `User` không có `encrypted_password`, `identities[].provider` là `'email'` cho cả người dùng liên kết lẫn mật khẩu, `app_metadata` không ghi được từ client; cột riêng trong `settings` cần migration và có thể lệch với auth. Cờ sai (ví dụ mật khẩu đặt từ Dashboard) chỉ làm sai nhãn "Đặt"/"Đổi" — cả hai đều gọi cùng `updateUser`, nên không có rủi ro chức năng (12.1.36). `AuthProvider.sameUser` phải so cả `hasPassword` để `USER_UPDATED` kích hoạt render lại Settings; `DataProvider` chỉ phụ thuộc `user.id` nên **không** tải lại snapshot khi cờ đổi (đã kiểm tra `DataProvider.tsx`).
+
+**C. Map lỗi Auth → `RepoError` (`repo/supabase.ts`; hằng microcopy trong `repo/errors.ts`).** Không bao giờ đưa `password`, email hay `error.message` gốc vào `RepoError.message`; `console.warn` chỉ `code`/`status`.
+
+| Hàm | Điều kiện (theo thứ tự) | `RepoError.code` | Microcopy |
+|---|---|---|---|
+| `toPasswordSignInError(e)` | `isRateLimitError(e)` (429, `over_request_rate_limit`, `over_email_send_rate_limit`, /rate limit/i) | `rate_limit` | `TOO_MANY_ATTEMPTS_MESSAGE` "Bạn thử quá nhiều lần. Đợi khoảng một phút rồi thử lại." |
+| | `e.code ∈ {invalid_credentials, email_not_confirmed, user_not_found}` hoặc (`status 400` và /invalid login credentials/i) | `invalid_credentials` | `PASSWORD_INVALID_MESSAGE` "Email hoặc mật khẩu chưa đúng. Nếu chưa đặt mật khẩu, hãy đăng nhập bằng liên kết email rồi đặt trong Cài đặt." |
+| | `isNetworkError(e)` (status 0, AbortError/TimeoutError, `AuthRetryableFetchError`, fetch failed) | `network` | `PASSWORD_SIGN_IN_ERROR_MESSAGE` "Không đăng nhập được. Kiểm tra mạng rồi thử lại." |
+| | còn lại | `e.code ?? 'unknown'` | `PASSWORD_SIGN_IN_ERROR_MESSAGE` |
+| `toSetPasswordError(e)` | `e.code === 'weak_password'` hoặc `e.name === 'AuthWeakPasswordError'` | `weak_password` | `PASSWORD_WEAK_MESSAGE` "Mật khẩu chưa đủ mạnh theo yêu cầu của máy chủ. Hãy dùng mật khẩu dài hơn hoặc thêm chữ số và ký hiệu." |
+| | `e.code === 'same_password'` | `same_password` | `PASSWORD_SAME_MESSAGE` "Mật khẩu mới trùng mật khẩu hiện tại. Hãy chọn mật khẩu khác." |
+| | `e.code ∈ {reauthentication_needed, reauth_nonce_missing, reauthentication_not_valid}` | `reauthentication_needed` | `PASSWORD_REAUTH_MESSAGE` "Vì lý do bảo mật, hãy đăng xuất, đăng nhập lại bằng liên kết email rồi quay lại đây đặt mật khẩu ngay." |
+| | `e.name === 'AuthSessionMissingError'` hoặc `e.code ∈ {session_not_found, session_expired, bad_jwt}` hoặc `status 401` | `no_session` | `NO_SESSION_MESSAGE` (Phụ lục A) |
+| | `isRateLimitError(e)` | `rate_limit` | `TOO_MANY_ATTEMPTS_MESSAGE` |
+| | `isNetworkError(e)` | `network` | `PASSWORD_SAVE_ERROR_MESSAGE` "Chưa lưu được mật khẩu. Kiểm tra mạng rồi thử lại." |
+| | còn lại | `e.code ?? 'unknown'` | `PASSWORD_SAVE_ERROR_MESSAGE` |
+
+`SupabaseAuth.signInWithPassword(email, password)`: `try { res = await client.auth.signInWithPassword({ email, password }) } catch (e) { error = e }` như `signInWithEmail`; `res.error` → `throw toPasswordSignInError(error)`; `res.data.weakPassword` (có khi chính sách server chặt hơn mật khẩu cũ) **bỏ qua** ở T21. `SupabaseAuth.setPassword(password)`: `client.auth.updateUser({ password, data: { has_password: true } })`; lỗi → `throw toSetPasswordError(error)`. Không `getSession()` trước (supabase-js tự kiểm tra, thiếu session → `AuthSessionMissingError`).
+
+**D. Chế độ đăng nhập theo thiết bị (`lib/loginMode.ts`).**
+```ts
+export type LoginMode = 'link' | 'password'
+export const LOGIN_MODE_KEY = 'vta:v1:login-mode'
+export function readLoginMode(storage: Storage | null = safeLocalStorage()): LoginMode   // giá trị khác 'link'|'password', lỗi, thiếu storage → 'link'
+export function writeLoginMode(mode: LoginMode, storage: Storage | null = safeLocalStorage()): void  // try/catch, không ném
+```
+Khoá có tiền tố `vta:v1:` nên bị xoá cùng "Xoá toàn bộ dữ liệu trên thiết bị này" (chỉ có ở mode local — vô hại). Không lưu email, không lưu mật khẩu.
+
+**E. `AuthContextValue`** thêm `signInWithPassword(email, password): Promise<void>` và `setPassword(password): Promise<void>`; `user.hasPassword`. `AuthProvider.LOCAL_USER` thêm `hasPassword: false`.
+
+**(4) Trạng thái.**
+
+**A. `/login` (mode supabase).** Thứ tự trong `.login-block`: `blockError` (nếu có) → `Segmented` → nội dung chế độ.
+- Chế độ "Liên kết email": y hệt 6.1 (`idle`/`sending`/`sent`/`error`), chỉ đổi câu ghi chú dưới form.
+- Chế độ "Mật khẩu", `pwPhase: 'idle' | 'signing-in'`, `pwError: string | null`:
+  - `idle`: Field Email, `PasswordField` "Mật khẩu", nút primary lg `type="submit"` "Đăng nhập", nút chữ (variant ghost, `type="button"`) "Quên mật khẩu? Dùng liên kết email", ghi chú mute 14px "Mật khẩu không được lưu trong app. Trình duyệt có thể đề nghị lưu giúp bạn."
+  - `signing-in`: nút submit disabled + Spinner "Đang đăng nhập…"; hai ô và nút chữ disabled; `Segmented` disabled; vùng `role="status"` (visually-hidden) nhận chữ "Đang đăng nhập…".
+  - lỗi tại trường: qua `error` của Field/PasswordField (`aria-describedby`, `aria-invalid`, `role="alert"` như Field hiện có).
+  - lỗi gọi API: `pwError` render bằng `.login-error` (icon `CircleAlert`, `role="alert"`, `tabIndex={-1}`, được focus) phía trên form; ô mật khẩu đã xoá.
+- `verifying` / `loading` / có `user`: Spinner "Đang đăng nhập…" thay toàn khối (không có `Segmented`), như hiện tại.
+- Mode local: không đổi so với 6.1.
+- Không hỗ trợ: không có nhánh riêng. Trình duyệt không có `localStorage` → chế độ mặc định "Liên kết email".
+
+**B. `/settings` → "Tài khoản" → mục "Mật khẩu" (mode supabase).** `pwFormOpen: boolean`, `pwSaving: boolean`, `pwError: string | null`.
+- Đóng (mặc định): `<h3>Mật khẩu</h3>`, dòng `settings-mute` trạng thái theo `hasPassword`, nút secondary "Đặt mật khẩu"/"Đổi mật khẩu" (`aria-expanded={pwFormOpen}`, `aria-controls="st-password-form"`).
+- Mở: `<form id="st-password-form">` với hai `PasswordField` (mô tả dưới ô "Mật khẩu mới": "Ít nhất 8 ký tự. Nên dùng một cụm từ bạn dễ nhớ nhưng người khác khó đoán."), khối lỗi `role="alert"` (nếu `pwError`), hàng nút: primary "Lưu mật khẩu" (`type="submit"`), ghost "Huỷ". Hàng nút **không** tách bằng đường kẻ (không phải hành động nguy hiểm).
+- `saving`: hai ô + "Huỷ" disabled; nút submit disabled + Spinner "Đang lưu…"; vùng `role="status"` nhận "Đang lưu…".
+- Thành công: toast (6); form đóng; dòng trạng thái và nhãn nút đổi theo `hasPassword` mới (có thể trễ một tick cho tới khi `USER_UPDATED` tới — chấp nhận, không tự set cục bộ).
+- Lỗi: khối lỗi trong form, focus vào khối lỗi; `no_session` → thêm toast `NO_SESSION_MESSAGE` và `navigate('/login', { replace: true })`.
+- Mode local: không render gì (kể cả `<h3>`).
+
+**C. `PasswordField` (component).** Props: `id` (bắt buộc), `label`, `name`, `autoComplete: 'current-password' | 'new-password'`, `value`, `onChange`, `error?`, `description?`, `disabled?`, `ref` (input). Render `.field` → `label.field-label[for=id]` → `.pw-wrap` (position relative) chứa `input.field-control` (padding-right 56px) + `button.pw-toggle` (`type="button"`, 44×44, absolute phải, icon `Eye` khi đang ẩn / `EyeOff` khi đang hiện, `aria-pressed={shown}`, `aria-label` "Hiện mật khẩu" / "Ẩn mật khẩu", `aria-controls={id}`, disabled theo `disabled`) → `p.field-desc` → `p.field-error[role=alert]`. `aria-describedby`/`aria-invalid` giống `Field`. Trạng thái `shown` nội bộ, mặc định ẩn, reset về ẩn khi `value` về rỗng do cha xoá (dùng `key` hoặc effect). Bấm nút không làm mất giá trị và không submit.
+
+**D. `Segmented` (component dùng chung).** Chuyển nguyên `Segmented` + CSS `.seg*` từ `Shadowing.tsx`/`Shadowing.css` sang `components/Segmented.tsx`/`Segmented.css` **không đổi hành vi** (vẫn `role="radiogroup"`, phím mũi tên/Home/End). Thêm hai prop tuỳ chọn: `disabled?: boolean` (đặt `aria-disabled` + `disabled` lên các nút) và `fill?: boolean` (class `seg--fill`: `display:flex; width:100%`, mỗi nút `flex:1`). Shadowing import component mới, không có khác biệt hiển thị.
+
+**(5) Quy tắc nghiệp vụ.**
+1. Mật khẩu **chỉ đặt được khi đã có session** (đã xác thực email bằng liên kết). Không có `signUp({ password })`, không có màn đăng ký.
+2. App **không lưu mật khẩu** ở bất kỳ đâu (state React chỉ sống trong lúc form mở; xoá sau submit/huỷ/đổi chế độ), không log, không đưa vào URL/`history.state`, không toast chứa mật khẩu. `RepoError` từ auth không có `cause` (để không kéo body request vào).
+3. Lỗi đăng nhập sai không phân biệt "email không tồn tại" / "sai mật khẩu" / "chưa đặt mật khẩu": một câu chung `PASSWORD_INVALID_MESSAGE` kèm gợi ý dùng liên kết.
+4. Validation client: ≥ 8 và ≤ 72 ký tự, trùng khớp hai ô; không yêu cầu loại ký tự; server có thể chặt hơn → câu `weak_password`.
+5. `hasPassword` lấy từ `user_metadata.has_password` (B); không suy từ nguồn khác; không hiện "đang kiểm tra".
+6. Chế độ mặc định của `/login` theo thiết bị (D); không đồng bộ qua Supabase; không lưu email.
+7. Sau đăng nhập mật khẩu: điều hướng y như liên kết (`consumeLoginNext() ?? safeNext(next)`), `saveLoginNext(null)` ngay trước khi gọi API.
+8. Không thay đổi hàng đợi pending, Repository dữ liệu, schema SQL, RLS. Không thêm cột.
+9. Đổi mật khẩu **không** đăng xuất thiết bị khác (giữ mặc định Supabase). Có thể thêm `signOut({ scope: 'others' })` ở giai đoạn sau (12.2).
+10. Dialog "Đăng xuất?" đổi mô tả theo `hasPassword` (6).
+11. Thiết kế: tuân "Vở ô ly mực tím" — không eyebrow/uppercase, 1px rule, radius 10/8/6, không shadow, đỏ chỉ cho lỗi, chữ ≥ 14px, tap ≥ 44px. `Segmented` trên Login dùng `seg--fill`; nút hiện/ẩn là nút ghost icon 44px trong ô, không viền riêng.
+
+**(6) Microcopy (nguyên văn).**
+- Segmented: nhãn ẩn "Cách đăng nhập" · lựa chọn "Liên kết email" · "Mật khẩu".
+- Login chế độ mật khẩu: nhãn "Email" · nhãn "Mật khẩu" · nút "Đăng nhập" · đang gửi "Đang đăng nhập…" · nút chữ "Quên mật khẩu? Dùng liên kết email" · ghi chú "Mật khẩu không được lưu trong app. Trình duyệt có thể đề nghị lưu giúp bạn."
+- Login chế độ liên kết — ghi chú mới: "Mỗi tài khoản chỉ thấy dữ liệu của mình. Sau khi vào, bạn có thể đặt mật khẩu trong Cài đặt để lần sau đăng nhập nhanh hơn." (thay "Không cần mật khẩu. …").
+- Lỗi tại trường: "Nhập mật khẩu." · "Mật khẩu cần ít nhất 8 ký tự." · "Mật khẩu tối đa 72 ký tự." · "Hai mật khẩu chưa giống nhau." · email: "Email chưa đúng. Kiểm tra lại giúp mình nhé." (giữ).
+- Lỗi API: xem bảng (3)-C (`PASSWORD_INVALID_MESSAGE`, `TOO_MANY_ATTEMPTS_MESSAGE`, `PASSWORD_SIGN_IN_ERROR_MESSAGE`, `PASSWORD_WEAK_MESSAGE`, `PASSWORD_SAME_MESSAGE`, `PASSWORD_REAUTH_MESSAGE`, `PASSWORD_SAVE_ERROR_MESSAGE`, `NO_SESSION_MESSAGE`).
+- Nút hiện/ẩn: aria-label "Hiện mật khẩu" (`aria-pressed=false`) · "Ẩn mật khẩu" (`aria-pressed=true`).
+- Settings: `<h3>` "Mật khẩu" · trạng thái "Chưa đặt mật khẩu. Bạn đang vào bằng liên kết email." / "Đã đặt mật khẩu. Bạn có thể vào bằng email và mật khẩu trên mọi thiết bị." · nút "Đặt mật khẩu" / "Đổi mật khẩu" · nhãn "Mật khẩu mới" · mô tả "Ít nhất 8 ký tự. Nên dùng một cụm từ bạn dễ nhớ nhưng người khác khó đoán." · nhãn "Nhập lại mật khẩu mới" · nút "Lưu mật khẩu" · "Huỷ" · đang lưu "Đang lưu…" · toast "Đã đặt mật khẩu. Lần sau bạn có thể đăng nhập bằng email và mật khẩu." / "Đã đổi mật khẩu."
+- Dialog đăng xuất: `hasPassword=false` giữ "Bạn sẽ cần liên kết email mới để vào lại."; `true`: "Bạn có thể vào lại bằng email và mật khẩu, hoặc bằng liên kết email." (phần đuôi về thay đổi chưa đồng bộ giữ nguyên).
+
+**(7) Tiêu chí chấp nhận.**
+
+Vitest (thuần, không DOM trừ `localStorage` giả):
+- [ ] `domain/password.test.ts`: `validateNewPassword` — 7 ký tự → `too_short`; 8 → null; 73 → `too_long`; khớp/không khớp → `mismatch` chỉ ở `confirm`; khoảng trắng đầu/cuối **không** bị trim (`' abcdefg'` 8 ký tự hợp lệ; `'abcdefgh'` vs `'abcdefgh '` → mismatch). `validatePasswordLogin` — email sai → `{ email: 'invalid' }`; mật khẩu rỗng → `{ password: 'required' }`; cả hai lỗi trả cả hai khoá; hợp lệ → null.
+- [ ] `lib/loginMode.test.ts`: storage rỗng → `'link'`; giá trị lạ `'x'` → `'link'`; `write('password')` → `read()` = `'password'`; `storage.setItem` ném → `write` không ném; `storage = null` → `read` = `'link'`.
+- [ ] `repo/supabase.test.ts` (mở rộng `makeClient.auth` với `signInWithPassword`, `updateUser`):
+  - `SupabaseAuth.signInWithPassword('lan@vidu.com', 'p')` gọi `auth.signInWithPassword({ email: 'lan@vidu.com', password: 'p' })` đúng một lần; `{ status: 400, code: 'invalid_credentials' }` → `RepoError.message === PASSWORD_INVALID_MESSAGE`, `code === 'invalid_credentials'`; `{ status: 400, message: 'Invalid login credentials' }` (server cũ không `code`) → cùng kết quả; `{ status: 429, code: 'over_request_rate_limit' }` → `TOO_MANY_ATTEMPTS_MESSAGE`; `{ name: 'AuthRetryableFetchError', status: 0 }` → `code 'network'`; client ném (reject) → vẫn ra `RepoError` (không rò lỗi gốc). Với mọi ca: `err.cause === undefined`, `err.message` không chứa `'p'` dạng mật khẩu thử (`'S3cret!'`), không chứa email.
+  - `SupabaseAuth.setPassword('S3cret!xyz')` gọi `auth.updateUser({ password: 'S3cret!xyz', data: { has_password: true } })`; `{ code: 'weak_password', name: 'AuthWeakPasswordError' }` → `PASSWORD_WEAK_MESSAGE`; `same_password` → `PASSWORD_SAME_MESSAGE`; `reauthentication_needed` → `PASSWORD_REAUTH_MESSAGE`; `{ name: 'AuthSessionMissingError' }` → `NO_SESSION_MESSAGE` + `code 'no_session'`; `429` → rate limit; `{ status: 0 }` → `PASSWORD_SAVE_ERROR_MESSAGE` + `network`.
+  - `getSession()` với `user_metadata: { has_password: true }` → `hasPassword: true`; thiếu metadata → `false`; `has_password: 'yes'` (sai kiểu) → `false`.
+  - Test cũ `signInWithEmail`/`toSignInError` không đổi.
+- [ ] `repo/local.test.ts`: `LocalAuth.getSession()` → `{ id: 'local', email: null, hasPassword: false }`; `signInWithPassword`/`setPassword` resolve không ném.
+- [ ] `npm test`, `npm run build`, `npm run lint` pass.
+
+Thủ công (mục 10 — "Mật khẩu (T21)"):
+- [ ] Login: lần đầu trên thiết bị tab "Liên kết email" được chọn; chuyển sang "Mật khẩu" bằng chuột và bằng phím mũi tên; email gõ ở tab này còn ở tab kia.
+- [ ] Login mật khẩu: email sai định dạng → lỗi tại ô, không có request; mật khẩu rỗng → "Nhập mật khẩu."; sai mật khẩu → câu `PASSWORD_INVALID_MESSAGE`, ô mật khẩu rỗng, focus về ô; đúng → vào `?next` hoặc `/`; sau đó reload `/login` → tab "Mật khẩu" được chọn sẵn.
+- [ ] Người dùng chưa đặt mật khẩu đăng nhập bằng tab Mật khẩu → đúng câu chung (không lộ gì thêm); bấm "Quên mật khẩu? Dùng liên kết email" → sang tab liên kết, email còn, focus ô Email.
+- [ ] Settings: "Đặt mật khẩu" → form; 7 ký tự → lỗi; không khớp → lỗi; hợp lệ → toast, nhãn thành "Đổi mật khẩu", dòng trạng thái đổi mà không reload; Network tab: một `PUT /auth/v1/user`, không có request dữ liệu nào (snapshot không tải lại).
+- [ ] Đổi mật khẩu bằng chính mật khẩu đang dùng → câu `same_password`.
+- [ ] Đăng xuất (dialog có câu mới) → đăng nhập mật khẩu trên **Chrome desktop** và **iOS Safari**: trình duyệt đề nghị lưu mật khẩu sau khi vào; lần sau tự điền; nút hiện/ẩn đổi icon và `aria-pressed`, VoiceOver đọc "Hiện mật khẩu, nút, bật/tắt".
+- [ ] Mode local (không `.env`): `/login` và `/settings` không có bất kỳ chữ "mật khẩu" nào.
+- [ ] Nếu project bật "Secure password change" và session > 24 giờ: đổi mật khẩu → câu `PASSWORD_REAUTH_MESSAGE`; làm theo → đặt được.
+- [ ] Shadowing: Segmented nguồn câu và tốc độ hiển thị/hành vi không đổi sau khi tách component.
+- [ ] 390px: Segmented hai nửa không tràn; ô mật khẩu + nút mắt trong một hàng; nút ≥ 44px; không shadow; đỏ chỉ ở lỗi.
+
+**(8) Task:** T21 (mục 9).
+
+**(9) A11y (tổng hợp).** `Segmented` giữ `role="radiogroup"` + `aria-label="Cách đăng nhập"`, điều hướng phím mũi tên, `disabled` khi đang gửi. Mọi ô có `<label for>`; lỗi tại trường có `id` và được nối qua `aria-describedby` + `aria-invalid`, `role="alert"`; khi submit lỗi, focus **ô lỗi đầu tiên**. Lỗi API là khối `role="alert"` `tabIndex={-1}` được focus. Nút hiện/ẩn: `aria-pressed`, `aria-label` đổi theo trạng thái, `aria-controls` tới ô. Trạng thái gửi/lưu được đọc bởi vùng `role="status"` (`aria-live="polite"`) visually-hidden. Nút "Đặt/Đổi mật khẩu" có `aria-expanded`/`aria-controls`; đóng form trả focus về nút. Esc trong form Settings đóng form. Mọi nút ≥ 44px; contrast chữ mute ≥ 4.5:1; focus ring thấy rõ trên `.seg-btn` (outline-offset âm, như Shadowing).
+
+---
+
 ## 7. Dữ liệu seed
 
 File: `src/data/patterns.ts` (đã viết đầy đủ phần tiếng Anh). **Tiếng Anh**: 9 tình huống, 87 mẫu câu A1–A2, mỗi câu có `en` (câu đích), `vi`, `ipa`, `level`, tuỳ chọn `slots` (ô trống với `hint` tiếng Việt và 2–3 ví dụ đích/VI) và `note` (lưu ý phát âm người Việt: âm cuối, -s/-ed, trọng âm, nối âm). Mỗi tình huống có `language`, `intro`, `pronunciationFocus`, tuỳ chọn `nameTarget`.
@@ -1767,6 +1959,7 @@ Quy tắc dùng seed: không chỉnh sửa nội dung qua UI; khi thêm vào th�
 - Không gửi `user_id` từ client (DB default `auth.uid()`); nếu gửi cũng bị `with check` chặn.
 - Không log token/email ra console. `.env` trong `.gitignore`. Không service_role key ở bất kỳ đâu trong repo.
 - Supabase client `persistSession: true`, `autoRefreshToken: true`, `detectSessionInUrl: true`, `flowType: 'pkce'`.
+- (T21) Mật khẩu chỉ tồn tại trong state form đang mở và trong body request tới Supabase Auth; không vào `localStorage`, URL, `history.state`, toast, `console`, `RepoError.message`/`cause`. Lỗi sai thông tin đăng nhập dùng một câu chung (không tiết lộ email có tồn tại). Mật khẩu chỉ đặt được khi đã có session từ liên kết email.
 - (GĐ2) Gemini key chỉ `localStorage`, không bao giờ vào Supabase.
 
 ### 8.5 Riêng tư
@@ -1776,7 +1969,7 @@ Quy tắc dùng seed: không chỉnh sửa nội dung qua UI; khi thêm vào th�
 
 ### 8.6 Chất lượng mã
 - `npm run build` và `npm run lint` pass ở mỗi task. Không `any` trừ ranh giới JSON (`Record<string, unknown>`). Không `enum`. `import type` cho type-only. Không `console.log` còn lại.
-- Test đơn vị với `vitest` cho `lib/dates.ts`, `lib/text.ts`, `domain/review.ts`, `domain/stats.ts`, `data/patterns.ts` (fillPattern/splitPattern, mọi `{key}` có slot), **(T20)** `domain/language.ts`, `lib/tts/webSpeech.ts` (`pickVoiceFor`), và các ca ngôn ngữ thêm vào test hiện có (6.14 (7)).
+- Test đơn vị với `vitest` cho `lib/dates.ts`, `lib/text.ts`, `domain/review.ts`, `domain/stats.ts`, `data/patterns.ts` (fillPattern/splitPattern, mọi `{key}` có slot), **(T20)** `domain/language.ts`, `lib/tts/webSpeech.ts` (`pickVoiceFor`), và các ca ngôn ngữ thêm vào test hiện có (6.14 (7)); **(T21)** `domain/password.ts`, `lib/loginMode.ts`, và map lỗi auth + `SupabaseAuth.signInWithPassword/setPassword` trong `repo/supabase.test.ts` (6.15 (7)).
 
 ---
 
@@ -1987,6 +2180,23 @@ Làm, theo thứ tự:
 4. `src/routes/shadowingSource.ts`: `DEFAULT_SITUATION` → `firstSituationId(lang)`/`'greetings'`; test.
 Đầu ra: 4–5 file. Xong khi: tiêu chí 6.14 (7) "T20d" pass; reviewer đã đối chiếu 60 câu; `npm test`/`build`/`lint` pass.
 
+**T21 — Đăng nhập bằng mật khẩu sau khi đã xác thực bằng liên kết email** (đặc tả 6.15; một task)
+Phụ thuộc: T07, T16, T20c. Model: **Opus** (lớp auth/repository, chạm `AuthService` cả hai implementation + `AuthProvider`, ≥ 12 file).
+Làm, theo thứ tự (mỗi bước build+lint pass trước khi sang bước sau):
+1. `src/repo/errors.ts`: thêm hằng `PASSWORD_INVALID_MESSAGE`, `TOO_MANY_ATTEMPTS_MESSAGE`, `PASSWORD_SIGN_IN_ERROR_MESSAGE`, `PASSWORD_WEAK_MESSAGE`, `PASSWORD_SAME_MESSAGE`, `PASSWORD_REAUTH_MESSAGE`, `PASSWORD_SAVE_ERROR_MESSAGE` đúng nguyên văn 6.15 (3)-C. Không import supabase-js.
+2. `src/repo/types.ts`: `AuthUser.hasPassword: boolean`; `AuthService.signInWithPassword(email, password)`, `AuthService.setPassword(password)` (JSDoc nêu các `code` có thể ném).
+3. `src/repo/local.ts`: `LOCAL_USER.hasPassword = false`; `LocalAuth.signInWithPassword`/`setPassword` no-op. `src/repo/local.test.ts`: thêm ca (6.15 (7)).
+4. `src/repo/supabase.ts`: `toAuthUser` đọc `user_metadata.has_password === true`; export `toPasswordSignInError`, `toSetPasswordError` (bảng 6.15 (3)-C, dùng `isRateLimitError`/`isNetworkError` sẵn có); `SupabaseAuth.signInWithPassword` (try/catch như `signInWithEmail`, bỏ qua `data.weakPassword`), `SupabaseAuth.setPassword` (`updateUser({ password, data: { has_password: true } })`). `src/repo/supabase.test.ts`: mở rộng `makeClient.auth` (`signInWithPassword`, `updateUser`) + các ca 6.15 (7); khẳng định `err.cause === undefined` và message không chứa mật khẩu/email.
+5. `src/lib/loginMode.ts` + `src/lib/loginMode.test.ts` (6.15 (3)-D).
+6. `src/domain/password.ts` + `src/domain/password.test.ts` (6.15 (3)-A). Thuần, không React.
+7. `src/state/authContext.ts`, `src/state/AuthProvider.tsx`: thêm `signInWithPassword`, `setPassword` vào context (`useCallback`), `LOCAL_USER.hasPassword = false`, `sameUser` so thêm `hasPassword`. Kiểm tra `DataProvider` vẫn chỉ phụ thuộc `user?.id` (không sửa).
+8. `src/components/Segmented.tsx` + `Segmented.css`: chuyển nguyên `Segmented` và CSS `.seg*` từ `Shadowing.tsx`/`Shadowing.css` (xoá bản cũ, Shadowing import component mới); thêm prop `disabled?`, `fill?` (`seg--fill`). Không đổi hành vi Shadowing.
+9. `src/components/PasswordField.tsx` (+ CSS, có thể thêm vào `Field.css` phần `.pw-wrap`/`.pw-toggle`): theo 6.15 (4)-C; icon `Eye`/`EyeOff` lucide; `aria-pressed`, `aria-label`, `aria-controls`; dùng lại class `.field*`.
+10. `src/routes/Login.tsx` (+ `Login.css`): state `loginMode` (khởi tạo `readLoginMode()`), `Segmented` dưới header (ẩn khi mode local / `verifying` / `loading` / có `user`); chế độ "Mật khẩu" theo 6.15 (2)-B, (4)-A; `writeLoginMode('link')` khi gửi liên kết thành công, `writeLoginMode('password')` khi đăng nhập mật khẩu thành công; `saveLoginNext(null)` trước khi gọi `signInWithPassword`; đổi câu ghi chú chế độ liên kết; `autoComplete` ô email đổi theo chế độ (`email`/`username`); vùng `role="status"` visually-hidden. Không đổi xử lý hash/PKCE/đếm ngược hiện có.
+11. `src/routes/Settings.tsx` (+ `Settings.css`): mục "Mật khẩu" trong khối "Tài khoản" theo 6.11 (10) và 6.15 (2)-A, (4)-B; `signOutDesc` theo `user.hasPassword`; `writeLoginMode('password')` sau khi đặt thành công; `no_session` → toast + `navigate('/login')`.
+12. `README.md` mục "Bật đồng bộ với Supabase": bổ sung bước 3 theo 11.2.3 (Minimum password length 8, Password requirements "No required characters", không bật Secure password change, không cần bật provider nào thêm) và một đoạn ngắn "Đăng nhập bằng mật khẩu" (lần đầu bằng liên kết → đặt trong Cài đặt → quên thì dùng liên kết). Không sửa `PRODUCT.md`, `.impeccable/`, `supabase/schema.sql`.
+Đầu ra: các file trên + 3 file test mới/mở rộng. Xong khi: tiêu chí 6.15 (7) "Vitest" pass toàn bộ; `npm test`/`build`/`lint` pass; checklist mục 10 "Mật khẩu (T21)" tick trên Chrome desktop và iOS Safari; `grep -rn "password" src --include=*.ts --include=*.tsx | grep -i "console\."` → 0 kết quả; ảnh chụp `/login` mode local và `/shadowing` không khác trước T21.
+
 ---
 
 ## 10. Checklist test thủ công (chạy ở T17 và trước mỗi lần deploy)
@@ -2042,6 +2252,20 @@ Thiết kế / a11y
 - [ ] Cài PWA lại (Android/iOS) → tên "Vở Ngoại Ngữ" dưới icon; tab trình duyệt "Hôm nay · Vở Ngoại Ngữ".
 - [ ] Không có request nào tới fonts.googleapis.com ngoài Be Vietnam Pro + Charm (Network, lọc "font").
 
+Mật khẩu (T21) — chạy mode supabase trên **Chrome desktop** và **iOS Safari** (ghi thiết bị + phiên bản); mode local chỉ kiểm tra dòng cuối
+- [ ] Vào bằng liên kết email như cũ → Cài đặt → Tài khoản có `<h3>` "Mật khẩu", dòng "Chưa đặt mật khẩu…", nút "Đặt mật khẩu".
+- [ ] Đặt mật khẩu: 7 ký tự → "Mật khẩu cần ít nhất 8 ký tự."; hai ô khác nhau → "Hai mật khẩu chưa giống nhau."; hợp lệ → toast "Đã đặt mật khẩu…", nút thành "Đổi mật khẩu", dòng trạng thái đổi **không reload**; Network: một `PUT …/auth/v1/user`, không có request `lessons`/`items`/`cards`.
+- [ ] Đổi mật khẩu bằng chính mật khẩu đang dùng → "Mật khẩu mới trùng mật khẩu hiện tại…".
+- [ ] Đăng xuất: dialog có câu "Bạn có thể vào lại bằng email và mật khẩu, hoặc bằng liên kết email." → về `/login` với tab **"Mật khẩu"** chọn sẵn (đã ghi `vta:v1:login-mode = password`).
+- [ ] Đăng nhập mật khẩu đúng → vào `/` (hoặc `?next`); trình duyệt **đề nghị lưu mật khẩu** (Chrome: bong bóng chìa khoá; iOS Safari: "Lưu mật khẩu?"); lần sau mở `/login` được tự điền email + mật khẩu.
+- [ ] Sai mật khẩu → câu chung "Email hoặc mật khẩu chưa đúng. Nếu chưa đặt mật khẩu…", ô mật khẩu trống, focus về ô; email giữ.
+- [ ] Tài khoản **chưa đặt** mật khẩu thử tab Mật khẩu → cùng câu chung; bấm "Quên mật khẩu? Dùng liên kết email" → tab liên kết, email còn, focus ô Email; gửi liên kết → vào → đặt mật khẩu được.
+- [ ] Nút hiện/ẩn: đổi icon, `aria-pressed` đổi, không mất chữ đã gõ, không submit; VoiceOver/NVDA đọc "Hiện mật khẩu, nút, bật/tắt".
+- [ ] Tab/Shift+Tab đi qua Segmented → Email → Mật khẩu → nút mắt → Đăng nhập → Quên mật khẩu; mũi tên trái/phải đổi tab khi focus trong Segmented; Enter trong ô gửi form.
+- [ ] 390px: Segmented hai nửa đều, không tràn; ô mật khẩu và nút mắt cùng hàng; mọi nút ≥ 44px; không shadow; đỏ chỉ ở lỗi.
+- [ ] Shadowing: chọn nguồn câu và tốc độ vẫn hoạt động y cũ sau khi tách `Segmented`.
+- [ ] Mode local (không `.env`): `/login` và `/settings` không có Segmented, không có chữ "mật khẩu".
+
 ---
 
 ## 11. Cài đặt và deploy miễn phí
@@ -2056,6 +2280,7 @@ npm run dev          # http://localhost:5173 — chế độ cục bộ (localSt
 1. Tạo project tại supabase.com (region Singapore gần Việt Nam nhất).
 2. SQL Editor → dán toàn bộ `supabase/schema.sql` → Run. Kiểm tra: `select tablename, rowsecurity from pg_tables where schemaname='public'` → tất cả `true`.
 3. Authentication → Providers → Email: bật; tắt "Confirm email" không cần (OTP magic link tự xác nhận). Authentication → URL Configuration: Site URL = URL production (vd `https://vo-tieng-anh.vercel.app`); Additional Redirect URLs: `http://localhost:5173/login`, `https://vo-tieng-anh.vercel.app/login`.
+   **(T21) Mật khẩu** dùng chung Email provider — **không cần bật gì thêm**. Trong cùng trang Email provider: "Minimum password length" đặt **8** cho khớp với app (mặc định 6; app chặn < 8 trước khi gọi); "Password requirements" để **"No required characters"** (nếu chọn mức chặt hơn, server trả `weak_password` và app hiện câu chung); **không bật** "Secure password change" (nếu bật, người dùng đổi mật khẩu khi session đã quá 24 giờ sẽ nhận `reauthentication_needed`; app hướng dẫn đăng nhập lại bằng liên kết rồi đặt — xem 6.15). "Prevent use of leaked passwords" là tính năng gói trả phí; nếu có cũng rơi vào `weak_password`.
 4. Lưu ý giới hạn email: dịch vụ email mặc định của Supabase giới hạn rất thấp (khoảng 2 email/giờ/project) và chỉ dành cho thử nghiệm. Với vài người dùng, cấu hình **Custom SMTP** miễn phí (Authentication → SMTP Settings) bằng Resend (3.000 email/tháng free) hoặc Brevo (300 email/ngày free). Ghi vào câu hỏi mở.
 5. Project Settings → API: sao chép `Project URL` và `anon public` → tạo `.env` từ `.env.example`.
 6. `npm run dev` → `/login` hiện form email.
@@ -2114,6 +2339,16 @@ Sửa `supabase/schema.sql` theo kiểu idempotent (`add column if not exists`) 
 33. (T20) Dán danh sách với zh/ja/ko: phần 3 **luôn** là phiên âm (không dò `/…/`), vì pinyin/romaji/RR không có dấu phân biệt với tiếng Việt không dấu; quy tắc cố định dễ giải thích hơn đoán.
 34. (T20) Font CJK chỉ từ hệ thống (`--font-zh/ja/ko`); không tải Noto từ Google Fonts (dung lượng lớn, trái yêu cầu). Thiết bị không có font CJK → hiển thị ô vuông, không xử lý thêm.
 35. (T20) Client gặp `PGRST204` (server chưa có cột mới) → gửi lại không cột mới + toast hướng dẫn, thay vì dead-letter; chấp nhận buổi tạm là `en` trên server cho tới khi chạy migration.
+36. (T21) "Đã có mật khẩu hay chưa" đọc từ `user.user_metadata.has_password === true`, do app ghi **trong cùng request** `updateUser({ password, data: { has_password: true } })` (nguyên tử: có mật khẩu thì có cờ). Supabase không lộ cờ này (`User` không có `encrypted_password`; `identities[].provider === 'email'` cho cả hai kiểu; `app_metadata` không ghi được từ client); cột riêng trong `settings` cần migration và có thể lệch với auth. Cờ sai chỉ làm sai nhãn "Đặt"/"Đổi" — cùng một API nên không ảnh hưởng chức năng.
+37. (T21) Khoá `vta:v1:login-mode` ghi `'link'` khi **gửi liên kết thành công**, `'password'` khi đăng nhập mật khẩu thành công **và** khi đặt/đổi mật khẩu thành công. Không ghi ở lúc quay về từ email vì `loginLoader` redirect trước khi `Login` render (PKCE `?code=` được đổi trong `initializePromise`). Hệ quả: người có mật khẩu nhưng gửi liên kết (quên mật khẩu) sẽ thấy tab liên kết lần sau — một chạm để đổi.
+38. (T21) Quy tắc mật khẩu phía client: 8–72 ký tự (`.length`), không trim, không yêu cầu loại ký tự — khớp mặc định Supabase "No required characters" và giới hạn bcrypt 72 byte; server chặt hơn thì câu `weak_password` lo.
+39. (T21) Không làm luồng `resetPasswordForEmail`/`PASSWORD_RECOVERY`: liên kết đăng nhập sẵn có đã là "quên mật khẩu" (vào → Cài đặt → đặt lại); tiết kiệm một template email, một màn, một nhánh `onAuthStateChange`.
+40. (T21) `Segmented` tách thành component dùng chung nhưng **giữ** `role="radiogroup"` (không đổi sang `tablist`/`tabpanel`) để không viết lại logic phím và không đổi Shadowing; nhãn "Cách đăng nhập" làm rõ ngữ nghĩa "chọn một".
+41. (T21) `PasswordField` là component mới vì `Field` không có chỗ cho nút trong ô; dùng lại toàn bộ class `.field*` để đồng nhất kiểu.
+42. (T21) `signInWithPassword` trả `data.weakPassword` khi chính sách server chặt hơn mật khẩu cũ — T21 bỏ qua (không nhắc đổi), tránh thêm trạng thái.
+43. (T21) Đổi mật khẩu không đăng xuất thiết bị khác (`signOut({ scope: 'others' })` để sau nếu cần); không captcha.
+44. (T21) Lỗi `email_not_confirmed`/`user_not_found` khi đăng nhập mật khẩu gộp vào câu chung `invalid_credentials` để không tiết lộ email có tồn tại/đã xác thực hay chưa.
+45. (T21) Khi gửi form đăng nhập mật khẩu thất bại, ô mật khẩu được xoá (không giữ mật khẩu sai trên màn); email giữ.
 
 ### 12.2 Câu hỏi mở cần người dùng quyết
 
@@ -2181,6 +2416,32 @@ Sửa `supabase/schema.sql` theo kiểu idempotent (`add column if not exists`) 
 - Q24: `normalizeAnswer` nhận `language` để bỏ dấu câu CJK và khoảng trắng (zh/ja); mặc định `en` không đổi.
 - Q25: "Nghe cả trang" (T19) giữ điều kiện `viAvailable`, thêm `canSpeakLang(L)`; không mở rộng thành "đọc chỉ ngôn ngữ đích" ở T20.
 - Q26: `PRODUCT.md` chỉ thêm **một dòng tên** (quyết định 3); `CLAUDE.md` không thuộc phạm vi coder (xem câu hỏi mở 16).
+
+**Đã quyết (2026-11-10, người dùng, T21 — đăng nhập bằng mật khẩu, xem 6.15):**
+1. Lần đầu vẫn bằng liên kết email (magic link, PKCE) như hiện tại — đây là bước xác thực email. **Không có đăng ký bằng mật khẩu trực tiếp.**
+2. Sau khi đã đăng nhập: **Cài đặt → Tài khoản** có mục "Mật khẩu": nút "Đặt mật khẩu" (chưa có) / "Đổi mật khẩu" (đã có), form 2 ô (mật khẩu mới, nhập lại), hiện/ẩn mật khẩu, tối thiểu 8 ký tự, gọi `updateUser({ password })`. Biết đã có mật khẩu hay chưa: cách ít rủi ro nhất do spec-writer chọn → `user_metadata.has_password` ghi cùng request (12.1.36).
+3. Màn **Đăng nhập** có 2 chế độ chuyển bằng Segmented: "Liên kết email" và "Mật khẩu". Mặc định = chế độ dùng thành công lần trước trên thiết bị (`localStorage` `vta:v1:login-mode`), lần đầu = Liên kết email. Email giữ giữa hai chế độ. Chế độ Mật khẩu: email + mật khẩu + "Đăng nhập"; dòng "Quên mật khẩu? Dùng liên kết email" chuyển tab (không có luồng reset riêng ở T21).
+4. Sau đăng nhập mật khẩu thành công: điều hướng như magic link (`consumeLoginNext`/`safeNext`); không lộ mật khẩu ở log/URL/storage; không lưu mật khẩu; để trình duyệt gợi ý lưu bằng `autocomplete="current-password"`/`"new-password"` và `name`/`id` hợp lệ.
+5. Chế độ cục bộ (không có Supabase): ẩn toàn bộ phần mật khẩu.
+6. Lỗi: `invalid_credentials` → một câu chung không tiết lộ email có tồn tại, kèm gợi ý "Nếu chưa đặt mật khẩu, hãy đăng nhập bằng liên kết email rồi đặt trong Cài đặt."; mạng/timeout; rate limit; `weak_password`/`same_password` khi đặt; `reauthentication_needed` → hướng dẫn đăng xuất, đăng nhập lại bằng liên kết rồi đặt ngay.
+7. Cài đặt Supabase (README §Supabase): Email provider đã bật là đủ; "Minimum password length" đặt 8 cho khớp app; không cần bật gì thêm.
+8. Thiết kế: tuân "Vở ô ly mực tím" và craft floor; Segmented dùng lại pattern tốc độ Shadowing (đã kiểm tra: `Segmented` trong `Shadowing.tsx` + `.seg*` trong `Shadowing.css` → tách thành component dùng chung).
+
+**Đã quyết (T21, spec-writer theo uỷ quyền "chọn phương án ít rủi ro", 2026-11-10):**
+- Q27: Cờ `hasPassword` = `user_metadata.has_password`, ghi cùng request với mật khẩu (12.1.36). Phương án thay thế (cột `settings.has_password`) bị loại vì cần migration và có thể lệch với auth.
+- Q28: `'link'` được ghi vào `vta:v1:login-mode` lúc **gửi liên kết thành công**, không phải lúc quay về từ email (12.1.37). Nếu muốn chính xác hơn, thêm `writeLoginMode('link')` vào `loginLoader` khi `searchParams.has('code')` và có session — 2 dòng, không có trong T21.
+- Q29: Đặt/đổi mật khẩu thành công cũng ghi `'password'` — đúng ý "giờ tôi chỉ cần nhập mật khẩu là vào".
+- Q30: Giới hạn trên 72 ký tự + không trim (12.1.38).
+- Q31: `Segmented` giữ `radiogroup`, không đổi thành tablist (12.1.40).
+- Q32: Sai mật khẩu → xoá ô mật khẩu, giữ email (12.1.45).
+- Q33: `weakPassword` trong phản hồi đăng nhập bị bỏ qua (12.1.42).
+- Q34: Ô Email ở chế độ Mật khẩu dùng `autocomplete="username"` (chuẩn trình quản lý mật khẩu), chế độ liên kết giữ `"email"`.
+
+**Chưa quyết (T21 — coder theo spec hiện tại):**
+21. ~~**(T21) Đăng xuất thiết bị khác khi đổi mật khẩu**~~ Đã quyết (2026-11-10, người điều phối theo uỷ quyền): **không** — giữ như spec.
+22. ~~**(T21) "Secure password change"**~~ Đã quyết: để **tắt** (mặc định Supabase); README ghi chú.
+23. ~~**(T21) Ghi `'link'` khi hoàn tất PKCE**~~ Đã quyết: **có** — thêm vào `loginLoader` (2 dòng) để chế độ mặc định chính xác; vẫn ghi khi gửi liên kết thành công.
+24. ~~**(T21) Tắt hẳn liên kết email cho người đã có mật khẩu?**~~ Đã quyết: không (đường quên mật khẩu duy nhất).
 
 **Chưa quyết (coder theo giả định 12.1 / spec hiện tại):**
 9. **(T19) Giọng tiếng Việt của thiết bị làm dự phòng**: spec để một switch phụ tắt mặc định. Nếu bạn thấy chất lượng giọng `vi` của iOS/macOS chấp nhận được thì giữ; nếu muốn gọn, bỏ hẳn switch này (xoá `deviceFallback`, nhánh `web-speech` cho `vi` trong router).
@@ -2260,6 +2521,15 @@ Sửa `supabase/schema.sql` theo kiểu idempotent (`add column if not exists`) 
 | (T20) Mẫu câu | heading nhóm = tên ngôn ngữ · mô tả "Câu ngắn theo tình huống thật, bằng ngôn ngữ bạn đang học. Thêm câu bạn cần vào thẻ ôn, hoặc luyện shadowing ngay." · tình huống "Chào hỏi & giới thiệu" · "Nhà hàng & gọi món" · "Mua sắm & hỏi giá" · "Hỏi đường & đi lại" |
 | (T20) Tiến độ | "Thẻ ôn · {Tên ngôn ngữ}" · "Chuỗi ngày và phút học tính chung mọi ngôn ngữ." |
 | (T20) Đồng bộ | "Supabase chưa có cột ngôn ngữ. Chạy lại supabase/schema.sql để lưu ngôn ngữ buổi học." |
+| (T21) Đăng nhập — chế độ | nhãn ẩn "Cách đăng nhập" · "Liên kết email" · "Mật khẩu" |
+| (T21) Đăng nhập — chế độ mật khẩu | nhãn "Email" · nhãn "Mật khẩu" · nút "Đăng nhập" · "Đang đăng nhập…" · nút chữ "Quên mật khẩu? Dùng liên kết email" · ghi chú "Mật khẩu không được lưu trong app. Trình duyệt có thể đề nghị lưu giúp bạn." |
+| (T21) Đăng nhập — ghi chú chế độ liên kết | "Mỗi tài khoản chỉ thấy dữ liệu của mình. Sau khi vào, bạn có thể đặt mật khẩu trong Cài đặt để lần sau đăng nhập nhanh hơn." (thay "Không cần mật khẩu. …") |
+| (T21) Lỗi tại trường | "Nhập mật khẩu." · "Mật khẩu cần ít nhất 8 ký tự." · "Mật khẩu tối đa 72 ký tự." · "Hai mật khẩu chưa giống nhau." |
+| (T21) Lỗi đăng nhập mật khẩu | `PASSWORD_INVALID_MESSAGE` "Email hoặc mật khẩu chưa đúng. Nếu chưa đặt mật khẩu, hãy đăng nhập bằng liên kết email rồi đặt trong Cài đặt." · `TOO_MANY_ATTEMPTS_MESSAGE` "Bạn thử quá nhiều lần. Đợi khoảng một phút rồi thử lại." · `PASSWORD_SIGN_IN_ERROR_MESSAGE` "Không đăng nhập được. Kiểm tra mạng rồi thử lại." |
+| (T21) Lỗi đặt mật khẩu | `PASSWORD_WEAK_MESSAGE` "Mật khẩu chưa đủ mạnh theo yêu cầu của máy chủ. Hãy dùng mật khẩu dài hơn hoặc thêm chữ số và ký hiệu." · `PASSWORD_SAME_MESSAGE` "Mật khẩu mới trùng mật khẩu hiện tại. Hãy chọn mật khẩu khác." · `PASSWORD_REAUTH_MESSAGE` "Vì lý do bảo mật, hãy đăng xuất, đăng nhập lại bằng liên kết email rồi quay lại đây đặt mật khẩu ngay." · `PASSWORD_SAVE_ERROR_MESSAGE` "Chưa lưu được mật khẩu. Kiểm tra mạng rồi thử lại." · hết phiên: dùng `NO_SESSION_MESSAGE` |
+| (T21) Nút hiện/ẩn mật khẩu | aria-label "Hiện mật khẩu" (`aria-pressed=false`) · "Ẩn mật khẩu" (`aria-pressed=true`) |
+| (T21) Cài đặt — Mật khẩu | `<h3>` "Mật khẩu" · "Chưa đặt mật khẩu. Bạn đang vào bằng liên kết email." · "Đã đặt mật khẩu. Bạn có thể vào bằng email và mật khẩu trên mọi thiết bị." · nút "Đặt mật khẩu" / "Đổi mật khẩu" · nhãn "Mật khẩu mới" · mô tả "Ít nhất 8 ký tự. Nên dùng một cụm từ bạn dễ nhớ nhưng người khác khó đoán." · nhãn "Nhập lại mật khẩu mới" · nút "Lưu mật khẩu" · "Huỷ" · "Đang lưu…" · toast "Đã đặt mật khẩu. Lần sau bạn có thể đăng nhập bằng email và mật khẩu." / "Đã đổi mật khẩu." |
+| (T21) Dialog đăng xuất | chưa có mật khẩu: "Bạn sẽ cần liên kết email mới để vào lại." (giữ) · đã có: "Bạn có thể vào lại bằng email và mật khẩu, hoặc bằng liên kết email." |
 
 Giọng văn: thân thiện, ngắn, không dấu chấm than dồn dập, không emoji, không "bạn ơi". Lỗi luôn nói việc cần làm tiếp theo.
 
@@ -2270,3 +2540,14 @@ Giọng văn: thân thiện, ngắn, không dấu chấm than dồn dập, khôn
 - React 19.3, react-router-dom 6.30 (dùng `createBrowserRouter`, `useBlocker` cần data router), lucide-react 1.70, @supabase/supabase-js 2.119, Vite 8, TypeScript 7, oxlint.
 - Web Speech: `speechSynthesis.getVoices()` rỗng lúc đầu trên Chrome → nghe `voiceschanged`; iOS Safari yêu cầu `speak()` trong user gesture; `SpeechRecognition` (GĐ2) không ổn định trên Safari.
 - Supabase: `user_id default auth.uid()` hoạt động vì client gửi JWT; rpc `add_study_time` chạy `security invoker` nên vẫn qua RLS.
+
+**(T21) `@supabase/auth-js` 2.119.0 — đã xác minh trong `node_modules/@supabase/auth-js/dist/module/` (2026-11-10):**
+- `GoTrueClient.signInWithPassword(credentials: SignInWithPasswordCredentials): Promise<AuthTokenResponsePassword>`; `credentials = { email, password, options?: { captchaToken? } }`. Gọi `POST /token?grant_type=password`. Khi thành công: `_saveSession(data.session)` rồi `_notifyAllSubscribers('SIGNED_IN', session)` **trước khi** promise resolve (`GoTrueClient.js` ~dòng 964–971) → `onAuthStateChange` đã có `user` khi app nhận kết quả. `data` có thể kèm `weakPassword?: { reasons, message }` (mật khẩu cũ không còn đạt chính sách) — không phải lỗi. Lỗi trả trong `error` (không throw) nếu là `AuthError`; lỗi khác (ví dụ fetch ném kiểu lạ) **throw** → vẫn cần try/catch như `signInWithEmail`.
+- `GoTrueClient.updateUser(attributes: UserAttributes, options?: { emailRedirectTo? }): Promise<UserResponse>`; `UserAttributes = { email?, phone?, password?, nonce?, data?: object, current_password? }` — `password` và `data` đi **cùng một** `PUT /user` (`_updateUser`, ~dòng 2857–2898); thành công → `session.user = data.user`, `_saveSession`, `_notifyAllSubscribers('USER_UPDATED', session)`. Không có session → trả `error: AuthSessionMissingError` (name `'AuthSessionMissingError'`). `data` ánh xạ vào `auth.users.raw_user_meta_data` và đọc lại qua `user.user_metadata`.
+- `User.user_metadata: UserMetadata` (object tự do), `User.app_metadata`, `User.identities?[]` (mỗi identity có `provider`) — **không** có trường nào cho biết user đã có mật khẩu; `app_metadata` chỉ ghi được bằng admin API.
+- `ErrorCode` (`lib/error-codes.d.ts`) có đủ: `invalid_credentials`, `email_not_confirmed`, `user_not_found`, `validation_failed`, `weak_password`, `same_password`, `reauthentication_needed`, `reauth_nonce_missing`, `reauthentication_not_valid`, `over_request_rate_limit`, `over_email_send_rate_limit`, `request_timeout`, `session_not_found`, `session_expired`, `bad_jwt`, `bad_code_verifier`. Ghi chú trong file: server có thể trả mã ngoài danh sách → luôn có nhánh "còn lại".
+- `AuthWeakPasswordError extends CustomAuthError` với `name === 'AuthWeakPasswordError'`, `code === 'weak_password'`, `reasons: ('length' | 'characters' | 'pwned')[]` (`lib/fetch.js` tạo khi body có `weak_password.reasons` hoặc `error_code === 'weak_password'`). `isAuthWeakPasswordError(e)` kiểm tra theo `name`.
+- `AuthRetryableFetchError` (name `'AuthRetryableFetchError'`) cho lỗi mạng tạm — `repo/errors.ts: isNetworkError` đã nhận diện theo `name`.
+- `AuthChangeEvent = 'INITIAL_SESSION' | 'PASSWORD_RECOVERY' | 'SIGNED_IN' | 'SIGNED_OUT' | 'TOKEN_REFRESHED' | 'USER_UPDATED' | 'MFA_CHALLENGE_VERIFIED'` — `SupabaseAuth.onChange` hiện gọi `cb(toAuthUser(session?.user))` cho **mọi** event nên `USER_UPDATED` tự tới `AuthProvider`; chỉ cần `sameUser` so thêm `hasPassword`.
+- `reauthenticate()`/`nonce` chỉ cần khi Dashboard bật "Secure password change" và session > 24 giờ (JSDoc `GoTrueClient.d.ts` ~dòng 1316–1320, 1702) — T21 không gọi `reauthenticate()`, chỉ hướng dẫn đăng nhập lại.
+- Client hiện tại (`lib/supabase.ts`): `flowType: 'pkce'`, `detectSessionInUrl: true`, `fetch` có timeout 15 s → lỗi timeout tới dưới dạng `TimeoutError`/`AbortError` (`isNetworkError` nhận). `_updateUser` chỉ tạo PKCE challenge khi `attributes.email != null` — đặt mật khẩu không đụng PKCE.

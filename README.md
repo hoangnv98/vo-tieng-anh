@@ -46,6 +46,11 @@ Lưu ý:
 3. Authentication > Providers > Email: bật (liên kết đăng nhập tự xác nhận email). Authentication > URL Configuration:
    - Site URL = URL production (vd `https://free-language.vercel.app`).
    - Additional Redirect URLs: `http://localhost:5173/login`, `https://free-language.vercel.app/login`.
+   - **Mật khẩu** dùng chung Email provider, **không cần bật gì thêm**. Trong cùng trang Email provider:
+     - "Minimum password length" đặt **8** cho khớp với app (mặc định 6; app đã chặn dưới 8 ký tự trước khi gửi).
+     - "Password requirements" để **"No required characters"**. Nếu chọn mức chặt hơn, máy chủ trả `weak_password` và app hiện câu chung "Mật khẩu chưa đủ mạnh…".
+     - **Không bật** "Secure password change" (để tắt như mặc định). Nếu bật, người đổi mật khẩu khi phiên đã quá 24 giờ sẽ bị yêu cầu xác thực lại; app hướng dẫn đăng xuất, đăng nhập lại bằng liên kết email rồi đặt ngay.
+     - "Prevent use of leaked passwords" là tính năng gói trả phí; nếu có cũng hiện thành lỗi `weak_password`.
 4. **Giới hạn email**: dịch vụ email mặc định của Supabase giới hạn rất thấp (khoảng **2 email/giờ** cho cả project) và chỉ dành cho thử nghiệm. Dùng cho một mình bạn thì tạm ổn; **trước khi mời người khác dùng**, cấu hình Custom SMTP miễn phí (Authentication > SMTP Settings) bằng Resend (3.000 email/tháng) hoặc Brevo (300 email/ngày). Nếu chưa đổi, người dùng có thể không nhận được liên kết đăng nhập khi đã vượt giới hạn.
 5. Project Settings > API: sao chép `Project URL` và khoá `anon public`, tạo `.env` từ `.env.example`:
    ```
@@ -54,6 +59,14 @@ Lưu ý:
    ```
    Khoá `anon` được phép nằm trong bundle client. **Không bao giờ** đặt `service_role` key vào `.env` hay vào repo. `.env` đã có trong `.gitignore`.
 6. `npm run dev`, mở `/login` sẽ thấy form email.
+
+### Đăng nhập bằng mật khẩu
+
+- Lần đầu luôn vào bằng **liên kết email** (bước này xác thực email; không có đăng ký bằng mật khẩu).
+- Sau khi vào: **Cài đặt → Tài khoản → Mật khẩu → "Đặt mật khẩu"**, nhập mật khẩu mới (ít nhất 8 ký tự) hai lần rồi "Lưu mật khẩu". Từ đó màn Đăng nhập trên thiết bị này mở sẵn tab **"Mật khẩu"**; trên thiết bị khác chọn tab "Mật khẩu" và nhập email + mật khẩu. Trình duyệt có thể đề nghị lưu mật khẩu; app không tự lưu mật khẩu ở đâu cả.
+- **Quên mật khẩu**: ở tab "Mật khẩu" bấm "Quên mật khẩu? Dùng liên kết email", gửi liên kết, vào app rồi đặt mật khẩu mới trong Cài đặt.
+- Đổi mật khẩu không đăng xuất các thiết bị khác.
+- Chế độ cục bộ (không có Supabase) không có mật khẩu.
 
 ## Deploy lên Vercel (miễn phí)
 

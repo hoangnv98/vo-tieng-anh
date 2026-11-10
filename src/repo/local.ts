@@ -276,7 +276,7 @@ export class LocalRepository implements Repository {
   }
 }
 
-const LOCAL_USER: AuthUser = { id: LOCAL_USER_ID, email: null }
+const LOCAL_USER: AuthUser = { id: LOCAL_USER_ID, email: null, hasPassword: false }
 
 export class LocalAuth implements AuthService {
   readonly mode = 'local' as const
@@ -286,6 +286,11 @@ export class LocalAuth implements AuthService {
   }
 
   async signInWithEmail(): Promise<void> {}
+
+  /** (T21) Mode local không có mật khẩu — UI không gọi tới. */
+  async signInWithPassword(): Promise<void> {}
+
+  async setPassword(): Promise<void> {}
 
   async signOut(): Promise<void> {}
 

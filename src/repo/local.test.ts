@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Card, Item, Lesson, ReviewLogEntry } from '../domain/types'
 import { LOCAL_KEYS, LocalAuth, corruptKey, LocalRepository, STORAGE_FULL_MESSAGE } from './local'
 import { MemoryStorage } from './memoryStorage.test-util'
+import type { AuthService } from './types'
 
 const NOW = new Date('2026-11-09T10:00:00+07:00')
 const TS = '2026-11-09T03:00:00.000Z'
@@ -181,11 +182,18 @@ describe('LocalAuth', () => {
   it('session local, onChange gọi ngay', async () => {
     const auth = new LocalAuth()
     expect(auth.mode).toBe('local')
-    expect(await auth.getSession()).toEqual({ id: 'local', email: null })
+    expect(await auth.getSession()).toEqual({ id: 'local', email: null, hasPassword: false })
     const seen: unknown[] = []
     const off = auth.onChange((u) => seen.push(u))
-    expect(seen).toEqual([{ id: 'local', email: null }])
+    expect(seen).toEqual([{ id: 'local', email: null, hasPassword: false }])
     off()
+  })
+
+  it('(T21) signInWithPassword / setPassword là no-op, không ném', async () => {
+    const auth: AuthService = new LocalAuth()
+    await expect(auth.signInWithPassword('lan@vidu.com', 'S3cret!xyz')).resolves.toBeUndefined()
+    await expect(auth.setPassword('S3cret!xyz')).resolves.toBeUndefined()
+    expect(await auth.getSession()).toEqual({ id: 'local', email: null, hasPassword: false })
   })
 })
 

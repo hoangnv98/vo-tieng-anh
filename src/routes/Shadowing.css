@@ -26,40 +26,6 @@
   min-width: 240px;
 }
 
-/* Segmented (nguồn câu, tốc độ) */
-.seg {
-  display: inline-flex;
-  border: var(--rule-strong);
-  border-radius: var(--radius-btn);
-  background: var(--white);
-  overflow: hidden;
-}
-.seg-btn {
-  min-height: var(--tap);
-  min-width: var(--tap);
-  padding: 0 16px;
-  border: 0;
-  background: transparent;
-  color: var(--purple);
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.seg-btn + .seg-btn {
-  border-left: var(--rule-strong);
-}
-.seg-btn:hover {
-  background: var(--lilac);
-}
-.seg-btn[aria-checked='true'] {
-  background: var(--purple);
-  color: var(--white);
-}
-.seg-btn:focus-visible {
-  outline-offset: -4px;
-  outline-color: currentColor;
-}
-
 .sh-body {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);

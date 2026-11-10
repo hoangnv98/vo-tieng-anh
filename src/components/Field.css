@@ -43,3 +43,51 @@ textarea.field-control {
   font-weight: 500;
   color: var(--red);
 }
+
+/* (T21) PasswordField: ô + nút hiện/ẩn 44px trong cùng một hàng */
+.pw-wrap {
+  position: relative;
+}
+.field-control.pw-control {
+  padding-right: 56px;
+}
+.pw-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  /* viền trong suốt + clip để nền hover không che viền của ô */
+  border: 1px solid transparent;
+  background: transparent;
+  background-clip: padding-box;
+  border-radius: 0 var(--radius-chip) var(--radius-chip) 0;
+  color: var(--purple);
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease;
+}
+.pw-toggle:hover:not(:disabled) {
+  background-color: var(--lilac);
+}
+.pw-toggle:focus-visible {
+  outline-offset: -3px;
+}
+.pw-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* Edge/IE tự vẽ nút "hiện mật khẩu" riêng → ẩn để không có hai nút */
+.pw-control::-ms-reveal,
+.pw-control::-ms-clear {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pw-toggle {
+    transition: none;
+  }
+}
